@@ -1,7 +1,6 @@
 import type { AppRouteModule } from '/@/router/types';
 
 import { LAYOUT } from '/@/router/constant';
-import { t } from '/@/hooks/web/useI18n';
 
 const course: AppRouteModule = {
   path: '/course',
@@ -19,7 +18,6 @@ const course: AppRouteModule = {
       path: 'index',
       name: 'MemberCard',
       component: () => import('/@/views/course/management/index.vue'),
-
       meta: {
         title: '课程管理',
         hideMenu: true,
