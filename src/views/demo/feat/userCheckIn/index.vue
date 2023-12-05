@@ -66,10 +66,11 @@
         </template>
       </a-table>
     </ASpace>
+    <check :open="modalVisible" />
   </PageWrapper>
 </template>
 <script lang="ts">
-  import { defineComponent } from 'vue';
+  import { defineComponent, ref } from 'vue';
   import {
     Table,
     Form,
@@ -84,6 +85,7 @@
 
   import { openWindow } from '/@/utils';
   import { PageWrapper } from '/@/components/Page';
+  import check from './check.vue';
   import dayjs from 'dayjs';
 
   export default defineComponent({
@@ -98,10 +100,14 @@
       ASelectOption: SelectOption,
       ADatePicker: DatePicker,
       ASpace: Space,
+      check,
     },
     setup() {
+      const modalVisible = ref(false);
+
       return {
         dayjs,
+        modalVisible,
         toIconify: () => {
           openWindow('https://iconify.design/');
         },
@@ -179,7 +185,9 @@
           month: '月卡',
           demand: '次卡',
         },
-        onSubmit() {},
+        onSubmit() {
+          modalVisible.value = true;
+        },
         resetForm() {},
         formState: {
           phone: '',
