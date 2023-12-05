@@ -8,9 +8,9 @@ const course: AppRouteModule = {
   component: LAYOUT,
   redirect: '/settings/logs',
   meta: {
-    orderNo: 19,
-    icon: 'ion:git-compare-outline',
-    title: '活动管理',
+    orderNo: 90,
+    icon: 'mingcute:safe-shield-2-fill',
+    title: '系统设置',
   },
 
   children: [

@@ -2,13 +2,13 @@ import type { AppRouteModule } from '/@/router/types';
 
 import { LAYOUT } from '/@/router/constant';
 
-const course: AppRouteModule = {
+const act: AppRouteModule = {
   path: '/act',
   name: 'act',
   component: LAYOUT,
   redirect: '/act/events',
   meta: {
-    orderNo: 19,
+    orderNo: 30,
     icon: 'ion:git-compare-outline',
     title: '活动管理',
   },
@@ -33,4 +33,4 @@ const course: AppRouteModule = {
   ],
 };
 
-export default course;
+export default act;

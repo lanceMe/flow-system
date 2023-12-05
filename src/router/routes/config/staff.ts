@@ -8,8 +8,8 @@ const course: AppRouteModule = {
   component: LAYOUT,
   redirect: '/staff',
   meta: {
-    orderNo: 19,
-    icon: 'ion:git-compare-outline',
+    orderNo: 80,
+    icon: 'bi:people-circle',
     title: '员工管理',
   },
 

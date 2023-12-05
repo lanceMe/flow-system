@@ -1,7 +1,6 @@
 import type { AppRouteModule } from '/@/router/types';
 
 import { LAYOUT } from '/@/router/constant';
-import { t } from '/@/hooks/web/useI18n';
 
 const dashboard: AppRouteModule = {
   path: '/dashboard',
@@ -10,8 +9,9 @@ const dashboard: AppRouteModule = {
   redirect: '/dashboard/analysis',
   meta: {
     orderNo: 10,
-    icon: 'ion:grid-outline',
-    title: t('routes.dashboard.dashboard'),
+    hideChildrenInMenu: true,
+    icon: 'ant-design:home-filled',
+    title: '首页',
   },
   children: [
     {
@@ -20,7 +20,8 @@ const dashboard: AppRouteModule = {
       component: () => import('/@/views/dashboard/analysis/index.vue'),
       meta: {
         // affix: true,
-        title: t('routes.dashboard.analysis'),
+        hideMenu: true,
+        title: '首页',
       },
     },
   ],

@@ -2,14 +2,14 @@ import type { AppRouteModule } from '/@/router/types';
 
 import { LAYOUT } from '/@/router/constant';
 
-const course: AppRouteModule = {
+const reserve: AppRouteModule = {
   path: '/checkIn',
   name: 'checkIn',
   component: LAYOUT,
   redirect: '/checkIn/userCheckIn',
   meta: {
-    orderNo: 19,
-    icon: 'ion:git-compare-outline',
+    orderNo: 20,
+    icon: 'mingcute:book-3-fill',
     title: '预约签到',
   },
 
@@ -19,7 +19,7 @@ const course: AppRouteModule = {
       name: 'userCheckIn',
       component: () => import('/@/views/checkIn/userCheckIn/index.vue'),
       meta: {
-        title: '入场签到',
+        title: '预约管理',
       },
     },
     {
@@ -27,10 +27,10 @@ const course: AppRouteModule = {
       name: 'reserveManage',
       component: () => import('/@/views/checkIn/reserveManage/index.vue'),
       meta: {
-        title: '预约管理',
+        title: '签到管理',
       },
     },
   ],
 };
 
-export default course;
+export default reserve;

@@ -2,14 +2,14 @@ import type { AppRouteModule } from '/@/router/types';
 
 import { LAYOUT } from '/@/router/constant';
 
-const course: AppRouteModule = {
+const financialOrder: AppRouteModule = {
   path: '/financialOrder',
   name: 'financialOrder',
   component: LAYOUT,
   redirect: '/financialOrder/order',
   meta: {
-    orderNo: 19,
-    icon: 'ion:git-compare-outline',
+    orderNo: 70,
+    icon: 'solar:card-bold',
     title: '财务与订单',
   },
   children: [
@@ -40,4 +40,4 @@ const course: AppRouteModule = {
   ],
 };
 
-export default course;
+export default financialOrder;

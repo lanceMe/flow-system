@@ -2,14 +2,14 @@ import type { AppRouteModule } from '/@/router/types';
 
 import { LAYOUT } from '/@/router/constant';
 
-const course: AppRouteModule = {
+const vip: AppRouteModule = {
   path: '/vip',
   name: 'vip',
   component: LAYOUT,
   redirect: '/vip/member',
   meta: {
-    orderNo: 19,
-    icon: 'ion:git-compare-outline',
+    orderNo: 50,
+    icon: 'bxs:id-card',
     title: '会员管理',
   },
   children: [
@@ -32,4 +32,4 @@ const course: AppRouteModule = {
   ],
 };
 
-export default course;
+export default vip;
