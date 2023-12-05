@@ -47,6 +47,8 @@ module.exports = {
         'workflow',
         'types',
         'release',
+        'upd',
+        'update',
       ],
     ],
   },
