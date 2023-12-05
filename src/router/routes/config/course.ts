@@ -6,7 +6,7 @@ const course: AppRouteModule = {
   path: '/course',
   name: 'course',
   component: LAYOUT,
-  redirect: '/course/list',
+  redirect: '/course/group',
   meta: {
     // hideChildrenInMenu: true,
     icon: 'fa-solid:swatchbook',
@@ -23,10 +23,9 @@ const course: AppRouteModule = {
         // hideMenu: true,
       },
     },
-
     {
-      path: 'list',
-      name: 'list',
+      path: 'index',
+      name: 'CourseList',
       component: () => import('/@/views/course/index.vue'),
       meta: {
         title: '课程管理',
