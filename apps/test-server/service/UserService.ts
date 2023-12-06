@@ -3,7 +3,7 @@ import { Result } from '../utils';
 const fakeUserInfo = {
   userId: '1',
   username: 'vben',
-  realName: 'Flow Admin',
+  realName: 'Flow Bouldering',
   desc: 'manager',
   password: '123456',
   token: 'fakeToken1',

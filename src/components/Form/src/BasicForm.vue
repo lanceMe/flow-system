@@ -112,7 +112,7 @@
       });
 
       const getBindValue = computed(
-        () => ({ ...attrs, ...props, ...unref(getProps) }) as AntFormProps,
+        () => ({ ...attrs, ...props, ...unref(getProps) } as AntFormProps),
       );
 
       const getSchema = computed((): FormSchema[] => {
@@ -311,7 +311,7 @@
         getFormClass,
         getFormActionBindProps: computed(
           () =>
-            ({ ...getProps.value, ...advanceState }) as InstanceType<typeof FormAction>['$props'],
+            ({ ...getProps.value, ...advanceState } as InstanceType<typeof FormAction>['$props']),
         ),
         fieldsIsAdvancedMap,
         ...formActionType,
@@ -353,6 +353,26 @@
           line-height: 1;
         }
       }
+
+      &-label {
+        font-weight: bold;
+      }
+
+      &-control {
+        flex: none;
+      }
+
+      .ant-select-selector {
+        border: none;
+        background-color: #f2f2f2;
+      }
+
+      .ant-input,
+      .ant-input-number,
+      .ant-input-affix-wrapper {
+        border: none;
+        background-color: #f2f2f2;
+      }
     }
 
     .ant-form-explain {
@@ -363,6 +383,10 @@
       .ant-form-item {
         margin-bottom: 8px !important;
       }
+    }
+
+    .ant-row {
+      flex-flow: column;
     }
   }
 </style>
