@@ -1,23 +1,85 @@
 <template>
   <PageWrapper>
     <ASpace direction="vertical" style="width: 100%" size="middle">
+      <a-form name="horizontal_login" layout="inline" autocomplete="off" ref="formRef">
+        <a-form-item name="coach">
+          <a-select
+            v-model:value="formState.coach"
+            placeholder="教练"
+            style="width: 200px"
+            mode="multiple"
+          >
+            <a-select-option value="demand">{{ cardType.demand }}</a-select-option>
+            <a-select-option value="month">{{ cardType.month }}</a-select-option>
+          </a-select>
+        </a-form-item>
+        <a-form-item name="courseType">
+          <a-select
+            v-model:value="formState.courseType"
+            placeholder="课程列表"
+            style="width: 200px"
+            mode="multiple"
+          >
+            <a-select-option value="group">团课</a-select-option>
+            <a-select-option value="private">私教课</a-select-option>
+          </a-select>
+        </a-form-item>
+        <a-form-item name="date">
+          <a-date-picker v-model:value="formState.date" type="date" placeholder="日期" />
+        </a-form-item>
+        <a-form-item>
+          <a-button style="margin: 0 10px" @click="resetForm">清空</a-button>
+          <a-button type="primary" @click="onSearch">搜索</a-button>
+        </a-form-item>
+      </a-form>
+
+      <h5 style="font-size: 16px">{{ getWeek() }} | {{ getDate() }}</h5>
+
       <ASpace style="display: flex; flex-direction: row-reverse" size="middle">
-        <a-button type="primary" @click="linkTo('create')">创建课程</a-button>
+        <a-button type="primary" @click="onSubmit">预约</a-button>
+        <div>当日到店人数：34</div>
+
+        <div>预收/确认：1325.8元/238元 </div>
       </ASpace>
 
-      <a-table :columns="columns" :data-source="data" :scroll="{ x: 1000 }">
-        <template #bodyCell="{ column }">
-          <template v-if="column.key === 'operation'">
-            <a-button type="link" @click="linkTo('view')">查看</a-button>
-            <a-button type="link" @click="linkTo('edit')">编辑</a-button>
+      <a-table :columns="columns" :data-source="data">
+        <template #bodyCell="{ column, record }">
+          <template v-if="column.key === 'phone'">
+            {{ record.phone }}
+          </template>
+          <template v-else-if="column.key === 'num'">
+            {{ record.num }}
+          </template>
+          <template v-else-if="column.key === 'memberCard'">
+            {{ record.memberCard }}
+          </template>
+          <template v-else-if="column.key === 'memberCardType'">
+            {{ cardType[record.memberCardType] }}
+          </template>
+          <template v-else-if="column.key === 'checkInTime'">
+            {{ dayjs(record.checkInTime).format('YYYY-MM-DD HH:MM:ss') }}
+          </template>
+          <template v-else-if="column.key === 'confirmType'">
+            {{ record.confirmType }}
+          </template>
+          <template v-else-if="column.key === 'checkInType'">
+            {{ checkInType[record.checkInType] }}
+          </template>
+          <template v-else-if="column.key === 'memo'">
+            {{ record.memo }}
+          </template>
+          <template v-else-if="column.key === 'operation'">
+            <a-button @click="resetForm" type="link">立即签到</a-button>
+            <a-button type="link" @click="onSubmit">取消签到</a-button>
           </template>
         </template>
       </a-table>
     </ASpace>
+    <check ref="checkRef" />
   </PageWrapper>
 </template>
 <script lang="ts">
-  import { defineComponent } from 'vue';
+  import { defineComponent, ref } from 'vue';
   import {
     Table,
     Form,
@@ -32,8 +94,8 @@
 
   import { openWindow } from '/@/utils';
   import { PageWrapper } from '/@/components/Page';
+  import check from './check.vue';
   import dayjs from 'dayjs';
-  import { useRoute, useRouter } from 'vue-router';
 
   export default defineComponent({
     components: {
@@ -47,132 +109,97 @@
       ASelectOption: SelectOption,
       ADatePicker: DatePicker,
       ASpace: Space,
+      check,
     },
     setup() {
-      const router = useRouter();
+      const checkRef = ref();
+      const formRef = ref();
 
       return {
         dayjs,
+        checkRef,
+        formRef,
         toIconify: () => {
           openWindow('https://iconify.design/');
         },
         data: [
           {
             key: '1',
-            name: 'Mike',
-            courseType: 32,
+            Nickname: 'Mike',
+            phone: 32,
             num: 1,
             memberCard: 1,
-            memberCardType: 'month',
             checkInTime: dayjs(),
-            confirmType: 111,
-            checkInType: 'wechat',
+            reserve: 111,
+            status: 'wechat',
             memo: 777,
           },
         ],
         columns: [
           {
-            title: '课程名称',
-            dataIndex: 'name',
-            key: 'name',
-            width: 150,
-            fixed: 'left',
+            title: '昵称',
+            dataIndex: 'Nickname',
+            key: 'Nickname',
           },
           {
-            title: '课程类别',
-            dataIndex: 'courseType',
-            key: 'courseType',
-            width: 150,
+            title: '手机号',
+            dataIndex: 'phone',
+            key: 'phone',
           },
           {
-            title: '课程种类',
-            dataIndex: 'courseCategory',
+            title: '人数',
+            dataIndex: 'num',
             key: 'num',
-            width: 150,
           },
           {
-            title: '人数下限',
-            dataIndex: 'minMember',
-            key: 'minMember',
-            width: 150,
+            title: '会员卡',
+            dataIndex: 'memberCard',
+            key: 'memberCard',
           },
           {
-            title: '人数上限',
-            dataIndex: 'maxMember',
-            key: 'maxMember',
-            width: 150,
+            title: '预约渠道',
+            dataIndex: 'reserve',
+            key: 'reserve',
           },
           {
-            title: '预约方式',
-            dataIndex: 'bookType',
-            key: 'bookType',
-            width: 150,
+            title: '状态',
+            dataIndex: 'status',
+            key: 'status',
           },
           {
-            title: '卡种',
-            dataIndex: 'card',
-            key: 'card',
-            width: 150,
+            title: '备注',
+            dataIndex: 'memo',
+            key: 'memo',
           },
           {
-            title: '课程价格',
-            dataIndex: 'coursePrice',
-            key: 'coursePrice',
-            width: 150,
-          },
-          {
-            title: '课程时长',
-            dataIndex: 'courseLength',
-            key: 'courseLength',
-            width: 150,
-          },
-          {
-            title: '是否允许候补',
-            dataIndex: 'isAlternate',
-            key: 'isAlternate',
-            width: 150,
-          },
-          {
-            title: '候补时间限制',
-            dataIndex: 'alternateTime',
-            key: 'alternateTime',
-            width: 150,
-          },
-          {
-            title: '课程介绍',
-            dataIndex: 'courseIntro',
-            key: 'courseIntro',
-            width: 150,
-          },
-          {
-            title: '课程介绍',
-            dataIndex: 'courseIntro',
-            key: 'courseIntro',
-            width: 150,
+            title: '预约时间',
+            dataIndex: 'checkInTime',
+            key: 'checkInTime',
           },
           {
             title: '操作',
             dataIndex: 'operation',
             key: 'operation',
-            width: 200,
-            fixed: 'right',
           },
         ],
-        linkTo(type: string) {
-          router.push({
-            path: '/course/detail',
-            // name: 'home',
-            query: {
-              type,
-            },
-          });
+        checkInType: {
+          wechat: '微信小程序',
+          backup: '后台',
         },
-
-        onSubmit() {},
-        resetForm() {},
+        cardType: {
+          month: '月卡',
+          demand: '次卡',
+        },
+        onSubmit() {
+          checkRef.value.controlModal(true);
+        },
+        onSearch() {},
+        resetForm() {
+          formRef.value.resetFields();
+        },
         formState: {
-          phone: '',
-          memberCardType: undefined,
+          coach: undefined,
+          courseType: undefined,
           date: '',
         },
         getWeek() {
