@@ -5,9 +5,18 @@
     :title="title"
     @visible-change="handleVisibleChange"
     width="600px"
+    @ok="handlesubmit"
   >
-    <div class="pt-3px pr-3px">
-      <BasicForm @register="registerForm" :model="model" />
+    <div :class="`${prefixCls}-form pt-3px pr-3px`">
+      <BasicForm @register="registerForm" :model="model">
+        <!-- <template #attenders="{ model, field, disabled }">
+          <div :class="`${prefixCls}-form__attenders`">
+            <a-input v-model:value="model[field]" :disabled="disabled" />
+            <div> ~ </div>
+            <a-input v-model:value="model['ctpl-max-attenders']" :disabled="disabled" />
+          </div>
+        </template> -->
+      </BasicForm>
     </div>
   </BasicModal>
 </template>
@@ -16,26 +25,24 @@
   import { BasicModal, useModalInner } from '/@/components/Modal';
   import { BasicForm, useForm } from '/@/components/Form/index';
   import { getFormSchema } from '/@/views/course/config';
+  import { useDesign } from '/@/hooks/web/useDesign';
+  import { editTemplete, createTemplete } from '/@/api/course';
+  import { encode } from '/@/utils/base64';
 
   export default defineComponent({
     components: { BasicModal, BasicForm },
     props: {
       userData: { type: Object },
     },
-    setup(props) {
+    emits: ['submitSuccess'],
+    setup(props, { emit }) {
       const modelRef = ref({});
-      let type = 'view';
-
+      const dataRef = ref({});
       const titleRef = ref('');
-      const schemas = getFormSchema();
+      const { prefixCls } = useDesign('course');
+      const schemas = getFormSchema(dataRef.value);
 
-      const [
-        registerForm,
-        // {
-        //   // setFieldsValue,
-        //   // setProps
-        // },
-      ] = useForm({
+      const [registerForm, { updateSchema, validate, resetFields, resetSchema }] = useForm({
         // labelWidth: 120,
         schemas,
         showActionButtonGroup: false,
@@ -47,31 +54,51 @@
         },
       });
 
-      const [register] = useModalInner((data) => {
+      const [register, { closeModal }] = useModalInner((data) => {
         data && onDataReceive(data);
       });
 
       function onDataReceive(data) {
         console.log('Data Received', data);
-        type = data.type;
+
+        const { type } = data;
         setType(type);
-
-        // 方式1;
-        // setFieldsValue({
-        //   field2: data.data,
-        //   field1: data.info,
-        // });
-
-        // // 方式2
-        modelRef.value = { field2: data.data, field1: data.info };
-
-        // setProps({
-        //   model:{ field2: data.data, field1: data.info }
-        // })
+        setFormData(data);
       }
 
       function handleVisibleChange(v) {
         v && props.userData && nextTick(() => onDataReceive(props.userData));
+      }
+
+      async function handlesubmit() {
+        try {
+          const values = await validate();
+          postApi(values);
+        } catch (error) {
+          console.error(error);
+        }
+      }
+
+      function postApi(values) {
+        const { formData: data, type } = dataRef.value as any;
+        const requestFunc = type === 'create' ? createTemplete : editTemplete;
+        const params = {
+          ...values,
+          'ctpl-no-cancel-reserve-minutes': data?.['ctpl_no_cancel_reserve_minutes'] || 60,
+          'ctpl-id': data?.['ctpl_id'],
+          'ctpl-display-name': encode(values['ctpl-display-name']),
+          'ctpl-description': encode(values['ctpl-description']),
+          'ctpl-address': encode(values['ctpl-address']),
+          'ctpl-tag': encode(values['ctpl-tag']),
+          'ctpl-address-lat': 0,
+          'ctpl-address-long': 0,
+        };
+        console.log('postApi', params, data);
+        requestFunc(params).then((resp) => {
+          console.log(resp, params);
+          closeModal();
+          emit('submitSuccess');
+        });
       }
 
       function setType(type: string) {
@@ -92,15 +119,40 @@
         }
       }
 
+      async function setFormData(data) {
+        dataRef.value = data;
+        const schemas = getFormSchema(data);
+        if (data.type === 'create') resetSchema(data);
+        else resetFields();
+        // await resetSchema(schemas);
+        await updateSchema(schemas);
+      }
+
       return {
         register,
         schemas,
         registerForm,
         model: modelRef,
         handleVisibleChange,
+        handlesubmit,
         setTitle,
         title: titleRef,
+        prefixCls,
       };
     },
   });
 </script>
+
+<style lang="less">
+  @prefix-cls: ~'@{namespace}-course-form';
+  .@{prefix-cls} {
+    &__attenders {
+      display: flex;
+      align-items: center;
+
+      > div {
+        margin: 0 8px;
+      }
+    }
+  }
+</style>

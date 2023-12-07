@@ -24,7 +24,7 @@
   import { defineComponent, PropType, ref, computed, unref, watch } from 'vue';
   import { Select } from 'ant-design-vue';
   import type { SelectValue } from 'ant-design-vue/es/select';
-  import { isFunction } from '/@/utils/is';
+  import { isFunction, isString, isNumber } from '/@/utils/is';
   import { useRuleFormItem } from '/@/hooks/component/useFormItem';
   import { useAttrs } from '@vben/hooks';
   import { get, omit } from 'lodash-es';
@@ -79,11 +79,15 @@
 
         let data = unref(options).reduce((prev, next: any) => {
           if (next) {
-            const value = get(next, valueField);
+            const value = isString(next) || isNumber(next) ? next : get(next, valueField);
+            const label = isString(next) || isNumber(next) ? next : get(next, labelField);
+            const omitData =
+              isString(next) || isNumber(next) ? {} : omit(next, [labelField, valueField]);
             prev.push({
-              ...omit(next, [labelField, valueField]),
-              label: get(next, labelField),
+              ...omitData,
+              label: label,
               value: numberToString ? `${value}` : value,
+              key: value,
             });
           }
           return prev;

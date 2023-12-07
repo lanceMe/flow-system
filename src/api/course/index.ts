@@ -9,7 +9,7 @@ enum Api {
 /**
  * @description: 获取课程模版列表
  */
-export function getCourseTempleteList() {
+export function getTempleteList() {
   return request.get(
     { url: Api.templeteList },
     { returnTransformResponseDataKey: 'course_template_list' },
@@ -17,22 +17,30 @@ export function getCourseTempleteList() {
 }
 
 /**
+ * @description: 获取课程Tag列表
+ */
+export function getTagList() {
+  return request.get({ url: Api.tagList }, { returnTransformResponseDataKey: 'course_tags' });
+}
+
+/**
  * @description: 修改模版
  */
 export function editTemplete(params) {
-  return request.put({ url: Api.templeteList });
+  return request.put({ url: Api.templete, params }, { successMessageMode: 'message' });
 }
 
 /**
  * @description: 新建模版
  */
 export function createTemplete(params) {
-  return request.post({ url: Api.templeteList });
+  return request.post({ url: Api.templete, params }, { successMessageMode: 'message' });
 }
 
 /**
  * @description: 删除模版
  */
 export function deleteTemplete(id: string | number) {
-  return request.delete({ url: Api.templeteList });
+  const params = { 'course-template-id': id };
+  return request.delete({ url: Api.templete, params }, { successMessageMode: 'message' });
 }
