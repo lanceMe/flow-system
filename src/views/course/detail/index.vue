@@ -54,7 +54,7 @@
       function onDataReceive(data) {
         console.log('Data Received', data);
         type = data.type;
-        setTitle(type);
+        setType(type);
 
         // 方式1;
         // setFieldsValue({
@@ -72,6 +72,10 @@
 
       function handleVisibleChange(v) {
         v && props.userData && nextTick(() => onDataReceive(props.userData));
+      }
+
+      function setType(type: string) {
+        setTitle(type);
       }
 
       function setTitle(type: string) {

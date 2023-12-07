@@ -25,7 +25,7 @@
   import { BasicTable, useTable, TableAction } from '/@/components/Table';
   import { getTableColumns } from '/@/views/course/config';
   import { PageWrapper } from '/@/components/Page';
-  import { demoListApi } from '/@/api/demo/table';
+  import { getCourseTempleteList } from '/@/api/course';
   import { useModal } from '/@/components/Modal';
   import Modal from '/@/views/course/detail/index.vue';
 
@@ -33,7 +33,7 @@
     components: { BasicTable, TableAction, PageWrapper, Modal },
     setup() {
       const [registerTable] = useTable({
-        api: demoListApi,
+        api: getCourseTempleteList,
         columns: getTableColumns(),
         canResize: false,
         bordered: true,

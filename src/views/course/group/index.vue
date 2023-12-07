@@ -1,48 +1,47 @@
 <template>
   <PageWrapper>
-    <BasicTable @register="registerTable">
-      <template #bodyCell="{ column, record }">
-        <template v-if="column.key === 'action'">
-          <TableAction
-            :actions="[
-              { label: '查看', onClick: handleView.bind(null, record) },
-              { label: '编辑', onClick: handleEdit.bind(null, record) },
-            ]"
-          />
-        </template>
-      </template>
-      <template #toolbar>
-        <a-button type="primary" @click="createCourse"> 创建课程 </a-button>
-      </template>
-    </BasicTable>
+    <div :class="`${prefixCls}__toolbar`">
+      <a-button type="primary" @click="createCourse"> 创建课程 </a-button>
+      <a-button type="primary" @click="createCourse"> 导入课表 </a-button>
+      <a-button type="primary" @click="createCourse"> 发布课程 </a-button>
+      <a-button type="primary" @click="createCourse"> 导出课表 </a-button>
+    </div>
+    <div :class="`${prefixCls}-calendar`" ref="calendarDivRef" :style="{ width, height }"></div>
     <Modal @register="registerModal" />
   </PageWrapper>
 </template>
+
 <script lang="ts">
-  import { defineComponent } from 'vue';
-  import { BasicTable, useTable, TableAction } from '/@/components/Table';
-  import { getTableColumns } from '/@/views/course/config';
+  import { Ref, defineComponent, ref } from 'vue';
   import { PageWrapper } from '/@/components/Page';
-  import { demoListApi } from '/@/api/demo/table';
   import { useModal } from '/@/components/Modal';
   import Modal from '/@/views/course/detail/index.vue';
+  import { useDesign } from '/@/hooks/web/useDesign';
+  import { useCalendar } from '/@/views/course/calendar';
 
   export default defineComponent({
-    components: { BasicTable, TableAction, PageWrapper, Modal },
+    components: { PageWrapper, Modal },
+    props: {
+      loading: Boolean,
+      width: {
+        type: String as PropType<string>,
+        default: '100%',
+      },
+      height: {
+        type: String as PropType<string>,
+        default: '300px',
+      },
+    },
     setup() {
-      const [registerTable] = useTable({
-        api: demoListApi,
-        columns: getTableColumns(),
-        canResize: false,
-        bordered: true,
-        actionColumn: {
-          width: 160,
-          title: '操作',
-          dataIndex: 'action',
-        },
-      });
+      const { prefixCls } = useDesign('course');
 
       const [registerModal, { openModal: openModal }] = useModal();
+
+      const calendarDivRef = ref<HTMLDivElement | null>(null);
+
+      const { register } = useCalendar(calendarDivRef as Ref<HTMLDivElement>);
+
+      const calendar = register();
 
       function handleEdit(event: any) {
         console.log('handleEdit', event);
@@ -60,13 +59,29 @@
       }
 
       return {
-        registerTable,
         createCourse,
         handleEdit,
         handleView,
         registerModal,
         openModal,
+        prefixCls,
       };
     },
   });
 </script>
+<style lang="less">
+  @prefix-cls: ~'@{namespace}-course';
+
+  .@{prefix-cls} {
+    &__toolbar {
+      display: flex;
+      flex: 1;
+      align-items: center;
+      justify-content: flex-end;
+
+      > * {
+        margin-right: 8px;
+      }
+    }
+  }
+</style>

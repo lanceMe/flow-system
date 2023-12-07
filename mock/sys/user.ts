@@ -5,12 +5,13 @@ export function createFakeUserList() {
   return [
     {
       userId: '1',
-      username: 'vben',
+      username: 'admin',
       realName: 'Flow Bouldering',
       avatar: '',
       desc: 'manager',
       password: '123456',
-      token: 'fakeToken1',
+      // token: 'fakeToken1',
+      token: 'UGuest',
       homePath: '/dashboard/analysis',
       roles: [
         {

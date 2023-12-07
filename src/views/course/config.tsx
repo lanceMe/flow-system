@@ -1,5 +1,6 @@
 import { FormSchema } from '/@/components/Form';
 import { BasicColumn } from '/@/components/Table/src/types/table';
+import { formatToDate } from '/@/utils/dateUtil';
 
 export function getFormSchema(): FormSchema[] {
   return [
@@ -93,24 +94,52 @@ export function getTableColumns(): BasicColumn[] {
   return [
     {
       title: '课程名称',
-      dataIndex: 'name',
+      dataIndex: 'ctpl_display_name',
       // fixed: 'left',
       width: 200,
     },
     {
       title: '课程类别',
-      dataIndex: 'type',
+      dataIndex: 'ctpl_type',
+      format(type) {
+        let formatText = type;
+        switch (type) {
+          case 'group':
+            formatText = '团课';
+            break;
+          case 'open':
+            formatText = '公开课';
+            break;
+          case 'privatelv1':
+            formatText = '中级私教课';
+            break;
+          case 'privatelv2':
+            formatText = '高级私教课';
+            break;
+          case 'special':
+            formatText = '特殊课程';
+            break;
+          default:
+            break;
+        }
+
+        return formatText;
+      },
       width: 150,
     },
     {
       title: '人数上限',
       width: 100,
-      dataIndex: 'maxPeople',
+      dataIndex: 'ctpl_max_attenders',
     },
     {
       title: '创建日期',
       width: 150,
-      dataIndex: 'reservation',
+      dataIndex: 'ctpl_created_at',
+      format(text) {
+        if (text) return formatToDate(text);
+        return text;
+      },
     },
     {
       title: '创建人',

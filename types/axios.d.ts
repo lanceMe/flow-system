@@ -8,6 +8,10 @@ export interface RequestOptions {
   formatDate?: boolean;
   // Whether to process the request result
   isTransformResponse?: boolean;
+
+  //配合isTransformResponse一起使用，指定返回response data结构体中的哪个字段，默认返回整个data结构体
+  returnTransformResponseDataKey?: string | Array<string>;
+
   // Whether to return native response headers
   // For example: use this attribute when you need to get the response headers
   isReturnNativeResponse?: boolean;
@@ -28,6 +32,9 @@ export interface RequestOptions {
   withToken?: boolean;
   // 请求重试机制
   retryRequest?: RetryRequest;
+
+  //把params或data数据展开放到requset header中
+  moveParamsToHeader?: boolean;
 }
 
 export interface RetryRequest {

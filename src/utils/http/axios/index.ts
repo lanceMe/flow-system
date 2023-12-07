@@ -1,7 +1,7 @@
 // axios配置  可自行根据项目进行更改，只需更改该文件即可，其他文件可以不动
 // The axios configuration can be changed according to the project, just change the file, other files can be left unchanged
 
-import type { AxiosInstance, AxiosResponse } from 'axios';
+import type { AxiosInstance, AxiosRequestConfig, AxiosResponse } from 'axios';
 import { clone } from 'lodash-es';
 import type { RequestOptions, Result } from '/#/axios';
 import type { AxiosTransform, CreateAxiosOptions } from './axiosTransform';
@@ -10,7 +10,7 @@ import { checkStatus } from './checkStatus';
 import { useGlobSetting } from '/@/hooks/setting';
 import { useMessage } from '/@/hooks/web/useMessage';
 import { RequestEnum, ResultEnum, ContentTypeEnum } from '/@/enums/httpEnum';
-import { isString, isUnDef, isNull, isEmpty } from '/@/utils/is';
+import { isString, isUnDef, isNull, isEmpty, isArray } from '/@/utils/is';
 import { getToken } from '/@/utils/auth';
 import { setObjToUrlParams, deepMerge } from '/@/utils';
 import { useErrorLogStoreWithOut } from '/@/store/modules/errorLog';
@@ -33,7 +33,7 @@ const transform: AxiosTransform = {
    */
   transformResponseHook: (res: AxiosResponse<Result>, options: RequestOptions) => {
     const { t } = useI18n();
-    const { isTransformResponse, isReturnNativeResponse } = options;
+    const { isTransformResponse, isReturnNativeResponse, returnTransformResponseDataKey } = options;
     // 是否返回原生响应头 比如：需要获取响应头时使用该属性
     if (isReturnNativeResponse) {
       return res;
@@ -54,7 +54,8 @@ const transform: AxiosTransform = {
     const { code, result, message } = data;
 
     // 这里逻辑可以根据项目进行修改
-    const hasSuccess = data && Reflect.has(data, 'code') && code === ResultEnum.SUCCESS;
+    const hasSuccess =
+      data && ((Reflect.has(data, 'code') && code === ResultEnum.SUCCESS) || result === 0);
     if (hasSuccess) {
       let successMsg = message;
 
@@ -67,7 +68,8 @@ const transform: AxiosTransform = {
       } else if (options.successMessageMode === 'message') {
         createMessage.success(successMsg);
       }
-      return result;
+      const resData = transformResponseData(data, returnTransformResponseDataKey);
+      return resData;
     }
 
     // 在此处根据自己项目的实际情况对不同的code执行不同的操作
@@ -146,6 +148,10 @@ const transform: AxiosTransform = {
         config.params = undefined;
       }
     }
+
+    // Flow Bouldering把data||params数据全放到header中，需要设置options.
+    flatParamsToRequestHeader(config, options);
+
     return config;
   },
 
@@ -160,6 +166,9 @@ const transform: AxiosTransform = {
       (config as Recordable).headers.Authorization = options.authenticationScheme
         ? `${options.authenticationScheme} ${token}`
         : token;
+
+      // Flow Bouldering user-token
+      (config as Recordable).headers['user-token'] = token;
     }
     return config;
   },
@@ -274,12 +283,42 @@ function createAxios(opt?: Partial<CreateAxiosOptions>) {
     ),
   );
 }
-export const defHttp = createAxios();
+// 默认请求，请问改动
+export const defHttp = createAxios({
+  requestOptions: {
+    returnTransformResponseDataKey: 'result',
+  },
+});
 
-// other api url
-// export const otherHttp = createAxios({
-//   requestOptions: {
-//     apiUrl: 'xxx',
-//     urlPrefix: 'xxx',
-//   },
-// });
+//---------------------------------------------------------------------------------------
+
+/**
+ * @description: 处理response返回值
+ */
+const transformResponseData = (data, dataKey) => {
+  if (!dataKey) return data;
+
+  if (isArray(dataKey)) {
+    const result = {};
+    for (const key of dataKey) {
+      key && (result[key] = data?.[key]);
+    }
+  }
+  return data?.[dataKey];
+};
+
+// Flow Bouldering 相关的请求
+function flatParamsToRequestHeader(config: AxiosRequestConfig, options: RequestOptions) {
+  const { moveParamsToHeader } = options || {};
+  if (moveParamsToHeader) {
+    const { params, data, headers } = config || {};
+    const paramsToHearder = data || params;
+    config.headers = { ...headers, ...paramsToHearder };
+  }
+}
+export const request = createAxios({
+  requestOptions: {
+    // 把params或data数据展开放到requset header中
+    moveParamsToHeader: true,
+  },
+});
