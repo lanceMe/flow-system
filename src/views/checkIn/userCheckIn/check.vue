@@ -8,7 +8,7 @@
       :label-col="labelCol"
       :wrapper-col="wrapperCol"
     >
-      <a-form-item ref="phone" label="微信昵称" name="phone">
+      <a-form-item ref="phone" label="手机号" name="phone">
         <a-select
           v-model:value="formState.phone"
           show-search
@@ -65,6 +65,7 @@
     Select as ASelect,
     SelectOption as ASelectOption,
     DatePicker as ADatePicker,
+    RangePicker as ARangePicker,
     InputNumber as AInputNumber,
     Modal as AModal,
     Spin as ASpin,

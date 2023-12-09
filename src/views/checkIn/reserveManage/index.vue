@@ -7,25 +7,37 @@
             v-model:value="formState.coach"
             placeholder="教练"
             style="width: 200px"
+            :filter-option="filterOption"
             mode="multiple"
           >
-            <a-select-option value="demand">{{ cardType.demand }}</a-select-option>
-            <a-select-option value="month">{{ cardType.month }}</a-select-option>
+            <a-select-option
+              v-for="item in coachList"
+              :value="item.coach_id"
+              :key="item.coach_id"
+              :label="item.nickname"
+              >{{ item.nickname }}</a-select-option
+            >
           </a-select>
         </a-form-item>
         <a-form-item name="courseType">
           <a-select
             v-model:value="formState.courseType"
-            placeholder="课程列表"
+            placeholder="课程类别"
             style="width: 200px"
             mode="multiple"
           >
             <a-select-option value="group">团课</a-select-option>
-            <a-select-option value="private">私教课</a-select-option>
+            <a-select-option value="privatelv1,privatelv2">私教课</a-select-option>
+            <a-select-option value="open">公开课</a-select-option>
           </a-select>
         </a-form-item>
         <a-form-item name="date">
-          <a-date-picker v-model:value="formState.date" type="date" placeholder="日期" />
+          <a-range-picker
+            v-model:value="formState.date"
+            type="date"
+            :disabled-date="disabledDate"
+            :onCalendarChange="calendarPriceRangeChange"
+          />
         </a-form-item>
         <a-form-item>
           <a-button style="margin: 0 10px" @click="resetForm">清空</a-button>
@@ -34,100 +46,55 @@
       </a-form>
 
       <h5 style="font-size: 16px">{{ getWeek() }} | {{ getDate() }}</h5>
-      <div class="reserve-item">
+      <div class="reserve-item" v-for="item in courseList" :key="item.course_id">
         <div style="display: flex; flex-direction: row" size="middle">
-          <div>团课</div>
-          <div>10:00-10:50</div>
-          <div>Jason</div>
+          <div class="course-name margin-right-10">{{ item.course_display_name }}</div>
+          <div class="margin-right-10">{{ item.course_start_time }}</div>
+          <div class="margin-right-10">{{ item.coach_nickname }}</div>
           <div class="reserve-item-btn">
-            <div>预收/确认：1325.8元/238元 </div>
-            <div>预约人数:5/5</div>
-            <div>候补人数：2</div>
-            <a-button class="reserve-item-ab" type="primary" @click="onSubmit">预约</a-button>
+            <!-- <div class="margin-right-10">预收/确认：1325.8元/238元 </div>
+            <div class="margin-right-10">预约人数:5/5</div>
+            <div class="margin-right-10">候补人数：2</div> -->
+            <a-button class="reserve-item-ab" type="primary" @click="onSubmit(item)">预约</a-button>
           </div>
         </div>
 
-        <a-table :columns="columns" :data-source="data">
+        <a-table :columns="columns" :data-source="item.wxusers" :pagination="false">
           <template #bodyCell="{ column, record }">
-            <template v-if="column.key === 'phone'">
-              {{ record.phone }}
+            <template v-if="column.key === 'status'">
+              {{ attendStatus[record.attend_status] }}
             </template>
-            <template v-else-if="column.key === 'num'">
-              {{ record.num }}
-            </template>
-            <template v-else-if="column.key === 'memberCard'">
-              {{ record.memberCard }}
-            </template>
-            <template v-else-if="column.key === 'memberCardType'">
-              {{ cardType[record.memberCardType] }}
-            </template>
-            <template v-else-if="column.key === 'checkInTime'">
-              {{ dayjs(record.checkInTime).format('YYYY-MM-DD HH:MM:ss') }}
-            </template>
-            <template v-else-if="column.key === 'confirmType'">
-              {{ record.confirmType }}
-            </template>
-            <template v-else-if="column.key === 'checkInType'">
-              {{ checkInType[record.checkInType] }}
-            </template>
-            <template v-else-if="column.key === 'memo'">
-              {{ record.memo }}
-            </template>
-            <template v-else-if="column.key === 'operation'">
-              <a-button @click="resetForm" type="link">立即签到</a-button>
-              <a-button type="link" @click="onSubmit">取消签到</a-button>
+            <template v-if="column.key === 'operation'">
+              <a-button
+                type="link"
+                v-if="record.attend_status === 'checkedin'"
+                @click="onCancelCheckIn(record)"
+                >取消签到</a-button
+              >
+              <a-button
+                type="link"
+                v-if="record.attend_status === 'reserved' || record.attend_status === 'waiting'"
+                @click="cancelReserve(record, item.course_id)"
+                >取消预约</a-button
+              >
+              <a-button
+                type="link"
+                v-if="record.attend_status === 'reserved'"
+                @click="noShowCourse(record, item.course_id)"
+                >未到场</a-button
+              >
             </template>
           </template>
         </a-table>
       </div>
-      <div class="reserve-item">
-        <div style="display: flex; flex-direction: row" size="middle">
-          <div>私教课</div>
-          <div>10:00-10:50</div>
-          <div>Jason</div>
-          <div class="reserve-item-btn">
-            <div>预收/确认：1325.8元/238元 </div>
-            <div>预约人数:5/5</div>
-            <div>候补人数：2</div>
-            <a-button class="reserve-item-ab" type="primary" @click="onSubmit">预约</a-button>
-          </div>
-        </div>
-
-        <a-table :columns="columns" :data-source="data">
-          <template #bodyCell="{ column, record }">
-            <template v-if="column.key === 'phone'">
-              {{ record.phone }}
-            </template>
-            <template v-else-if="column.key === 'num'">
-              {{ record.num }}
-            </template>
-            <template v-else-if="column.key === 'memberCard'">
-              {{ record.memberCard }}
-            </template>
-            <template v-else-if="column.key === 'memberCardType'">
-              {{ cardType[record.memberCardType] }}
-            </template>
-            <template v-else-if="column.key === 'checkInTime'">
-              {{ dayjs(record.checkInTime).format('YYYY-MM-DD HH:MM:ss') }}
-            </template>
-            <template v-else-if="column.key === 'confirmType'">
-              {{ record.confirmType }}
-            </template>
-            <template v-else-if="column.key === 'checkInType'">
-              {{ checkInType[record.checkInType] }}
-            </template>
-            <template v-else-if="column.key === 'memo'">
-              {{ record.memo }}
-            </template>
-            <template v-else-if="column.key === 'operation'">
-              <a-button @click="resetForm" type="link">立即签到</a-button>
-              <a-button type="link" @click="onSubmit">取消签到</a-button>
-            </template>
-          </template>
-        </a-table>
-      </div>
+      <a-pagination
+        v-model:current="currentPage.current"
+        :total="currentPage.total"
+        @change="pageNumberChange"
+        show-less-items
+      />
     </ASpace>
-    <check ref="checkRef" />
+    <check ref="checkRef" @success="successCheckIn" />
   </PageWrapper>
 </template>
 <script lang="ts">
@@ -142,12 +109,22 @@
     SelectOption,
     DatePicker,
     Space,
+    RangePicker,
+    Pagination,
+    message,
   } from 'ant-design-vue';
 
   import { openWindow } from '/@/utils';
   import { PageWrapper } from '/@/components/Page';
   import check from './check.vue';
   import dayjs from 'dayjs';
+  import {
+    getCoachList,
+    getCheckinList,
+    deleteReserveCourse,
+    noShowReserveCourse,
+    deleteCheckinCoures,
+  } from '/@/api/booking/course';
 
   export default defineComponent({
     components: {
@@ -160,85 +137,119 @@
       ASelect: Select,
       ASelectOption: SelectOption,
       ADatePicker: DatePicker,
+      ARangePicker: RangePicker,
       ASpace: Space,
+      APagination: Pagination,
       check,
+      message,
     },
     setup() {
       const checkRef = ref();
       const formRef = ref();
       const selectPriceDate = ref();
-      const formState = reactive({
+      const currentPage = reactive({
+        current: 1,
+        total: 10,
+      });
+      const courseList = ref<any>([]);
+      const formState = reactive<{ [key: string]: any }>({
         coach: undefined,
-        courseType: undefined,
-        date: '',
+        courseType: [],
+        date: [dayjs(), dayjs()],
+      });
+      const coachList = ref();
+
+      const attendStatus = ref({
+        reserved: '已预约',
+        waiting: '候补中',
+        checkedin: '已签到',
+        noshow: '未到场',
+        cancelled: '已取消',
       });
 
       const calendarPriceRangeChange = (date) => {
+        console.log(date);
         selectPriceDate.value = date;
       };
+
+      const filterOption = (input: string, option: any) => {
+        return option.label.toLowerCase().indexOf(input.toLowerCase()) >= 0;
+      };
+
+      const getList = (current) => {
+        currentPage.current = current;
+        getCheckinList({
+          'from-date': formState.date?.[0].format('YYYY-MM-DD'),
+          'to-date': formState.date?.[1].format('YYYY-MM-DD'),
+          'coach-id': formState.coach?.join(','),
+          'course-type': formState.courseType?.length
+            ? formState.courseType?.join(',')
+            : 'group,open,privatelv1,privatelv2',
+          'page-index': currentPage.current - 1,
+          'page-size': 10,
+        }).then((res) => {
+          console.log('===res', res);
+          currentPage.total = res.total_pages * 10;
+          courseList.value = res.course_list;
+        });
+      };
+
+      getList(1);
+      getCoachList().then((res) => {
+        console.log('=====res', res);
+        coachList.value = res;
+      });
 
       return {
         dayjs,
         checkRef,
         formState,
+        currentPage,
         selectPriceDate,
         calendarPriceRangeChange,
         formRef,
+        courseList,
+        coachList,
+        filterOption,
+        attendStatus,
         toIconify: () => {
           openWindow('https://iconify.design/');
         },
-        data: [
-          {
-            key: '1',
-            Nickname: 'Mike',
-            phone: 32,
-            num: 1,
-            memberCard: 1,
-            checkInTime: dayjs(),
-            reserve: 111,
-            status: 'wechat',
-            memo: 777,
-          },
-        ],
+        data: [],
         columns: [
           {
             title: '昵称',
-            dataIndex: 'Nickname',
+            dataIndex: 'wxuser_nickname',
             key: 'Nickname',
           },
           {
             title: '手机号',
-            dataIndex: 'phone',
+            dataIndex: 'wxuser_phone_number',
             key: 'phone',
           },
           {
-            title: '人数',
-            dataIndex: 'num',
-            key: 'num',
-          },
-          {
             title: '会员卡',
-            dataIndex: 'memberCard',
+            dataIndex: 'cardcat_description',
             key: 'memberCard',
           },
           {
             title: '预约渠道',
-            dataIndex: 'reserve',
+            dataIndex: 'attend_channel',
             key: 'reserve',
           },
           {
             title: '状态',
-            dataIndex: 'status',
+            dataIndex: 'attend_status',
             key: 'status',
           },
           {
             title: '备注',
-            dataIndex: 'memo',
+            dataIndex: 'attend_remarks',
             key: 'memo',
           },
           {
             title: '预约时间',
-            dataIndex: 'checkInTime',
+            dataIndex: 'attend_updated_at',
             key: 'checkInTime',
           },
           {
@@ -255,10 +266,20 @@
           month: '月卡',
           demand: '次卡',
         },
-        onSubmit() {
-          checkRef.value.controlModal(true);
+        onSubmit(item) {
+          console.log('===item', item);
+          checkRef.value.controlModal(true, item);
         },
-        onSearch() {},
+        successCheckIn() {
+          message.success('预约成功');
+          checkRef.value.controlModal(false);
+          getList(1);
+        },
+        onSearch() {
+          console.log(formState);
+          getList(1);
+        },
+
         resetForm() {
           formRef.value.resetFields();
         },
@@ -271,6 +292,40 @@
           const tooEarly =
             selectPriceDate.value[1] && selectPriceDate.value[1].diff(current, 'days') >= 31;
           return !!tooEarly || !!tooLate;
+        },
+        cancelReserve(item, id) {
+          console.log(item, id);
+          deleteReserveCourse({
+            'wxuser-token': item.wxuser_token,
+            'course-id': id,
+          }).then(() => {
+            message.success('取消预约成功');
+            getList(currentPage.current);
+          });
+        },
+        onCancelCheckIn(item, id) {
+          deleteCheckinCoures({
+            'wxuser-token': item.wxuser_token,
+            'course-id': id,
+          }).then(() => {
+            message.success('取消签到成功');
+            getList(currentPage.current);
+          });
+        },
+
+        noShowCourse(item, id) {
+          noShowReserveCourse({
+            'wxuser-token': item.wxuser_token,
+            'course-id': id,
+          }).then(() => {
+            message.success('未到场记录成功');
+            getList(currentPage.current);
+          });
+        },
+
+        pageNumberChange(page: number) {
+          console.log('change');
+          getList(page);
         },
 
         getWeek() {
@@ -287,7 +342,12 @@
 </script>
 <style lang="less">
   .reserve-item {
+    padding-bottom: 15px;
     border-bottom: 1px solid #000;
+
+    .course-name {
+      font-weight: 500;
+    }
 
     &-btn {
       display: flex;
@@ -298,5 +358,9 @@
     &-ab {
       margin-left: 20px;
     }
+  }
+
+  .margin-right-10 {
+    margin-right: 10px;
   }
 </style>

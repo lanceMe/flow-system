@@ -163,6 +163,9 @@ const transform: AxiosTransform = {
   requestInterceptors: (config, options) => {
     // 请求之前处理config
     const token = getToken();
+    if (hide) {
+      hide();
+    }
     hide = message.loading('请求中..', 0);
     if (token && (config as Recordable)?.requestOptions?.withToken !== false) {
       // jwt token

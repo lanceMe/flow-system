@@ -17,7 +17,7 @@ export function getCheckinList(params) {
 }
 
 /**
- * @description: 获取课程模版列表
+ * @description: 签到
  */
 export function postCheckinList(data) {
   return request.post({ url: Api.checkinList, data });
