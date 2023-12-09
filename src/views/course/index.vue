@@ -8,6 +8,15 @@
               :actions="[
                 { label: '查看', onClick: handleView.bind(null, record) },
                 { label: '编辑', onClick: handleEdit.bind(null, record) },
+                {
+                  label: '删除',
+                  color: 'error',
+                  ifShow: true,
+                  popConfirm: {
+                    title: '确认删除？',
+                    confirm: handleDelete.bind(null, record),
+                  },
+                },
               ]"
             />
           </template>
@@ -17,7 +26,7 @@
         </template>
       </BasicTable>
     </div>
-    <Modal @register="registerModal" />
+    <Modal @register="registerModal" @submit-success="changeCourseList" />
   </PageWrapper>
 </template>
 <script lang="ts">
@@ -25,20 +34,20 @@
   import { BasicTable, useTable, TableAction } from '/@/components/Table';
   import { getTableColumns } from '/@/views/course/config';
   import { PageWrapper } from '/@/components/Page';
-  import { getCourseTempleteList } from '/@/api/course';
+  import { getTempleteList, deleteTemplete } from '/@/api/course';
   import { useModal } from '/@/components/Modal';
   import Modal from '/@/views/course/detail/index.vue';
 
   export default defineComponent({
     components: { BasicTable, TableAction, PageWrapper, Modal },
     setup() {
-      const [registerTable] = useTable({
-        api: getCourseTempleteList,
+      const [registerTable, { reload }] = useTable({
+        api: getTempleteList,
         columns: getTableColumns(),
         canResize: false,
         bordered: true,
         actionColumn: {
-          width: 160,
+          width: 200,
           title: '操作',
           dataIndex: 'action',
         },
@@ -48,12 +57,12 @@
 
       function handleEdit(event: any) {
         console.log('handleEdit', event);
-        openModal(true, { type: 'edit' });
+        openModal(true, { type: 'edit', formData: event });
       }
 
       function handleView(event: any) {
         console.log('handleView', event);
-        openModal(true, { type: 'view' });
+        openModal(true, { type: 'view', formData: event });
       }
 
       function createCourse(event: any) {
@@ -61,13 +70,24 @@
         openModal(true, { type: 'create' });
       }
 
+      function changeCourseList() {
+        reload();
+      }
+      function handleDelete(event) {
+        deleteTemplete(event['ctpl_id']).then(() => {
+          reload();
+        });
+      }
+
       return {
         registerTable,
         createCourse,
         handleEdit,
         handleView,
+        handleDelete,
         registerModal,
         openModal,
+        changeCourseList,
       };
     },
   });

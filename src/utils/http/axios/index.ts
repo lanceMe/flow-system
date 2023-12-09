@@ -54,7 +54,7 @@ const transform: AxiosTransform = {
     }
     //  这里 code，result，message为 后台统一的字段，需要在 types.ts内修改为项目自己的接口返回格式
     const { code, result, message } = data;
-
+    console.log(data, message, options.successMessageMode, 787);
     // 这里逻辑可以根据项目进行修改
     const hasSuccess =
       data && ((Reflect.has(data, 'code') && code === ResultEnum.SUCCESS) || result === 0);
@@ -222,10 +222,10 @@ const transform: AxiosTransform = {
     }
 
     checkStatus(error?.response?.status, msg, errorMessageMode);
-
+    console.log(error, 8888);
     // 添加自动重试机制 保险起见 只针对GET请求
     const retryRequest = new AxiosRetry();
-    const { isOpenRetry } = config.requestOptions.retryRequest;
+    const { isOpenRetry } = config?.requestOptions?.retryRequest || {};
     config.method?.toUpperCase() === RequestEnum.GET &&
       isOpenRetry &&
       // @ts-ignore

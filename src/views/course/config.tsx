@@ -1,91 +1,175 @@
 import { FormSchema } from '/@/components/Form';
 import { BasicColumn } from '/@/components/Table/src/types/table';
 import { formatToDate } from '/@/utils/dateUtil';
+import { getTagList } from '/@/api/course';
+import { getCardList } from '/@/api/cards';
 
-export function getFormSchema(): FormSchema[] {
+export function getFormSchema(data): FormSchema[] {
+  const { type, formData: f } = data || {};
+
+  const dynamicDisabled = type === 'view';
   return [
     {
-      field: 'display_name',
+      field: 'ctpl-display-name',
       component: 'Input',
       label: '课程名称',
       required: true,
+      defaultValue: f?.['ctpl_display_name'],
+      dynamicDisabled,
     },
     {
-      field: 'type',
+      field: 'ctpl-type',
       component: 'Select',
       label: '课程类别',
+      defaultValue: f?.['ctpl_type'],
       required: true,
+      dynamicDisabled,
+      componentProps: {
+        options: [
+          { label: '团课', value: 'group', key: 'group' },
+          { label: '公开课', value: 'open', key: 'open' },
+          { label: '中级私教课', value: 'privatelv1', key: 'privatelv1' },
+          { label: '高级私教课', value: 'privatelv2', key: 'privatelv2' },
+          { label: '特殊课程', value: 'special', key: 'special' },
+        ],
+      },
     },
     {
-      field: 'sub_type',
-      component: 'Select',
+      field: 'ctpl-tag',
+      component: 'ApiSelect',
       label: '课程种类',
       required: true,
+      dynamicDisabled,
+      defaultValue: f?.['ctpl_tag'],
+      componentProps: {
+        api: getTagList,
+        immediate: true,
+        // mode: 'multiple',
+        onChange: (e, v) => {
+          console.log('ApiSelect====>:', e, v);
+        },
+      },
     },
+    // {
+    //   fields: ['ctpl-max-attenders'],
+    //   field: 'ctpl-min-attenders',
+    //   component: 'InputNumber',
+    //   label: '人数上下限',
+    //   slot: 'attenders',
+    //   defaultValue: f?.['ctpl_min_attenders'],
+    //   defaultValueObj: {
+    //     'ctpl-max-attenders': f?.['ctpl_max_attenders'],
+    //   },
+    //   required: true,
+    //   dynamicDisabled,
+    // },
+
     {
-      field: 'sub_type',
-      component: 'Select',
-      label: '课程种类',
-      required: true,
-    },
-    {
-      field: 'min_attenders',
+      field: 'ctpl-min-attenders',
       component: 'InputNumber',
       label: '人数下限',
-      // defaultValue: 3,
+      defaultValue: f?.['ctpl_min_attenders'],
       required: true,
+      dynamicDisabled,
     },
+
     {
-      field: 'max_attenders',
+      field: 'ctpl-max-attenders',
       component: 'InputNumber',
-      label: '人数下限',
-      // defaultValue: 20,
+      label: '人数上限',
+      defaultValue: f?.['ctpl_max_attenders'],
       required: true,
+      dynamicDisabled,
     },
+    // {
+    //   field: 'ctpl-reserve-type',
+    //   component: 'ApiSelect',
+    //   label: '预约方式',
+    //   // defaultValue: f?.['ctpl_type'],
+    //   // required: true,
+    //   dynamicDisabled,
+    //   componentProps: {
+    //     api: getCardList,
+    //     immediate: true,
+    //     labelField: 'name',
+    //     valueField: 'id',
+    //     onChange: (e, v) => {
+    //       console.log('ApiSelect====>:', e, v);
+    //     },
+    //   },
+    // },
+
+    // {
+    //   field: 'ctpl-cards-type',
+    //   component: 'Select',
+    //   label: '卡种',
+    //   // defaultValue: f?.['ctpl_type'],
+    //   // required: true,
+    //   dynamicDisabled,
+    //   componentProps: {
+    //     options: [
+    //       { label: '团课', value: 'group', key: 'group' },
+    //       { label: '中级私教课', value: 'privatelv1', key: 'privatelv1' },
+    //       { label: '高级私教课', value: 'privatelv2', key: 'privatelv2' },
+    //     ],
+    //   },
+    // },
     {
-      field: 'reserve_type',
-      component: 'Select',
-      label: '预约方式',
-      required: true,
-    },
-    {
-      field: 'card_type',
-      component: 'Select',
-      label: '卡种',
-      // required: true,
-    },
-    {
-      field: 'price',
+      field: 'ctpl-price',
       component: 'InputNumber',
       label: '课程价格',
-      // defaultValue: 20,
-      required: true,
+      defaultValue: f?.['ctpl_price'],
+      // required: true,
+      dynamicDisabled,
     },
     {
-      field: 'max_attenders',
+      field: 'ctpl-duration-minutes',
       component: 'InputNumber',
       label: '课程时长',
-      // defaultValue: 20,
+      defaultValue: f?.['ctpl_duration_minutes'],
       required: true,
+      dynamicDisabled,
     },
     {
-      field: 'wait_time',
+      field: 'ctpl-cancel-waiting-minutes',
       component: 'InputNumber',
       label: '候补时间限制',
-      // defaultValue: 20,
+      defaultValue: f?.['ctpl_cancel_waiting_minutes'],
       required: true,
+      dynamicDisabled,
     },
     {
-      field: 'description',
+      field: 'ctpl-description',
       component: 'Input',
       label: '课程介绍',
-      required: true,
+      defaultValue: f?.['ctpl_description'],
+      // required: true,
+      dynamicDisabled,
     },
     {
       field: 'address',
-      component: 'Input',
+      component: 'RadioGroup',
       label: '地点',
-      required: true,
+      defaultValue: f?.['ctpl_address'] === 'Mellow Climbing Gym' ? 1 : 2,
+      componentProps: {
+        options: [
+          { label: '岩馆地址', value: 1 },
+          { label: '其他地址', value: 2 },
+        ],
+      },
+    },
+    {
+      field: 'ctpl-address',
+      component: 'Input',
+      label: '',
+      defaultValue: f?.['ctpl_address'],
+      required: ({ values }) => {
+        return values.address === 2;
+      },
+      ifShow: ({ values }) => {
+        return values.address === 2;
+      },
+      dynamicDisabled,
     },
   ];
 }
