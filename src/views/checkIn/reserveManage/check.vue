@@ -1,5 +1,5 @@
 <template>
-  <a-modal v-model:open="open" @ok="onSubmit" title="预约课程">
+  <a-modal v-model:open="open" @ok="onSubmit" :title="'预约课程'">
     <a-form
       class="course-detail"
       ref="formRef"
@@ -25,7 +25,7 @@
           </template>
         </a-select>
       </a-form-item>
-      <a-form-item label="预约人数" name="checkNumber">
+      <a-form-item label="签到人数" name="checkNumber">
         <a-input-number v-model:value="formState.checkNumber" :min="1" />
       </a-form-item>
       <a-form-item label="会员卡" name="cardType">
@@ -33,15 +33,15 @@
           v-model:value="formState.cardType"
           placeholder="请选择会员卡"
           @change="handleCardTypeChange"
-          :status="cardList.length ? '' : 'error'"
+          :status="cardListFilter.length ? '' : 'error'"
         >
           <!--eslint-disable-next-line vue/valid-v-for-->
-          <a-select-option v-for="item in cardList" :value="item.cardins_id">{{
-            item.cardcat_name
+          <a-select-option v-for="item in cardListFilter" :value="item.cardins_id">{{
+            item.cardcat_description
           }}</a-select-option>
         </a-select>
       </a-form-item>
-      <a-form-item label="备注" name="desc">
+      <a-form-item label="课程介绍" name="desc">
         <a-textarea v-model:value="formState.desc" />
       </a-form-item>
     </a-form>
@@ -55,6 +55,8 @@
   import type { Rule } from 'ant-design-vue/es/form';
   import { debounce } from 'lodash-es';
   import { getUserInfoByPhone, getCardInfo, postCheckinList } from '/@/api/booking';
+  import { encode } from '/@/utils/base64';
+
   import {
     Form as AForm,
     FormItem as AFormItem,
@@ -66,6 +68,7 @@
     InputNumber as AInputNumber,
     Modal as AModal,
     Spin as ASpin,
+    message,
   } from 'ant-design-vue';
 
   const router = useRoute();
@@ -81,10 +84,13 @@
   });
   const open = ref(false);
   const cardList = ref<any>([]);
+  const cardListFilter = ref<any>([]);
 
   const controlModal = (bl: boolean) => {
     open.value = bl;
   };
+
+  const emits = defineEmits(['success']);
   defineExpose({
     controlModal,
   });
@@ -121,31 +127,20 @@
   watch(
     () => formState.checkNumber,
     (value: any) => {
+      formState.cardType = undefined;
       if (value === 1) {
-        console.log('=====value', value, cardList.value);
-        cardList.value = cardList.value.filter((item) => {
-          return item.cardcat_type === 'daypass';
-        });
-        console.log(' cardList.value', cardList.value);
+        cardListFilter.value = cardList.value;
       } else if (value > 1) {
-        cardList.value = cardList.value.filter((item) => {
-          return item.cardcat_type === 'daypass' && item.max_consume_times !== null;
+        console.log('===value', value);
+        cardListFilter.value = cardList.value?.filter((item) => {
+          return item.cardcat_max_consume_times !== null;
         });
       }
     },
-    { immediate: true },
   );
 
-  const handleCardTypeChange = () => {
-    console.log(formRef.value.clearValidate);
-    // 预约方式变化时的处理
-    // if (formState.bookType !== 1) {
-    //   // 非课程卡预约方式时清空卡种
-    //   formRef.value.clearValidate('card'); // 去除卡种的必填规则
-    // } else {
-    //   // 课程卡预约方式时，添加卡种的必填规则
-    //   formRef.value.validateField('card');
-    // }
+  const handleCardTypeChange = (value) => {
+    console.log(value);
   };
 
   const onSubmit = () => {
@@ -158,7 +153,9 @@
           'wxuser-token': formState.phone,
           'cardins-id': formState.cardType,
           'checkin-persons': formState.checkNumber,
-          'checkin-remarks': formState.desc,
+          'checkin-remarks': encode(formState.desc),
+        }).then(() => {
+          emits('success');
         });
       })
       .catch((error) => {
@@ -168,8 +165,11 @@
   const onWxChange = (wxToken) => {
     console.log(wxToken);
     getCardInfo(wxToken).then((res) => {
-      console.log('===getCardInfo', res);
-      cardList.value = res;
+      cardList.value = res.filter((item) => {
+        return item.cardcat_type === 'daypass';
+      });
+      console.log('===getCardInfo', cardList.value);
+      cardListFilter.value = cardList.value;
     });
   };
   const resetForm = () => {

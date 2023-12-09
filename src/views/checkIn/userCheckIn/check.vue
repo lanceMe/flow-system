@@ -55,7 +55,7 @@
   import type { Rule } from 'ant-design-vue/es/form';
   import { debounce } from 'lodash-es';
   import { getUserInfoByPhone, getCardInfo, postCheckinList } from '/@/api/booking';
-  import { Base64 } from '/@/utils/file/base64Conver';
+  import { encode } from '/@/utils/base64';
 
   import {
     Form as AForm,
@@ -153,7 +153,7 @@
           'wxuser-token': formState.phone,
           'cardins-id': formState.cardType,
           'checkin-persons': formState.checkNumber,
-          'checkin-remarks': Base64.encode(formState.desc),
+          'checkin-remarks': encode(formState.desc),
         }).then(() => {
           emits('success');
         });
