@@ -1,26 +1,38 @@
 <template>
   <PageWrapper>
     <ASpace direction="vertical" style="width: 100%" size="middle">
-      <a-form name="horizontal_login" layout="inline" autocomplete="off">
-        <a-form-item name="username" :rules="[{ required: true, message: '请输入手机号' }]">
-          <a-input v-model:value="formState.phone" placeholder="手机号" />
+      <a-form
+        :model="formState"
+        name="horizontal_login"
+        layout="inline"
+        autocomplete="off"
+        ref="formRef"
+      >
+        <a-form-item name="phoneNumber">
+          <a-input ref="phoneNumber" v-model:value="formState.phoneNumber" placeholder="手机号" />
         </a-form-item>
         <a-form-item name="memberCardType">
           <a-select
             v-model:value="formState.memberCardType"
             placeholder="卡种"
+            allowClear
             style="width: 200px"
           >
-            <a-select-option value="demand">{{ cardType.demand }}</a-select-option>
-            <a-select-option value="month">{{ cardType.month }}</a-select-option>
+            <a-select-option value="bundle">次数卡</a-select-option>
+            <a-select-option value="time">时间卡</a-select-option>
           </a-select>
         </a-form-item>
         <a-form-item name="date">
-          <a-date-picker v-model:value="formState.date" show-time type="date" placeholder="日期" />
+          <a-date-picker
+            v-model:value="formState.date"
+            type="date"
+            :disabled-date="disabledDate"
+            placeholder="日期"
+          />
         </a-form-item>
         <a-form-item>
           <a-button style="margin: 0 10px" @click="resetForm">清空</a-button>
-          <a-button type="primary" @click="onSubmit">搜索</a-button>
+          <a-button type="primary" @click="onSearch">搜索</a-button>
         </a-form-item>
       </a-form>
 
@@ -35,42 +47,19 @@
 
       <a-table :columns="columns" :data-source="data">
         <template #bodyCell="{ column, record }">
-          <template v-if="column.key === 'phone'">
-            {{ record.phone }}
-          </template>
-          <template v-else-if="column.key === 'num'">
-            {{ record.num }}
-          </template>
-          <template v-else-if="column.key === 'memberCard'">
-            {{ record.memberCard }}
-          </template>
-          <template v-else-if="column.key === 'memberCardType'">
-            {{ cardType[record.memberCardType] }}
-          </template>
-          <template v-else-if="column.key === 'checkInTime'">
-            {{ dayjs(record.checkInTime).format('YYYY-MM-DD HH:MM:ss') }}
-          </template>
-          <template v-else-if="column.key === 'confirmType'">
-            {{ record.confirmType }}
-          </template>
-          <template v-else-if="column.key === 'checkInType'">
-            {{ checkInType[record.checkInType] }}
-          </template>
-          <template v-else-if="column.key === 'memo'">
-            {{ record.memo }}
-          </template>
-          <template v-else-if="column.key === 'operation'">
-            <a-button @click="resetForm" type="link">立即签到</a-button>
-            <a-button type="link" @click="onSubmit">取消签到</a-button>
+          <template v-if="column.key === 'operation'">
+            <a-button type="link" :disabled="record.isCheckIn" @click="onCancelCheckIn(record)"
+              >取消签到</a-button
+            >
           </template>
         </template>
       </a-table>
     </ASpace>
-    <check ref="checkRef" />
+    <check ref="checkRef" @success="successCheckIn" />
   </PageWrapper>
 </template>
 <script lang="ts">
-  import { defineComponent, ref } from 'vue';
+  import { defineComponent, ref, reactive, computed } from 'vue';
   import {
     Table,
     Form,
@@ -81,12 +70,20 @@
     SelectOption,
     DatePicker,
     Space,
+    RangePicker,
+    message,
   } from 'ant-design-vue';
 
   import { openWindow } from '/@/utils';
   import { PageWrapper } from '/@/components/Page';
+  import { getCheckinList, deleteCheckin } from '/@/api/booking';
   import check from './check.vue';
   import dayjs from 'dayjs';
+
+  const cardType = {
+    bundle: '次数卡',
+    time: '时间卡',
+  };
 
   export default defineComponent({
     components: {
@@ -99,32 +96,86 @@
       ASelect: Select,
       ASelectOption: SelectOption,
       ADatePicker: DatePicker,
+      ARangePicker: RangePicker,
       ASpace: Space,
       check,
     },
     setup() {
       const checkRef = ref();
+      const formRef = ref();
+      const today = dayjs().format('YYYY-MM-DD');
+      // const page = reactive({
+      //   total: 0,
+      //   current: 0,
+      //   pageSize: 0,
+      // });
+      const selectPriceDate = ref();
+      const formState = reactive<any>({
+        phoneNumber: undefined,
+        memberCardType: undefined,
+        date: dayjs(),
+      });
+
+      const data = ref([
+        {
+          key: '1',
+          Nickname: 'Mike',
+          phone: 32,
+          num: 1,
+          memberCard: 1,
+          memberCardType: 'month',
+          checkInTime: dayjs(),
+          confirmType: 111,
+          checkInType: 'wechat',
+          memo: 777,
+        },
+      ]);
+      const calendarPriceRangeChange = (date) => {
+        selectPriceDate.value = date;
+      };
+      const getList = () => {
+        const parmas = {
+          'phone-number': formState.phoneNumber,
+          'from-date': formState.date.format('YYYY-MM-DD'),
+          'to-date': formState.date.format('YYYY-MM-DD'),
+          'cardcat-class': formState.memberCardType,
+        };
+        getCheckinList(parmas).then((res) => {
+          console.log('===res', res);
+          data.value = res.checkin_daypass_list.map((item, index) => ({
+            key: index,
+            Nickname: item.wxuser_nickname,
+            phone: item.wxuser_phone_number,
+            num: item.checkin_persons,
+            memberCard: item.cardcat_name,
+            memberCardType: cardType[item.cardcat_class],
+            checkInTime: item.checkin_time,
+            confirmType: 111,
+            checkInType: 'wechat',
+            memo: item.checkin_remarks,
+            wxToken: item.wxuser_token,
+            cardinsId: item.cardins_id,
+            isCheckIn: formState.date.format('YYYY-MM-DD') !== today,
+          }));
+        });
+      };
+      getList();
+      const disabledDate = (current: any) => {
+        return current && current > dayjs().endOf('day');
+      };
 
       return {
         dayjs,
         checkRef,
+        formState,
+        disabledDate,
+        calendarPriceRangeChange,
+        today,
+        formRef,
         toIconify: () => {
           openWindow('https://iconify.design/');
         },
-        data: [
-          {
-            key: '1',
-            Nickname: 'Mike',
-            phone: 32,
-            num: 1,
-            memberCard: 1,
-            memberCardType: 'month',
-            checkInTime: dayjs(),
-            confirmType: 111,
-            checkInType: 'wechat',
-            memo: 777,
-          },
-        ],
+        data,
         columns: [
           {
             title: '昵称',
@@ -188,12 +239,39 @@
         onSubmit() {
           checkRef.value.controlModal(true);
         },
-        resetForm() {},
-        formState: {
-          phone: '',
-          memberCardType: undefined,
-          date: '',
+        resetForm() {
+          console.log(formRef.value.resetFields);
+          formRef.value.resetFields();
         },
+        onSearch() {
+          const from = formState.date;
+          if (!from) {
+            message.error('请选择日期范围');
+            return;
+          }
+          getList();
+        },
+        onCancelCheckIn(record) {
+          console.log('===record', record);
+
+          deleteCheckin({
+            'wxuser-token': record.wxToken,
+            'cardins-id ': record.cardinsId,
+          }).then(() => {
+            message.success('取消签到成功');
+            getList();
+          });
+        },
+
+        handleTableChange(value) {
+          console.log('===value', value);
+        },
+        successCheckIn() {
+          message.success('签到成功');
+          checkRef.value.controlModal(false);
+          getList();
+        },
+
         getWeek() {
           const datas = dayjs().day();
           const week = ['日', '一', '二', '三', '四', '五', '六'];

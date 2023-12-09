@@ -1,23 +1,49 @@
 <template>
   <PageWrapper>
     <ASpace direction="vertical" style="width: 100%" size="middle">
-      <ASpace style="display: flex; flex-direction: row-reverse" size="middle">
-        <a-button type="primary" @click="linkTo('create')">创建课程</a-button>
-      </ASpace>
+      <a-form :model="formState" layout="inline" autocomplete="off" ref="formRef">
+        <a-form-item name="text">
+          <a-input v-model:value="formState.text" placeholder="通知内容" />
+        </a-form-item>
+        <a-form-item name="courseType">
+          <a-select
+            v-model:value="formState.notiType"
+            placeholder="课程列表"
+            style="width: 200px"
+            allowClear
+          >
+            <a-select-option value="1">首页轮播图</a-select-option>
+            <a-select-option value="2">Banner</a-select-option>
+          </a-select>
+        </a-form-item>
+        <a-form-item>
+          <a-button style="margin: 0 10px" @click="resetForm">清空</a-button>
+          <a-button type="primary" @click="onSearch">搜索</a-button>
+        </a-form-item>
+      </a-form>
 
-      <a-table :columns="columns" :data-source="data" :scroll="{ x: 1000 }">
-        <template #bodyCell="{ column }">
+      <h5 style="font-size: 16px">{{ getWeek() }} | {{ getDate() }}</h5>
+
+      <div style="display: flex; flex-direction: row; justify-content: end" size="middle">
+        <a-button class="reserve-item-ab" type="primary" @click="onSubmit">通知排序</a-button>
+        <a-button class="reserve-item-ab" type="primary" @click="onSubmit">新建通知</a-button>
+      </div>
+
+      <a-table :columns="columns" :data-source="data">
+        <template #bodyCell="{ column, record }">
           <template v-if="column.key === 'operation'">
-            <a-button type="link" @click="linkTo('view')">查看</a-button>
-            <a-button type="link" @click="linkTo('edit')">编辑</a-button>
+            <a-button @click="handleView(record)" type="link">查看</a-button>
+            <a-button @click="handleEdit(record)" type="link">编辑</a-button>
+            <a-button @click="handleOffline(record)" type="link">下线</a-button>
           </template>
         </template>
       </a-table>
     </ASpace>
+    <check ref="checkRef" />
   </PageWrapper>
 </template>
 <script lang="ts">
-  import { defineComponent } from 'vue';
+  import { defineComponent, ref, reactive } from 'vue';
   import {
     Table,
     Form,
@@ -32,8 +58,8 @@
 
   import { openWindow } from '/@/utils';
   import { PageWrapper } from '/@/components/Page';
+  import check from './check.vue';
   import dayjs from 'dayjs';
-  import { useRoute, useRouter } from 'vue-router';
 
   export default defineComponent({
     components: {
@@ -45,136 +71,107 @@
       AButton: Button,
       ASelect: Select,
       ASelectOption: SelectOption,
-      ADatePicker: DatePicker,
       ASpace: Space,
+      check,
     },
     setup() {
-      const router = useRouter();
-
+      const checkRef = ref();
+      const formRef = ref();
+      const formState = reactive({
+        text: undefined,
+        notiType: undefined,
+        date: '',
+      });
       return {
         dayjs,
+        checkRef,
+        formState,
+        formRef,
         toIconify: () => {
           openWindow('https://iconify.design/');
         },
         data: [
           {
             key: '1',
-            name: 'Mike',
-            courseType: 32,
-            num: 1,
-            memberCard: 1,
-            memberCardType: 'month',
-            checkInTime: dayjs(),
-            confirmType: 111,
-            checkInType: 'wechat',
-            memo: 777,
+            title: '通知标题示例',
+            type: '类型示例',
+            status: '已上线',
+            startTime: '1212',
+            endTime: '232', // 举例：一小时后结束
+            creator: '创建人示例',
           },
         ],
         columns: [
           {
-            title: '课程名称',
-            dataIndex: 'name',
-            key: 'name',
-            width: 150,
-            fixed: 'left',
+            title: '通知标题',
+            dataIndex: 'title',
+            key: 'title',
           },
           {
-            title: '课程类别',
-            dataIndex: 'courseType',
-            key: 'courseType',
-            width: 150,
+            title: '通知类型',
+            dataIndex: 'type',
+            key: 'type',
           },
           {
-            title: '课程种类',
-            dataIndex: 'courseCategory',
-            key: 'num',
-            width: 150,
+            title: '状态',
+            dataIndex: 'status',
+            key: 'status',
           },
           {
-            title: '人数下限',
-            dataIndex: 'minMember',
-            key: 'minMember',
-            width: 150,
+            title: '开始时间',
+            dataIndex: 'startTime',
+            key: 'startTime',
           },
           {
-            title: '人数上限',
-            dataIndex: 'maxMember',
-            key: 'maxMember',
-            width: 150,
+            title: '结束时间',
+            dataIndex: 'endTime',
+            key: 'endTime',
           },
           {
-            title: '预约方式',
-            dataIndex: 'bookType',
-            key: 'bookType',
-            width: 150,
-          },
-          {
-            title: '卡种',
-            dataIndex: 'card',
-            key: 'card',
-            width: 150,
-          },
-          {
-            title: '课程价格',
-            dataIndex: 'coursePrice',
-            key: 'coursePrice',
-            width: 150,
-          },
-          {
-            title: '课程时长',
-            dataIndex: 'courseLength',
-            key: 'courseLength',
-            width: 150,
-          },
-          {
-            title: '是否允许候补',
-            dataIndex: 'isAlternate',
-            key: 'isAlternate',
-            width: 150,
-          },
-          {
-            title: '候补时间限制',
-            dataIndex: 'alternateTime',
-            key: 'alternateTime',
-            width: 150,
-          },
-          {
-            title: '课程介绍',
-            dataIndex: 'courseIntro',
-            key: 'courseIntro',
-            width: 150,
-          },
-          {
-            title: '课程介绍',
-            dataIndex: 'courseIntro',
-            key: 'courseIntro',
-            width: 150,
+            title: '创建人',
+            dataIndex: 'creator',
+            key: 'creator',
           },
           {
             title: '操作',
             dataIndex: 'operation',
-            key: 'operation',
-            width: 200,
-            fixed: 'right',
+            key: 'operation', // 使用自定义渲染操作列
           },
         ],
-        linkTo(type: string) {
-          router.push({
-            path: '/course/detail',
-            // name: 'home',
-            query: {
-              type,
-            },
-          });
+        checkInType: {
+          wechat: '微信小程序',
+          backup: '后台',
+        },
+        cardType: {
+          month: '月卡',
+          demand: '次卡',
+        },
+        onSubmit() {
+          checkRef.value.controlModal(true);
+        },
+        onSearch() {},
+
+        // 处理查看操作
+        handleView(record: Record<string, any>) {
+          console.log('查看通知', record);
+          // 这里可以添加具体的查看逻辑
         },
 
-        onSubmit() {},
-        resetForm() {},
-        formState: {
-          phone: '',
-          memberCardType: undefined,
-          date: '',
+        // 处理编辑操作
+        handleEdit(record: Record<string, any>) {
+          console.log('编辑通知', record);
+          // 这里可以添加具体的编辑逻辑
         },
+
+        // 处理下线操作
+        handleOffline(record: Record<string, any>) {
+          console.log('下线通知', record);
+          // 这里可以添加具体的下线逻辑
+        },
+        resetForm() {
+          formRef.value.resetFields();
+        },
+
         getWeek() {
           const datas = dayjs().day();
           const week = ['日', '一', '二', '三', '四', '五', '六'];
@@ -187,3 +184,18 @@
     },
   });
 </script>
+<style lang="less">
+  .reserve-item {
+    border-bottom: 1px solid #000;
+
+    &-btn {
+      display: flex;
+      align-items: center;
+      margin-left: auto;
+    }
+
+    &-ab {
+      margin-left: 20px;
+    }
+  }
+</style>

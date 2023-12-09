@@ -3,6 +3,7 @@
 
 import type { AxiosInstance, AxiosRequestConfig, AxiosResponse } from 'axios';
 import { clone } from 'lodash-es';
+import { message } from 'ant-design-vue';
 import type { RequestOptions, Result } from '/#/axios';
 import type { AxiosTransform, CreateAxiosOptions } from './axiosTransform';
 import { VAxios } from './Axios';
@@ -23,6 +24,7 @@ import axios from 'axios';
 const globSetting = useGlobSetting();
 const urlPrefix = globSetting.urlPrefix;
 const { createMessage, createErrorModal, createSuccessModal } = useMessage();
+let hide: any = null; // 控制loading 关闭
 
 /**
  * @description: 数据处理，方便区分多种处理方式
@@ -161,6 +163,7 @@ const transform: AxiosTransform = {
   requestInterceptors: (config, options) => {
     // 请求之前处理config
     const token = getToken();
+    hide = message.loading('请求中..', 0);
     if (token && (config as Recordable)?.requestOptions?.withToken !== false) {
       // jwt token
       (config as Recordable).headers.Authorization = options.authenticationScheme
@@ -177,6 +180,7 @@ const transform: AxiosTransform = {
    * @description: 响应拦截器处理
    */
   responseInterceptors: (res: AxiosResponse<any>) => {
+    hide();
     return res;
   },
 
@@ -192,7 +196,7 @@ const transform: AxiosTransform = {
     const msg: string = response?.data?.error?.message ?? '';
     const err: string = error?.toString?.() ?? '';
     let errMessage = '';
-
+    hide();
     if (axios.isCancel(error)) {
       return Promise.reject(error);
     }

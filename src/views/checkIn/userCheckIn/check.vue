@@ -8,8 +8,22 @@
       :label-col="labelCol"
       :wrapper-col="wrapperCol"
     >
-      <a-form-item ref="phone" label="手机号" name="phone">
-        <a-input v-model:value="formState.phone" />
+      <a-form-item ref="phone" label="微信昵称" name="phone">
+        <a-select
+          v-model:value="formState.phone"
+          show-search
+          placeholder="Select users"
+          style="width: 100%"
+          :filter-option="false"
+          :not-found-content="phoneState.fetching ? undefined : null"
+          :options="phoneState.data"
+          @search="fetchUser"
+          @change="onWxChange"
+        >
+          <template v-if="phoneState.fetching" #notFoundContent>
+            <a-spin size="small" />
+          </template>
+        </a-select>
       </a-form-item>
       <a-form-item label="签到人数" name="checkNumber">
         <a-input-number v-model:value="formState.checkNumber" :min="1" />
@@ -19,10 +33,12 @@
           v-model:value="formState.cardType"
           placeholder="请选择会员卡"
           @change="handleCardTypeChange"
+          :status="cardListFilter.length ? '' : 'error'"
         >
-          <a-select-option value="1">课程卡</a-select-option>
-          <a-select-option value="2">仅会员</a-select-option>
-          <a-select-option value="3">付费</a-select-option>
+          <!--eslint-disable-next-line vue/valid-v-for-->
+          <a-select-option v-for="item in cardListFilter" :value="item.cardins_id">{{
+            item.cardcat_description
+          }}</a-select-option>
         </a-select>
       </a-form-item>
       <a-form-item label="课程介绍" name="desc">
@@ -34,9 +50,13 @@
 
 <script lang="ts" setup>
   import { Dayjs } from 'dayjs';
-  import { reactive, ref, toRaw, UnwrapRef, computed, toRefs } from 'vue';
+  import { reactive, ref, toRaw, UnwrapRef, watch, computed, toRefs } from 'vue';
   import { useRoute, useRouter } from 'vue-router';
   import type { Rule } from 'ant-design-vue/es/form';
+  import { debounce } from 'lodash-es';
+  import { getUserInfoByPhone, getCardInfo, postCheckinList } from '/@/api/booking';
+  import { Base64 } from '/@/utils/file/base64Conver';
+
   import {
     Form as AForm,
     FormItem as AFormItem,
@@ -47,6 +67,8 @@
     DatePicker as ADatePicker,
     InputNumber as AInputNumber,
     Modal as AModal,
+    Spin as ASpin,
+    message,
   } from 'ant-design-vue';
 
   const router = useRoute();
@@ -61,12 +83,22 @@
     desc: '',
   });
   const open = ref(false);
+  const cardList = ref<any>([]);
+  const cardListFilter = ref<any>([]);
 
   const controlModal = (bl: boolean) => {
     open.value = bl;
   };
+
+  const emits = defineEmits(['success']);
   defineExpose({
     controlModal,
+  });
+
+  const phoneState = reactive({
+    data: [],
+    value: undefined,
+    fetching: false,
   });
 
   const rules: Record<string, Rule[]> = {
@@ -75,27 +107,70 @@
     cardType: [{ required: true, message: '请选择会员卡', trigger: 'change' }],
     desc: [{ required: false, message: 'Please input desc', trigger: 'blur' }],
   };
-  const handleCardTypeChange = () => {
-    console.log(formRef.value.clearValidate);
-    // 预约方式变化时的处理
-    // if (formState.bookType !== 1) {
-    //   // 非课程卡预约方式时清空卡种
-    //   formRef.value.clearValidate('card'); // 去除卡种的必填规则
-    // } else {
-    //   // 课程卡预约方式时，添加卡种的必填规则
-    //   formRef.value.validateField('card');
-    // }
+
+  const fetchUser = debounce((value) => {
+    if (!value) return;
+    console.log('fetching user', value);
+    phoneState.data = [];
+    phoneState.fetching = true;
+    getUserInfoByPhone(value).then((body) => {
+      console.log('===body', body);
+      const data = body.map((user) => ({
+        label: `${user.phone_number}:${user.nickname}`,
+        value: user.wxuser_token,
+      }));
+      phoneState.data = data;
+      phoneState.fetching = false;
+    });
+  }, 300);
+
+  watch(
+    () => formState.checkNumber,
+    (value: any) => {
+      formState.cardType = undefined;
+      if (value === 1) {
+        cardListFilter.value = cardList.value;
+      } else if (value > 1) {
+        console.log('===value', value);
+        cardListFilter.value = cardList.value?.filter((item) => {
+          return item.cardcat_max_consume_times !== null;
+        });
+      }
+    },
+  );
+
+  const handleCardTypeChange = (value) => {
+    console.log(value);
   };
 
   const onSubmit = () => {
+    console.log('===formState', toRaw(formState));
     formRef.value
       .validate()
       .then(() => {
         console.log('values', formState, toRaw(formState));
+        postCheckinList({
+          'wxuser-token': formState.phone,
+          'cardins-id': formState.cardType,
+          'checkin-persons': formState.checkNumber,
+          'checkin-remarks': Base64.encode(formState.desc),
+        }).then(() => {
+          emits('success');
+        });
       })
       .catch((error) => {
         console.log('error', error);
       });
+  };
+  const onWxChange = (wxToken) => {
+    console.log(wxToken);
+    getCardInfo(wxToken).then((res) => {
+      cardList.value = res.filter((item) => {
+        return item.cardcat_type === 'daypass';
+      });
+      console.log('===getCardInfo', cardList.value);
+      cardListFilter.value = cardList.value;
+    });
   };
   const resetForm = () => {
     formRef.value.resetFields();

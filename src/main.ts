@@ -2,12 +2,13 @@ import 'uno.css';
 import '@/design/index.less';
 import '@/components/VxeTable/src/css/index.scss';
 import 'ant-design-vue/dist/reset.css';
+import '@surely-vue/table/dist/index.less';
 
 // Register icon sprite
 import 'virtual:svg-icons-register';
 
 import { createApp } from 'vue';
-
+import STable from '@surely-vue/table';
 import { registerGlobComp } from '@/components/registerGlobComp';
 import { setupGlobDirectives } from '@/directives';
 import { setupI18n } from '@/locales/setupI18n';
@@ -21,7 +22,7 @@ import App from './App.vue';
 
 async function bootstrap() {
   const app = createApp(App);
-
+  app.use(STable);
   // Configure store
   // 配置 store
   setupStore(app);

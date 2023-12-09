@@ -34,52 +34,104 @@
       </a-form>
 
       <h5 style="font-size: 16px">{{ getWeek() }} | {{ getDate() }}</h5>
+      <div class="reserve-item">
+        <div style="display: flex; flex-direction: row" size="middle">
+          <div>团课</div>
+          <div>10:00-10:50</div>
+          <div>Jason</div>
+          <div class="reserve-item-btn">
+            <div>预收/确认：1325.8元/238元 </div>
+            <div>预约人数:5/5</div>
+            <div>候补人数：2</div>
+            <a-button class="reserve-item-ab" type="primary" @click="onSubmit">预约</a-button>
+          </div>
+        </div>
 
-      <ASpace style="display: flex; flex-direction: row-reverse" size="middle">
-        <a-button type="primary" @click="onSubmit">预约</a-button>
-        <div>当日到店人数：34</div>
+        <a-table :columns="columns" :data-source="data">
+          <template #bodyCell="{ column, record }">
+            <template v-if="column.key === 'phone'">
+              {{ record.phone }}
+            </template>
+            <template v-else-if="column.key === 'num'">
+              {{ record.num }}
+            </template>
+            <template v-else-if="column.key === 'memberCard'">
+              {{ record.memberCard }}
+            </template>
+            <template v-else-if="column.key === 'memberCardType'">
+              {{ cardType[record.memberCardType] }}
+            </template>
+            <template v-else-if="column.key === 'checkInTime'">
+              {{ dayjs(record.checkInTime).format('YYYY-MM-DD HH:MM:ss') }}
+            </template>
+            <template v-else-if="column.key === 'confirmType'">
+              {{ record.confirmType }}
+            </template>
+            <template v-else-if="column.key === 'checkInType'">
+              {{ checkInType[record.checkInType] }}
+            </template>
+            <template v-else-if="column.key === 'memo'">
+              {{ record.memo }}
+            </template>
+            <template v-else-if="column.key === 'operation'">
+              <a-button @click="resetForm" type="link">立即签到</a-button>
+              <a-button type="link" @click="onSubmit">取消签到</a-button>
+            </template>
+          </template>
+        </a-table>
+      </div>
+      <div class="reserve-item">
+        <div style="display: flex; flex-direction: row" size="middle">
+          <div>私教课</div>
+          <div>10:00-10:50</div>
+          <div>Jason</div>
+          <div class="reserve-item-btn">
+            <div>预收/确认：1325.8元/238元 </div>
+            <div>预约人数:5/5</div>
+            <div>候补人数：2</div>
+            <a-button class="reserve-item-ab" type="primary" @click="onSubmit">预约</a-button>
+          </div>
+        </div>
 
-        <div>预收/确认：1325.8元/238元 </div>
-      </ASpace>
-
-      <a-table :columns="columns" :data-source="data">
-        <template #bodyCell="{ column, record }">
-          <template v-if="column.key === 'phone'">
-            {{ record.phone }}
+        <a-table :columns="columns" :data-source="data">
+          <template #bodyCell="{ column, record }">
+            <template v-if="column.key === 'phone'">
+              {{ record.phone }}
+            </template>
+            <template v-else-if="column.key === 'num'">
+              {{ record.num }}
+            </template>
+            <template v-else-if="column.key === 'memberCard'">
+              {{ record.memberCard }}
+            </template>
+            <template v-else-if="column.key === 'memberCardType'">
+              {{ cardType[record.memberCardType] }}
+            </template>
+            <template v-else-if="column.key === 'checkInTime'">
+              {{ dayjs(record.checkInTime).format('YYYY-MM-DD HH:MM:ss') }}
+            </template>
+            <template v-else-if="column.key === 'confirmType'">
+              {{ record.confirmType }}
+            </template>
+            <template v-else-if="column.key === 'checkInType'">
+              {{ checkInType[record.checkInType] }}
+            </template>
+            <template v-else-if="column.key === 'memo'">
+              {{ record.memo }}
+            </template>
+            <template v-else-if="column.key === 'operation'">
+              <a-button @click="resetForm" type="link">立即签到</a-button>
+              <a-button type="link" @click="onSubmit">取消签到</a-button>
+            </template>
           </template>
-          <template v-else-if="column.key === 'num'">
-            {{ record.num }}
-          </template>
-          <template v-else-if="column.key === 'memberCard'">
-            {{ record.memberCard }}
-          </template>
-          <template v-else-if="column.key === 'memberCardType'">
-            {{ cardType[record.memberCardType] }}
-          </template>
-          <template v-else-if="column.key === 'checkInTime'">
-            {{ dayjs(record.checkInTime).format('YYYY-MM-DD HH:MM:ss') }}
-          </template>
-          <template v-else-if="column.key === 'confirmType'">
-            {{ record.confirmType }}
-          </template>
-          <template v-else-if="column.key === 'checkInType'">
-            {{ checkInType[record.checkInType] }}
-          </template>
-          <template v-else-if="column.key === 'memo'">
-            {{ record.memo }}
-          </template>
-          <template v-else-if="column.key === 'operation'">
-            <a-button @click="resetForm" type="link">立即签到</a-button>
-            <a-button type="link" @click="onSubmit">取消签到</a-button>
-          </template>
-        </template>
-      </a-table>
+        </a-table>
+      </div>
     </ASpace>
     <check ref="checkRef" />
   </PageWrapper>
 </template>
 <script lang="ts">
-  import { defineComponent, ref } from 'vue';
+  import { defineComponent, ref, reactive } from 'vue';
   import {
     Table,
     Form,
@@ -114,10 +166,23 @@
     setup() {
       const checkRef = ref();
       const formRef = ref();
+      const selectPriceDate = ref();
+      const formState = reactive({
+        coach: undefined,
+        courseType: undefined,
+        date: '',
+      });
+
+      const calendarPriceRangeChange = (date) => {
+        selectPriceDate.value = date;
+      };
 
       return {
         dayjs,
         checkRef,
+        formState,
+        selectPriceDate,
+        calendarPriceRangeChange,
         formRef,
         toIconify: () => {
           openWindow('https://iconify.design/');
@@ -197,11 +262,17 @@
         resetForm() {
           formRef.value.resetFields();
         },
-        formState: {
-          coach: undefined,
-          courseType: undefined,
-          date: '',
+        disabledDate(current: any) {
+          if (!selectPriceDate.value) {
+            return false;
+          }
+          const tooLate =
+            selectPriceDate.value[0] && current.diff(selectPriceDate.value[0], 'days') >= 31;
+          const tooEarly =
+            selectPriceDate.value[1] && selectPriceDate.value[1].diff(current, 'days') >= 31;
+          return !!tooEarly || !!tooLate;
         },
+
         getWeek() {
           const datas = dayjs().day();
           const week = ['日', '一', '二', '三', '四', '五', '六'];
@@ -214,3 +285,18 @@
     },
   });
 </script>
+<style lang="less">
+  .reserve-item {
+    border-bottom: 1px solid #000;
+
+    &-btn {
+      display: flex;
+      align-items: center;
+      margin-left: auto;
+    }
+
+    &-ab {
+      margin-left: 20px;
+    }
+  }
+</style>
