@@ -34,7 +34,7 @@
     props: {
       userData: { type: Object },
     },
-    emits: ['submitSuccess'],
+    emits: ['register', 'submitSuccess'],
     setup(props, { emit }) {
       const modelRef = ref({});
       const dataRef = ref({});
@@ -82,16 +82,17 @@
       function postApi(values) {
         const { formData: data, type } = dataRef.value as any;
         const requestFunc = type === 'create' ? createTemplete : editTemplete;
+        const [address, lat, long] = calAddress(values?.address, values?.['ctpl-address']);
         const params = {
           ...values,
-          'ctpl-no-cancel-reserve-minutes': data?.['ctpl_no_cancel_reserve_minutes'] || 60,
+          // 'ctpl-no-cancel-reserve-minutes': data?.['ctpl_no_cancel_reserve_minutes'] || 60,
           'ctpl-id': data?.['ctpl_id'],
           'ctpl-display-name': encode(values['ctpl-display-name']),
           'ctpl-description': encode(values['ctpl-description']),
-          'ctpl-address': encode(values['ctpl-address']),
+          'ctpl-address': encode(address as string),
           'ctpl-tag': encode(values['ctpl-tag']),
-          'ctpl-address-lat': 0,
-          'ctpl-address-long': 0,
+          'ctpl-address-lat': lat,
+          'ctpl-address-long': long,
         };
         console.log('postApi', params, data);
         requestFunc(params).then((resp) => {
@@ -99,6 +100,18 @@
           closeModal();
           emit('submitSuccess');
         });
+      }
+
+      function calAddress(addressType: number, addressInput: string) {
+        let lat = 50;
+        let long = 50;
+        let text = 'Mellow Climbing Gym';
+        if (addressType === 2) {
+          lat = 0;
+          long = 0;
+          text = addressInput;
+        }
+        return [text, lat, long];
       }
 
       function setType(type: string) {

@@ -15,11 +15,26 @@ const course: AppRouteModule = {
   },
   children: [
     {
-      path: 'group',
-      name: 'group',
+      path: 'groupopen',
+      name: 'groupopen',
+      props: {
+        type: 'groupopen',
+      },
       component: () => import('/@/views/course/group/index.vue'),
       meta: {
         title: '团课管理',
+        // hideMenu: true,
+      },
+    },
+    {
+      path: 'private',
+      name: 'private',
+      component: () => import('/@/views/course/group/index.vue'),
+      props: {
+        type: 'private',
+      },
+      meta: {
+        title: '私教课管理',
         // hideMenu: true,
       },
     },

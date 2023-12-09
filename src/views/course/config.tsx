@@ -1,27 +1,29 @@
 import { FormSchema } from '/@/components/Form';
 import { BasicColumn } from '/@/components/Table/src/types/table';
 import { formatToDate } from '/@/utils/dateUtil';
-import { getTagList } from '/@/api/course';
-import { getCardList } from '/@/api/cards';
+import { getTagList, getCoachList } from '/@/api/course';
+import dayjs from 'dayjs';
+// import { getCardList } from '/@/api/cards';
 
 export function getFormSchema(data): FormSchema[] {
   const { type, formData: f } = data || {};
-
   const dynamicDisabled = type === 'view';
+  const showDef = type !== 'create';
+  const address = f?.['ctpl_address'] === 'Mellow Climbing Gym' ? 1 : 2;
   return [
     {
       field: 'ctpl-display-name',
       component: 'Input',
       label: '课程名称',
       required: true,
-      defaultValue: f?.['ctpl_display_name'],
+      defaultValue: showDef ? f?.['ctpl_display_name'] : undefined,
       dynamicDisabled,
     },
     {
       field: 'ctpl-type',
       component: 'Select',
       label: '课程类别',
-      defaultValue: f?.['ctpl_type'],
+      defaultValue: showDef ? f?.['ctpl_type'] : undefined,
       required: true,
       dynamicDisabled,
       componentProps: {
@@ -40,7 +42,7 @@ export function getFormSchema(data): FormSchema[] {
       label: '课程种类',
       required: true,
       dynamicDisabled,
-      defaultValue: f?.['ctpl_tag'],
+      defaultValue: showDef ? f?.['ctpl_tag'] : undefined,
       componentProps: {
         api: getTagList,
         immediate: true,
@@ -68,7 +70,7 @@ export function getFormSchema(data): FormSchema[] {
       field: 'ctpl-min-attenders',
       component: 'InputNumber',
       label: '人数下限',
-      defaultValue: f?.['ctpl_min_attenders'],
+      defaultValue: showDef ? f?.['ctpl_min_attenders'] : undefined,
       required: true,
       dynamicDisabled,
     },
@@ -118,7 +120,7 @@ export function getFormSchema(data): FormSchema[] {
       field: 'ctpl-price',
       component: 'InputNumber',
       label: '课程价格',
-      defaultValue: f?.['ctpl_price'],
+      defaultValue: showDef ? f?.['ctpl_price'] : undefined,
       // required: true,
       dynamicDisabled,
     },
@@ -126,7 +128,7 @@ export function getFormSchema(data): FormSchema[] {
       field: 'ctpl-duration-minutes',
       component: 'InputNumber',
       label: '课程时长',
-      defaultValue: f?.['ctpl_duration_minutes'],
+      defaultValue: showDef ? f?.['ctpl_duration_minutes'] : undefined,
       required: true,
       dynamicDisabled,
     },
@@ -134,7 +136,15 @@ export function getFormSchema(data): FormSchema[] {
       field: 'ctpl-cancel-waiting-minutes',
       component: 'InputNumber',
       label: '候补时间限制',
-      defaultValue: f?.['ctpl_cancel_waiting_minutes'],
+      defaultValue: showDef ? f?.['ctpl_cancel_waiting_minutes'] : undefined,
+      required: true,
+      dynamicDisabled,
+    },
+    {
+      field: 'ctpl-no-cancel-reserve-minutes',
+      component: 'InputNumber',
+      label: '取消时间限制',
+      defaultValue: showDef ? f?.['ctpl_no_cancel_reserve_minutes'] : undefined,
       required: true,
       dynamicDisabled,
     },
@@ -142,7 +152,7 @@ export function getFormSchema(data): FormSchema[] {
       field: 'ctpl-description',
       component: 'Input',
       label: '课程介绍',
-      defaultValue: f?.['ctpl_description'],
+      defaultValue: showDef ? f?.['ctpl_description'] : undefined,
       // required: true,
       dynamicDisabled,
     },
@@ -150,7 +160,7 @@ export function getFormSchema(data): FormSchema[] {
       field: 'address',
       component: 'RadioGroup',
       label: '地点',
-      defaultValue: f?.['ctpl_address'] === 'Mellow Climbing Gym' ? 1 : 2,
+      defaultValue: showDef ? address : undefined,
       componentProps: {
         options: [
           { label: '岩馆地址', value: 1 },
@@ -162,7 +172,7 @@ export function getFormSchema(data): FormSchema[] {
       field: 'ctpl-address',
       component: 'Input',
       label: '',
-      defaultValue: f?.['ctpl_address'],
+      defaultValue: showDef ? f?.['ctpl_address'] : undefined,
       required: ({ values }) => {
         return values.address === 2;
       },
@@ -229,6 +239,131 @@ export function getTableColumns(): BasicColumn[] {
       title: '创建人',
       width: 150,
       dataIndex: 'cardType',
+    },
+  ];
+}
+
+export function getFormSchema1(data): FormSchema[] {
+  const { type, formData: fd, templeteData: td } = data || {};
+  const dynamicDisabled = type === 'view';
+  const isNeedFillTemplete = td !== undefined;
+  const showDef = type === 'edit' || type === 'view' || isNeedFillTemplete;
+  const f = isNeedFillTemplete ? td : fd;
+
+  const address = !f?.['address'] || f?.['address'] === 'Mellow Climbing Gym' ? 1 : 2;
+
+  const startDate = f?.['start_time'] ? dayjs(f?.['start_time']) : undefined;
+  const endDate =
+    startDate && f?.['duration_minutes'] ? startDate.add(f?.['duration_minutes'], 'm') : undefined;
+
+  const start = startDate?.format('YYYY-MM-DD HH:mm:sss') || '';
+  const end = endDate?.format('YYYY-MM-DD HH:mm:sss') || '';
+  return [
+    {
+      field: 'course_id',
+      component: 'ApiSelect',
+      label: '课程名称',
+      required: true,
+      defaultValue: showDef ? f?.['course_id'] : undefined,
+      dynamicDisabled,
+      slot: 'course_name',
+    },
+    {
+      field: 'coach-id',
+      component: 'ApiSelect',
+      label: '课程教练',
+      required: true,
+      defaultValue: showDef ? f?.['coach_id'] : undefined,
+      dynamicDisabled,
+      componentProps: {
+        api: getCoachList,
+        immediate: true,
+        labelField: 'nickname',
+        valueField: 'coach_id',
+      },
+    },
+    {
+      field: '[course-start-time, endDateTime]',
+      label: '日期时间范围',
+      component: 'RangePicker',
+      required: true,
+      dynamicDisabled,
+      defaultValue: showDef ? [start, end] : ['', ''],
+      componentProps: {
+        format: 'YYYY-MM-DD HH:mm',
+        placeholder: ['开始时间', '结束时间'],
+        showTime: { format: 'HH:mm' },
+      },
+      colProps: {
+        span: 26,
+      },
+    },
+
+    {
+      field: 'course-min-attenders',
+      component: 'InputNumber',
+      label: '人数下限',
+      defaultValue: showDef ? f?.['min_attenders'] : undefined,
+      required: true,
+      dynamicDisabled,
+    },
+
+    {
+      field: 'course-max-attenders',
+      component: 'InputNumber',
+      label: '人数上限',
+      defaultValue: showDef ? f?.['max_attenders'] : undefined,
+      required: true,
+      dynamicDisabled,
+    },
+    {
+      field: 'course-cancel-waiting-minutes',
+      component: 'InputNumber',
+      label: '候补时间限制',
+      defaultValue: showDef ? f?.['cancel_waiting_minutes'] : undefined,
+      required: true,
+      dynamicDisabled,
+    },
+    {
+      field: 'course-no-cancel-reserve-minutes',
+      component: 'InputNumber',
+      label: '取消时间限制',
+      defaultValue: showDef ? f?.['no_cancel_reserve_minutes'] : undefined,
+      required: true,
+      dynamicDisabled,
+    },
+    {
+      field: 'course-description',
+      component: 'Input',
+      label: '课程描述',
+      defaultValue: showDef ? f?.['description'] : undefined,
+      // required: true,
+      dynamicDisabled,
+    },
+    {
+      field: 'address',
+      component: 'RadioGroup',
+      label: '地点',
+      defaultValue: showDef ? address : undefined,
+      componentProps: {
+        options: [
+          { label: '岩馆地址', value: 1 },
+          { label: '其他地址', value: 2 },
+        ],
+      },
+    },
+    {
+      field: 'course-address',
+      component: 'Input',
+      label: '',
+      defaultValue: showDef ? f?.['address'] : undefined,
+      required: ({ values }) => {
+        return values.address === 2;
+      },
+      ifShow: ({ values }) => {
+        return values.address === 2;
+      },
+      dynamicDisabled,
     },
   ];
 }
