@@ -125,6 +125,7 @@
     noShowReserveCourse,
     deleteCheckinCoures,
   } from '/@/api/booking/course';
+  import { useRouter } from 'vue-router';
 
   export default defineComponent({
     components: {
@@ -152,13 +153,22 @@
         total: 10,
       });
       const courseList = ref<any>([]);
-      const formState = reactive<{ [key: string]: any }>({
-        coach: undefined,
-        courseType: [],
-        date: [dayjs(), dayjs()],
-      });
-      const coachList = ref();
 
+      const coachList = ref();
+      const router = useRouter();
+      const query = router.currentRoute.value.query;
+
+      const startTime = query?.start_time?.split(' ')[0]
+        ? dayjs(query?.start_time?.split(' ')[0])
+        : dayjs();
+      const courseType = query?.type ? [query?.type] : [];
+      const coach = query.coach_id ? [query.coach_id] : [];
+      console.log('===query', query, startTime, courseType, coach);
+      const formState = reactive<{ [key: string]: any }>({
+        coach,
+        courseType,
+        date: [startTime, startTime],
+      });
       const attendStatus = ref({
         reserved: '已预约',
         waiting: '候补中',
