@@ -241,7 +241,7 @@
       function onEventClick(info) {
         console.log('onEventClick', info);
         const data = info?.event?.['_def']?.extendedProps;
-        const { course_id, type, start_time } = data || {};
+        const { course_id, type, start_time, coach_id } = data || {};
 
         counter++;
         if (counter === 2) {
@@ -258,7 +258,7 @@
             router.push({
               path: '/checkIn/reserveManage',
               // name: 'home',
-              query: { type, course_id, start_time },
+              query: { type, course_id, start_time, coach_id },
             });
           }
         }, 150);
