@@ -74,6 +74,7 @@
   import interactionPlugin from '@fullcalendar/interaction';
   import dayjs from 'dayjs';
   import { useRouter } from 'vue-router';
+  import { useMessage } from '/@/hooks/web/useMessage';
 
   const Color = {
     normal: {
@@ -120,6 +121,7 @@
       let counter = 0;
       let timer: any = -1;
       const router = useRouter();
+      const { createConfirm } = useMessage();
 
       const opts: CalendarOptions = reactive({
         plugins: [
@@ -135,6 +137,8 @@
         selectMirror: true,
         dayMaxEvents: false,
         weekends: true,
+        slotMinTime: '08:00:00',
+        slotMaxTime: '24:00:00',
         slotDuration: '01:00:00',
         contentHeight: 520,
         // scrollTime: '08:00:00',
@@ -235,7 +239,7 @@
 
       function onSelect(info) {
         console.log('onSelect', info);
-        createCourse();
+        createCourse(info);
       }
 
       function onEventClick(info) {
@@ -261,7 +265,7 @@
               query: { type, course_id, start_time, coach_id },
             });
           }
-        }, 150);
+        }, 250);
       }
 
       function handleBbClick(info) {
@@ -272,9 +276,8 @@
         openModal(true, { type: 'edit', formData: data });
       }
 
-      async function createCourse() {
-        console.log('createCourse');
-        openModal(true, { type: 'create' });
+      async function createCourse(info?: any) {
+        openModal(true, { type: 'create', calendar: info });
       }
       function handleView(event: any) {
         console.log('handleView', event);
@@ -303,7 +306,15 @@
         console.log('publishCourse', event);
         // 给定的日期
         const saturday = curDate.value.endOf('week').format('YYYY-MM-DD');
-        publishCourse(saturday, props.type);
+        createConfirm({
+          iconType: 'info',
+          title: '发布课程',
+          content:
+            '发布课程后，14天内的小程序将会更新到小程序，已预约的课程不支持删除或修改人数上限',
+          onOk: () => {
+            publishCourse(saturday, props.type);
+          },
+        });
       }
 
       function onDatePickerChange(date) {
@@ -369,7 +380,7 @@
     &-calendar__toolbar {
       display: flex;
       justify-content: space-between;
-      margin: 30px 0;
+      margin: 15px 0 0;
 
       .date-title {
         font-size: 30px;
