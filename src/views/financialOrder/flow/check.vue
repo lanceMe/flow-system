@@ -1,5 +1,5 @@
 <template>
-  <a-modal v-model:open="open" @ok="onSubmit" :title="'签到'">
+  <a-modal v-model:open="open" @ok="onSubmit" :title="'预约课程:' + courseInfo.course_display_name">
     <a-form
       class="course-detail"
       ref="formRef"
@@ -25,9 +25,6 @@
           </template>
         </a-select>
       </a-form-item>
-      <a-form-item label="签到人数" name="checkNumber">
-        <a-input-number v-model:value="formState.checkNumber" :min="1" />
-      </a-form-item>
       <a-form-item label="会员卡" name="cardType">
         <a-select
           v-model:value="formState.cardType"
@@ -41,7 +38,7 @@
           }}</a-select-option>
         </a-select>
       </a-form-item>
-      <a-form-item label="备注" name="desc">
+      <a-form-item label="课程介绍" name="desc">
         <a-textarea v-model:value="formState.desc" />
       </a-form-item>
     </a-form>
@@ -54,7 +51,8 @@
   import { useRoute, useRouter } from 'vue-router';
   import type { Rule } from 'ant-design-vue/es/form';
   import { debounce } from 'lodash-es';
-  import { getUserInfoByPhone, getCardInfo, postCheckinList } from '/@/api/booking';
+  import { getUserInfoByPhone, getCardInfo } from '/@/api/booking';
+  import { postReserveCourse } from '/@/api/booking/course';
   import { encode } from '/@/utils/base64';
 
   import {
@@ -65,12 +63,18 @@
     Select as ASelect,
     SelectOption as ASelectOption,
     DatePicker as ADatePicker,
-    RangePicker as ARangePicker,
     InputNumber as AInputNumber,
     Modal as AModal,
     Spin as ASpin,
     message,
   } from 'ant-design-vue';
+
+  class State {
+    phone = '';
+    checkNumber = 1;
+    cardType = undefined;
+    desc = '';
+  }
 
   const router = useRoute();
   console.log(router.query.type);
@@ -86,8 +90,15 @@
   const open = ref(false);
   const cardList = ref<any>([]);
   const cardListFilter = ref<any>([]);
+  const courseInfo = ref<any>({});
 
-  const controlModal = (bl: boolean) => {
+  const controlModal = (bl: boolean, item: any) => {
+    if (item) {
+      courseInfo.value = item;
+    }
+    Object.assign(formState, new State());
+
+    console.log(courseInfo.value);
     open.value = bl;
   };
 
@@ -145,16 +156,15 @@
   };
 
   const onSubmit = () => {
-    console.log('===formState', toRaw(formState));
     formRef.value
       .validate()
       .then(() => {
         console.log('values', formState, toRaw(formState));
-        postCheckinList({
+        postReserveCourse({
           'wxuser-token': formState.phone,
           'cardins-id': formState.cardType,
-          'checkin-persons': formState.checkNumber,
           'checkin-remarks': encode(formState.desc),
+          'course-id': courseInfo.value.course_id,
         }).then(() => {
           emits('success');
         });
@@ -167,7 +177,7 @@
     console.log(wxToken);
     getCardInfo(wxToken).then((res) => {
       cardList.value = res.filter((item) => {
-        return item.cardcat_type === 'daypass';
+        return item.cardcat_type === courseInfo.value.course_type;
       });
       console.log('===getCardInfo', cardList.value);
       cardListFilter.value = cardList.value;

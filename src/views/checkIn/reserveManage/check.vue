@@ -38,7 +38,7 @@
           }}</a-select-option>
         </a-select>
       </a-form-item>
-      <a-form-item label="课程介绍" name="desc">
+      <a-form-item label="备注" name="desc">
         <a-textarea v-model:value="formState.desc" />
       </a-form-item>
     </a-form>

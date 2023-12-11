@@ -25,7 +25,7 @@
       <h5 style="font-size: 16px">{{ getWeek() }} | {{ getDate() }}</h5>
 
       <div style="display: flex; flex-direction: row; justify-content: end" size="middle">
-        <a-button class="reserve-item-ab" type="primary" @click="onSubmit">通知排序</a-button>
+        <a-button class="reserve-item-ab" type="primary" @click="onSort">通知排序</a-button>
         <a-button class="reserve-item-ab" type="primary" @click="onSubmit">新建通知</a-button>
       </div>
 
@@ -40,6 +40,7 @@
       </a-table>
     </ASpace>
     <check ref="checkRef" />
+    <sort ref="sortRef" :data="data" />
   </PageWrapper>
 </template>
 <script lang="ts">
@@ -52,14 +53,15 @@
     Button,
     Select,
     SelectOption,
-    DatePicker,
     Space,
   } from 'ant-design-vue';
 
   import { openWindow } from '/@/utils';
   import { PageWrapper } from '/@/components/Page';
   import check from './check.vue';
+  import sort from './sort.vue';
   import dayjs from 'dayjs';
+  import { NotifyType } from './constant';
 
   export default defineComponent({
     components: {
@@ -73,9 +75,11 @@
       ASelectOption: SelectOption,
       ASpace: Space,
       check,
+      sort,
     },
     setup() {
       const checkRef = ref();
+      const sortRef = ref();
       const formRef = ref();
       const formState = reactive({
         text: undefined,
@@ -85,6 +89,7 @@
       return {
         dayjs,
         checkRef,
+        sortRef,
         formState,
         formRef,
         toIconify: () => {
@@ -93,8 +98,26 @@
         data: [
           {
             key: '1',
-            title: '通知标题示例',
-            type: '类型示例',
+            title: '通知标题示例测试1',
+            type: NotifyType.Banner,
+            status: '已上线',
+            startTime: '1212',
+            endTime: '232', // 举例：一小时后结束
+            creator: '创建人示例',
+          },
+          {
+            key: '2',
+            title: '通知标题示例测试2',
+            type: NotifyType.Banner,
+            status: '已上线',
+            startTime: '1212',
+            endTime: '232', // 举例：一小时后结束
+            creator: '创建人示例',
+          },
+          {
+            key: '3',
+            title: '通知标题示例测试3',
+            type: NotifyType.Banner,
             status: '已上线',
             startTime: '1212',
             endTime: '232', // 举例：一小时后结束
@@ -148,6 +171,9 @@
         },
         onSubmit() {
           checkRef.value.controlModal(true);
+        },
+        onSort() {
+          sortRef.value.controlModal(true);
         },
         onSearch() {},
 

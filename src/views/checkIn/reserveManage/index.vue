@@ -27,7 +27,8 @@
             mode="multiple"
           >
             <a-select-option value="group">团课</a-select-option>
-            <a-select-option value="privatelv1,privatelv2">私教课</a-select-option>
+            <a-select-option value="privatelv1">中级私教课</a-select-option>
+            <a-select-option value="privatelv2">高级私教课</a-select-option>
             <a-select-option value="open">公开课</a-select-option>
           </a-select>
         </a-form-item>
@@ -68,7 +69,7 @@
               <a-button
                 type="link"
                 v-if="record.attend_status === 'checkedin'"
-                @click="onCancelCheckIn(record)"
+                @click="onCancelCheckIn(record, item.course_id)"
                 >取消签到</a-button
               >
               <a-button
@@ -291,7 +292,8 @@
         },
 
         resetForm() {
-          formRef.value.resetFields();
+          formState.coach = undefined;
+          formState.courseType = undefined;
         },
         disabledDate(current: any) {
           if (!selectPriceDate.value) {
