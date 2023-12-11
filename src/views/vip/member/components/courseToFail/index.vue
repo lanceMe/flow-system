@@ -1,37 +1,34 @@
 <template>
-  <PageWrapper :class="`${prefixCls}-page-wrapper`">
-    <div class="p-4">
-      <BasicTable @register="registerTable">
-        <template #bodyCell="{ column, record }">
-          <template v-if="column.key === 'action'">
-            <TableAction
-              :actions="[
-                { label: '查看', onClick: handleView.bind(null, record), disabled: true },
-                { label: '编辑', onClick: handleEdit.bind(null, record), disabled: true },
-              ]"
-            />
-          </template>
+  <div :class="`${prefixCls}-page-wrapper`">
+    <BasicTable @register="registerTable">
+      <template #bodyCell="{ column, record }">
+        <template v-if="column.key === 'action'">
+          <TableAction
+            :actions="[
+              { label: '查看', onClick: handleView.bind(null, record), disabled: true },
+              { label: '编辑', onClick: handleEdit.bind(null, record), disabled: true },
+            ]"
+          />
         </template>
-        <template #toolbar>
-          <a-button type="primary" @click="createCourse" :disabled="true"> 创建会员卡 </a-button>
-        </template>
-      </BasicTable>
-    </div>
+      </template>
+      <template #toolbar>
+        <!-- <a-button type="primary" @click="createCourse" :disabled="true"> 创建会员卡 </a-button> -->
+      </template>
+    </BasicTable>
     <Modal @register="registerModal" @submit-success="changeCourseList" />
-  </PageWrapper>
+  </div>
 </template>
 <script lang="ts">
   import { defineComponent, ref } from 'vue';
   import { BasicTable, useTable, TableAction } from '/@/components/Table';
-  import { getTableColumns, getFormConfig } from '/@/views/vip/cards/config';
-  import { PageWrapper } from '/@/components/Page';
+  import { getTableColumns, getFormConfig } from './config';
   import { getCardList } from '/@/api/cards';
   import { useModal } from '/@/components/Modal';
   import Modal from '/@/views/course/detail/index.vue';
   import { useDesign } from '/@/hooks/web/useDesign';
 
   export default defineComponent({
-    components: { BasicTable, TableAction, PageWrapper, Modal },
+    components: { BasicTable, TableAction, Modal },
     setup() {
       const [registerTable, { reload }] = useTable({
         api: getCardList,

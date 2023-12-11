@@ -29,6 +29,14 @@ const vip: AppRouteModule = {
         title: '会员卡',
       },
     },
+    {
+      path: 'memberDetail',
+      name: 'memberDetail',
+      component: () => import('/@/views/vip/member/detail/index.vue'),
+      meta: {
+        title: '会员详情',
+      },
+    },
   ],
 };
 

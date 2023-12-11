@@ -10,5 +10,5 @@ scp -r dist.zip root@110.42.244.233:/etc/nginx/website/
 sudo unzip dist.zip
 sudo rm -rf dist.zip
 
-ssh ubuntu@110.42.244.233
+ssh root@110.42.244.233
 密码 XxW5xBfwpuVKMu1rYybe3grM
