@@ -244,7 +244,7 @@ export function getTableColumns(): BasicColumn[] {
 }
 
 export function getFormSchema1(data): FormSchema[] {
-  const { type, formData: fd, templeteData: td } = data || {};
+  const { type, formData: fd, templeteData: td, calendar: c } = data || {};
   const dynamicDisabled = type === 'view';
   const isNeedFillTemplete = td !== undefined;
   const showDef = type === 'edit' || type === 'view' || isNeedFillTemplete;
@@ -252,13 +252,21 @@ export function getFormSchema1(data): FormSchema[] {
 
   const address = !f?.['address'] || f?.['address'] === 'Mellow Climbing Gym' ? 1 : 2;
 
-  const startDate = f?.['start_time'] ? dayjs(f?.['start_time']) : undefined;
+  const startDate = f?.['start_time']
+    ? dayjs(f?.['start_time'])
+    : c?.startStr
+    ? dayjs(c.startStr)
+    : undefined;
   const endDate =
-    startDate && f?.['duration_minutes'] ? startDate.add(f?.['duration_minutes'], 'm') : undefined;
+    startDate && f?.['duration_minutes']
+      ? startDate.add(f?.['duration_minutes'], 'm')
+      : c?.endStr
+      ? dayjs(c.endStr)
+      : undefined;
 
   const start = startDate?.format('YYYY-MM-DD HH:mm:sss') || '';
   const end = endDate?.format('YYYY-MM-DD HH:mm:sss') || '';
-  return [
+  const ret: FormSchema[] = [
     {
       field: 'course_id',
       component: 'ApiSelect',
@@ -272,7 +280,13 @@ export function getFormSchema1(data): FormSchema[] {
       field: 'coach-id',
       component: 'ApiSelect',
       label: '课程教练',
-      required: true,
+
+      rules: [
+        {
+          required: true,
+          trigger: 'blur',
+        },
+      ],
       defaultValue: showDef ? f?.['coach_id'] : undefined,
       dynamicDisabled,
       componentProps: {
@@ -285,10 +299,13 @@ export function getFormSchema1(data): FormSchema[] {
     {
       field: '[course-start-time, endDateTime]',
       label: '日期时间范围',
+
       component: 'RangePicker',
       required: true,
       dynamicDisabled,
-      defaultValue: showDef ? [start, end] : ['', ''],
+      // defaultValue: ['2023-12-10 13:00', '2023-12-10 14:00'],
+      // defaultValue: showDef ? [start, end] : ['', ''],
+
       componentProps: {
         format: 'YYYY-MM-DD HH:mm',
         placeholder: ['开始时间', '结束时间'],
@@ -366,4 +383,12 @@ export function getFormSchema1(data): FormSchema[] {
       dynamicDisabled,
     },
   ];
+
+  const rangePicker = ret.find((item) => item.field === '[course-start-time, endDateTime]');
+
+  if (rangePicker && start && end) {
+    rangePicker.defaultValue = [start, end];
+  }
+  console.log(start, end, showDef, 8888889);
+  return ret;
 }

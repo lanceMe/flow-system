@@ -262,7 +262,10 @@ export function useFormEvents({
     schemaRef.value = updateData as FormSchema[];
   }
 
-  async function updateSchema(data: Partial<FormSchema> | Partial<FormSchema>[]) {
+  async function updateSchema(
+    data: Partial<FormSchema> | Partial<FormSchema>[],
+    overwrite: boolean = false,
+  ) {
     let updateData: Partial<FormSchema>[] = [];
     if (isObject(data)) {
       updateData.push(data as FormSchema);
@@ -290,7 +293,7 @@ export function useFormEvents({
         }
       });
       if (_val !== undefined && val.field === _val.field) {
-        const newSchema = deepMerge(val, _val);
+        const newSchema = overwrite ? _val : deepMerge(val, _val);
         schema.push(newSchema as FormSchema);
       } else {
         schema.push(val);

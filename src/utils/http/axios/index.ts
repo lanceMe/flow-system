@@ -174,6 +174,7 @@ const transform: AxiosTransform = {
 
       // Flow Bouldering user-token
       (config as Recordable).headers['user-token'] = token;
+      // (config as Recordable).headers['wxuser-token'] = token;
     }
     return config;
   },

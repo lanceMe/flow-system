@@ -63,9 +63,12 @@ export function useForm(props?: Props): UseFormReturnType {
       form.setProps(formProps);
     },
 
-    updateSchema: async (data: Partial<FormSchema> | Partial<FormSchema>[]) => {
+    updateSchema: async (
+      data: Partial<FormSchema> | Partial<FormSchema>[],
+      overwrite?: boolean,
+    ) => {
       const form = await getForm();
-      form.updateSchema(data);
+      form.updateSchema(data, overwrite);
     },
 
     resetSchema: async (data: Partial<FormSchema> | Partial<FormSchema>[]) => {

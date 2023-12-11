@@ -46,6 +46,8 @@
         columns: getTableColumns(),
         canResize: false,
         bordered: true,
+        showTableSetting: true,
+        tableSetting: { fullScreen: true },
         actionColumn: {
           width: 200,
           title: '操作',
