@@ -186,8 +186,8 @@ export function getFormConfig(): Partial<FormProps> {
         componentProps: {
           placeholder: '售卖渠道',
           options: [
-            { label: '小程序', value: 'mini', key: 'mini' },
-            { label: '后台', value: 'backend', key: 'backend' },
+            { label: '小程序', value: 'wx', key: 'wx' },
+            { label: '后台', value: 'manual', key: 'manual' },
           ],
         },
         colProps: { xl: 6, xxl: 6 },
@@ -234,9 +234,21 @@ export function getTableColumns(): BasicColumn[] {
     {
       title: '售卖渠道',
       width: 100,
-      dataIndex: 'type',
-      format() {
-        return '--';
+      dataIndex: 'channel',
+      format(type) {
+        let formatText = type;
+        switch (type) {
+          case 'wx':
+            formatText = '小程序';
+            break;
+          case 'manual':
+            formatText = '后台';
+            break;
+
+          default:
+            break;
+        }
+        return formatText;
       },
     },
     {
