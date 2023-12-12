@@ -254,6 +254,7 @@ export function getTableColumns(): BasicColumn[] {
     {
       title: '创建日期',
       width: 150,
+      sorter: true,
       dataIndex: 'created_at',
       format(text) {
         if (text) return formatToDate(text);

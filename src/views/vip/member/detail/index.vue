@@ -2,24 +2,22 @@
   <PageWrapper :class="`${prefixCls}-page-wrapper`">
     <div class="header">
       <div class="member-info">
-        <Avatar :size="100">
-          <template #icon><UserOutlined /></template>
-        </Avatar>
+        <Avatar :size="100" :src="profile?.['avatar_fileid'] || defaultAvatar" />
         <div class="basic-info">
-          <span class="name">Name</span>
-          <span>手机号：123456789110</span>
-          <span>注册时间：2023-11-05</span>
+          <span class="name">{{ profile?.['nickname'] || '--' }}</span>
+          <span>手机号：{{ profile?.['phone_number'] || '--' }}</span>
+          <span>注册时间：{{ creatAt }}</span>
         </div>
       </div>
       <div class="toolbar">
-        <a-button type="primary" @click="handleBindCards"> 绑卡 </a-button>
-        <a-button type="primary" @click="handleEditMember"> 编辑 </a-button>
+        <a-button type="primary" @click="handleBindCards" :disabled="true"> 绑卡 </a-button>
+        <a-button type="primary" @click="handleEditMember" :disabled="true"> 编辑 </a-button>
       </div>
     </div>
     <Tabs :tabBarStyle="tabBarStyle">
       <template v-for="item in tabs" :key="item.key">
         <TabPane :tab="item.name">
-          <component :is="item.component" />
+          <component :is="item.component" :data="profile" />
         </TabPane>
       </template>
     </Tabs>
@@ -27,11 +25,12 @@
 </template>
 
 <script lang="ts">
-  import { defineComponent } from 'vue';
+  import { defineComponent, ref } from 'vue';
   import { PageWrapper } from '/@/components/Page';
   import { Tabs, Avatar } from 'ant-design-vue';
   import { useDesign } from '/@/hooks/web/useDesign';
   import { UserOutlined } from '@ant-design/icons-vue';
+  import { getWxUser } from '/@/api/cards';
 
   import { tabs } from './config';
 
@@ -39,6 +38,10 @@
   import ArrivalRecord from '/@/views/vip/member/detail/components/arrivalRecord/index.vue';
   import ClassRecord from '/@/views/vip/member/detail/components/classRecord/index.vue';
   import MemberProfile from '/@/views/vip/member/detail/components/memberProfile/index.vue';
+
+  import defaultAvatar from '/@/assets/images/header.jpg';
+  import { useRouter } from 'vue-router';
+  import { formatToDateTime } from '/@/utils/dateUtil';
 
   export default defineComponent({
     components: {
@@ -54,13 +57,32 @@
     },
     setup() {
       const { prefixCls } = useDesign('vip-member');
+      const profile = ref({});
+      const creatAt = ref('');
+      const { id } = useRouter()?.currentRoute?.value?.query || {};
+      getWxUser(id).then((resp) => {
+        profile.value = resp;
+        creatAt.value = resp?.created_at ? formatToDateTime(resp.created_at) : '--';
+      });
+      function handleBindCards(event: any) {
+        console.log('handleBindCards', event);
+      }
+      function handleEditMember(event: any) {
+        console.log('handleEditMember', event);
+      }
+
       return {
         prefixCls,
         tabs,
-        useDesign,
         tabBarStyle: {
           // width: '220px',
         },
+        useDesign,
+        handleBindCards,
+        handleEditMember,
+        defaultAvatar,
+        profile,
+        creatAt,
       };
     },
   });

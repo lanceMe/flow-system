@@ -1,96 +1,62 @@
 <template>
   <div :class="`${prefixCls}-page-wrapper`">
     <BasicTable @register="registerTable">
-      <template #bodyCell="{ column, record }">
-        <template v-if="column.key === 'action'">
+      <template #bodyCell="{ column, record, text }">
+        <template v-if="column.key === 'attend_status'">
+          <Tag v-if="text === 'reserved'" color="blue">已预约</Tag>
+          <Tag v-else-if="text === 'checkedin'" color="green">已签到</Tag>
+          <Tag v-else color="default">已取消</Tag>
+        </template>
+        <!-- <template v-if="column.key === 'action'">
           <TableAction
             :actions="[
               { label: '查看', onClick: handleView.bind(null, record), disabled: true },
               { label: '编辑', onClick: handleEdit.bind(null, record), disabled: true },
             ]"
           />
-        </template>
+        </template> -->
       </template>
       <template #toolbar>
         <!-- <a-button type="primary" @click="createCourse" :disabled="true"> 创建会员卡 </a-button> -->
       </template>
     </BasicTable>
-    <Modal @register="registerModal" @submit-success="changeCourseList" />
   </div>
 </template>
 <script lang="ts">
   import { defineComponent, ref } from 'vue';
-  import { BasicTable, useTable, TableAction } from '/@/components/Table';
-  import { getTableColumns, getFormConfig } from './config';
-  import { getCardList } from '/@/api/cards';
-  import { useModal } from '/@/components/Modal';
-  import Modal from '/@/views/course/detail/index.vue';
+  import { BasicTable, useTable } from '/@/components/Table';
+  import { getTableColumns } from './config';
+  import { getCourseHistory } from '/@/api/cards';
   import { useDesign } from '/@/hooks/web/useDesign';
+  import { useRouter } from 'vue-router';
+  import { Tag } from 'ant-design-vue';
 
   export default defineComponent({
-    components: { BasicTable, TableAction, Modal },
+    components: { BasicTable, Tag },
     setup() {
-      const [registerTable, { reload }] = useTable({
-        api: getCardList,
+      const { id } = useRouter()?.currentRoute?.value?.query || {};
+      const [registerTable] = useTable({
+        api: getCourseHistory,
+        searchInfo: { 'wxuser-token': id },
         columns: getTableColumns(),
         canResize: false,
         bordered: true,
         showTableSetting: true,
         tableSetting: { fullScreen: true },
-        handleSearchInfoFn,
-        afterFetch,
         // showIndexColumn: false,
-        actionColumn: {
-          width: 200,
-          title: '操作',
-          dataIndex: 'action',
-        },
       });
 
-      const searchParam = ref({ name: '', channel: '', type: '' });
-
-      const [registerModal, { openModal: openModal }] = useModal();
       const { prefixCls } = useDesign('vip-cards');
       function handleEdit(event: any) {
         console.log('handleEdit', event);
-        openModal(true, { type: 'edit', formData: event });
       }
 
       function handleView(event: any) {
         console.log('handleView', event);
-        openModal(true, { type: 'view', formData: event });
       }
 
       function createCourse(event: any) {
         console.log('createCourse', event);
-        openModal(true, { type: 'create' });
-      }
-
-      function changeCourseList() {
-        reload();
-      }
-
-      //本地存储筛选信息
-      function handleSearchInfoFn(params) {
-        searchParam.value = params;
-        return params;
-      }
-
-      //本地过滤筛选结果
-      function afterFetch(data: []) {
-        const { name: n, type: t, channel: c } = searchParam.value;
-        const filterData = data.filter((item) => {
-          const { name, type, class: cn, channel } = item;
-          return (
-            (!n || name === n) &&
-            (!c || channel === c) &&
-            (!t ||
-              type === t ||
-              (t === 'daypass1' && type === 'daypass' && cn === 'bundle') ||
-              (t === 'daypass2' && type === 'daypass' && cn === 'time'))
-          );
-        });
-        return filterData;
       }
 
       return {
@@ -98,9 +64,6 @@
         createCourse,
         handleEdit,
         handleView,
-        registerModal,
-        openModal,
-        changeCourseList,
         prefixCls,
       };
     },

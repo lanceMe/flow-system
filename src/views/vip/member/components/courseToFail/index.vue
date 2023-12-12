@@ -22,7 +22,7 @@
   import { defineComponent, ref } from 'vue';
   import { BasicTable, useTable, TableAction } from '/@/components/Table';
   import { getTableColumns, getFormConfig } from './config';
-  import { getCardList } from '/@/api/cards';
+  import { getVipExpiring } from '/@/api/cards';
   import { useModal } from '/@/components/Modal';
   import Modal from '/@/views/course/detail/index.vue';
   import { useDesign } from '/@/hooks/web/useDesign';
@@ -31,8 +31,9 @@
     components: { BasicTable, TableAction, Modal },
     setup() {
       const [registerTable, { reload }] = useTable({
-        api: getCardList,
+        api: getVipExpiring,
         columns: getTableColumns(),
+        searchInfo: { 'cardcat-type': 'group,privatelv1,privatelv2' },
         canResize: false,
         bordered: true,
         useSearchForm: true,

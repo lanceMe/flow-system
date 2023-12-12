@@ -12,6 +12,7 @@ const vip: AppRouteModule = {
     icon: 'bxs:id-card',
     title: '会员管理',
   },
+
   children: [
     {
       path: 'member',
@@ -34,6 +35,7 @@ const vip: AppRouteModule = {
       name: 'memberDetail',
       component: () => import('/@/views/vip/member/detail/index.vue'),
       meta: {
+        hideMenu: true,
         title: '会员详情',
       },
     },

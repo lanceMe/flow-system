@@ -2,6 +2,14 @@
   <div :class="`${prefixCls}-page-wrapper`">
     <BasicTable @register="registerTable">
       <template #bodyCell="{ column, record }">
+        <template v-if="column.key === 'wxuser_nickname'">
+          <Avatar
+            :size="40"
+            :src="record.avatar || defaultAvatar"
+            @click="handleAvaterClick(record)"
+          />
+          <span>{{ record['wxuser_nickname'] || '--' }}</span>
+        </template>
         <template v-if="column.key === 'action'">
           <TableAction
             :actions="[
@@ -12,26 +20,29 @@
         </template>
       </template>
       <template #toolbar>
-        <a-button type="primary" @click="createCourse" :disabled="true"> 创建会员卡 </a-button>
+        <!-- <a-button type="primary" @click="createCourse" :disabled="true"> 创建会员卡 </a-button> -->
       </template>
     </BasicTable>
     <Modal @register="registerModal" @submit-success="changeCourseList" />
   </div>
 </template>
 <script lang="ts">
-  import { defineComponent, ref } from 'vue';
+  import { defineComponent } from 'vue';
   import { BasicTable, useTable, TableAction } from '/@/components/Table';
   import { getTableColumns, getFormConfig } from './config';
-  import { getCardList } from '/@/api/cards';
+  import { getVipList } from '/@/api/cards';
   import { useModal } from '/@/components/Modal';
   import Modal from '/@/views/course/detail/index.vue';
   import { useDesign } from '/@/hooks/web/useDesign';
+  import { Avatar } from 'ant-design-vue';
+  import defaultAvatar from '/@/assets/images/header.jpg';
+  import { useRouter } from 'vue-router';
 
   export default defineComponent({
-    components: { BasicTable, TableAction, Modal },
+    components: { BasicTable, TableAction, Modal, Avatar },
     setup() {
       const [registerTable, { reload }] = useTable({
-        api: getCardList,
+        api: getVipList,
         columns: getTableColumns(),
         canResize: false,
         bordered: true,
@@ -39,18 +50,16 @@
         formConfig: getFormConfig(),
         showTableSetting: true,
         tableSetting: { fullScreen: true },
-        handleSearchInfoFn,
-        afterFetch,
-        // showIndexColumn: false,
+        searchInfo: { 'new-or-all': 'new' },
+        // handleSearchInfoFn,
+        // afterFetch,
         actionColumn: {
           width: 200,
           title: '操作',
           dataIndex: 'action',
         },
       });
-
-      const searchParam = ref({ name: '', channel: '', type: '' });
-
+      const router = useRouter();
       const [registerModal, { openModal: openModal }] = useModal();
       const { prefixCls } = useDesign('vip-cards');
       function handleEdit(event: any) {
@@ -72,27 +81,12 @@
         reload();
       }
 
-      //本地存储筛选信息
-      function handleSearchInfoFn(params) {
-        searchParam.value = params;
-        return params;
-      }
-
-      //本地过滤筛选结果
-      function afterFetch(data: []) {
-        const { name: n, type: t, channel: c } = searchParam.value;
-        const filterData = data.filter((item) => {
-          const { name, type, class: cn, channel } = item;
-          return (
-            (!n || name === n) &&
-            (!c || channel === c) &&
-            (!t ||
-              type === t ||
-              (t === 'daypass1' && type === 'daypass' && cn === 'bundle') ||
-              (t === 'daypass2' && type === 'daypass' && cn === 'time'))
-          );
+      function handleAvaterClick(record) {
+        router.push({
+          path: '/vip/memberDetail',
+          // name: 'home',
+          query: { id: record?.['wxuser_token'] },
         });
-        return filterData;
       }
 
       return {
@@ -104,6 +98,8 @@
         openModal,
         changeCourseList,
         prefixCls,
+        defaultAvatar,
+        handleAvaterClick,
       };
     },
   });
@@ -118,6 +114,11 @@
       // background-color: #fff;
       .ant-row {
         flex-direction: row;
+      }
+
+      .ant-avatar {
+        display: inline-block;
+        margin-right: 10px;
       }
     }
   }
