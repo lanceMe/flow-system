@@ -273,15 +273,15 @@
       }
 
       async function handleEdit(data: any) {
-        openModal(true, { type: 'edit', formData: data });
+        openModal(true, { type: 'edit', courseType: props.type, formData: data });
       }
 
       async function createCourse(info?: any) {
-        openModal(true, { type: 'create', calendar: info });
+        openModal(true, { type: 'create', courseType: props.type, calendar: info });
       }
       function handleView(event: any) {
         console.log('handleView', event);
-        openModal(true, { type: 'view' });
+        openModal(true, { type: 'view', courseType: props.type });
       }
 
       function handleCoachChange(value: []) {

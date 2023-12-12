@@ -60,6 +60,7 @@
         type: Array<OptionsItem>,
         default: [],
       },
+      afterFetchFn: Function,
     },
     emits: ['options-change', 'change', 'update:value'],
     setup(props, { emit }) {
@@ -116,7 +117,10 @@
         options.value = [];
         try {
           loading.value = true;
-          const res = await api(props.params);
+          let res = await api(props.params);
+          if (props.afterFetchFn) {
+            res = props.afterFetchFn(res);
+          }
           isFirstLoaded.value = true;
           if (Array.isArray(res)) {
             options.value = res;
