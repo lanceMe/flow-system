@@ -106,7 +106,7 @@ const transform: AxiosTransform = {
     if (joinPrefix) {
       config.url = `${urlPrefix}${config.url}`;
     }
-
+    console.log('apiUrl', apiUrl);
     if (apiUrl && isString(apiUrl)) {
       config.url = `${apiUrl}${config.url}`;
     }
@@ -270,6 +270,7 @@ function createAxios(opt?: Partial<CreateAxiosOptions>) {
           errorMessageMode: 'message',
           // 接口地址
           apiUrl: globSetting.apiUrl,
+          upLoadUrl: globSetting.apiUrl,
           // 接口拼接地址
           urlPrefix: urlPrefix,
           //  是否加入时间戳

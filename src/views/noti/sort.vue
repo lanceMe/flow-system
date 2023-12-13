@@ -1,11 +1,11 @@
 <template>
   <a-modal v-model:open="visible" @ok="onSubmit" :title="'通知排序'">
-    <s-table :columns="columns" :data-source="sort.data" :pagination="false" />
+    <s-table :columns="columns" :data-source="compData" :pagination="false" />
   </a-modal>
 </template>
 
 <script lang="ts" setup>
-  import { ref, reactive, toRef } from 'vue';
+  import { ref, computed, watch, defineEmits } from 'vue';
   import { Modal as AModal } from 'ant-design-vue';
   import { DefaultRecordType } from '@surely-vue/table/dist/src/components/interface';
 
@@ -13,10 +13,6 @@
     data: {
       type: Array<DefaultRecordType>,
       default: () => [],
-    },
-    submit: {
-      type: Function,
-      default: () => {},
     },
   });
   const columns = [
@@ -27,20 +23,28 @@
       rowDrag: true,
     },
   ];
+  const cloneData = ref<any>([]);
+  const compData = computed(() => {
+    return cloneData.value.filter((item) => item.type === 'homepage' && item.status !== 'offline');
+  });
   const visible = ref(false);
   const controlModal = (bl: boolean) => {
     visible.value = bl;
   };
+  const emits = defineEmits(['onSubmit']);
   defineExpose({
     controlModal,
   });
-
-  const sort = reactive({
-    data: toRef(props.data),
-  });
+  watch(
+    () => props.data,
+    (newProps) => {
+      console.log('=newProps', newProps);
+      cloneData.value = newProps;
+    },
+  );
 
   const onSubmit = () => {
-    props?.submit(sort.data);
+    emits('onSubmit', compData.value);
   };
 </script>
 

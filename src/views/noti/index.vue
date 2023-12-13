@@ -3,17 +3,18 @@
     <ASpace direction="vertical" style="width: 100%" size="middle">
       <a-form :model="formState" layout="inline" autocomplete="off" ref="formRef">
         <a-form-item name="text">
-          <a-input v-model:value="formState.text" placeholder="通知内容" />
+          <a-input v-model:value="formState.text" placeholder="通知标题" />
         </a-form-item>
         <a-form-item name="courseType">
           <a-select
             v-model:value="formState.notiType"
-            placeholder="课程列表"
+            placeholder="通知状态"
             style="width: 200px"
             allowClear
           >
-            <a-select-option value="1">首页轮播图</a-select-option>
-            <a-select-option value="2">Banner</a-select-option>
+            <a-select-option value="preonline">预发</a-select-option>
+            <a-select-option value="online">上线</a-select-option>
+            <a-select-option value="offline">下线</a-select-option>
           </a-select>
         </a-form-item>
         <a-form-item>
@@ -29,18 +30,23 @@
         <a-button class="reserve-item-ab" type="primary" @click="onSubmit">新建通知</a-button>
       </div>
 
-      <a-table :columns="columns" :data-source="data">
+      <a-table :columns="columns" :data-source="data" :pagination="false">
         <template #bodyCell="{ column, record }">
+          <template v-if="column.key === 'type'">
+            {{ NotifyType[record.type] }}
+          </template>
           <template v-if="column.key === 'operation'">
             <a-button @click="handleView(record)" type="link">查看</a-button>
             <a-button @click="handleEdit(record)" type="link">编辑</a-button>
-            <a-button @click="handleOffline(record)" type="link">下线</a-button>
+            <a-button v-if="record.status !== 'offline'" @click="handleOffline(record)" type="link"
+              >下线</a-button
+            >
           </template>
         </template>
       </a-table>
     </ASpace>
-    <check ref="checkRef" />
-    <sort ref="sortRef" :data="data" />
+    <check ref="checkRef" :data="checkData" :checkType="checkType" @on-submit="checkSubmit" />
+    <sort ref="sortRef" :data="banner" @on-submit="sortSubmit" />
   </PageWrapper>
 </template>
 <script lang="ts">
@@ -54,10 +60,19 @@
     Select,
     SelectOption,
     Space,
+    message,
   } from 'ant-design-vue';
+  import { encode } from '/@/utils/base64';
 
   import { openWindow } from '/@/utils';
   import { PageWrapper } from '/@/components/Page';
+  import {
+    getNotificationList,
+    postSortList,
+    postOffline,
+    postNotification,
+    putNotification,
+  } from '/@/api/noti/index';
   import check from './check.vue';
   import sort from './sort.vue';
   import dayjs from 'dayjs';
@@ -86,44 +101,51 @@
         notiType: undefined,
         date: '',
       });
+      const checkData = ref<any>(null);
+      const checkType = ref('create');
+      const data = ref([]);
+      const banner = ref([]);
+      const getList = () => {
+        return getNotificationList({
+          'notif-status': formState.notiType,
+          'notif-title': encode(formState.text),
+        }).then((res) => {
+          console.log('===getNotificationList', res);
+          data.value = res.map((item) => {
+            return {
+              key: item.notif_id,
+              id: item.notif_id,
+              title: item.notif_title,
+              type: item.notif_type,
+              status: item.notif_status,
+              startTime: item.notif_display_since,
+              endTime: item.notif_display_until, // 举例：一小时后结束
+              creator: '创建人示例',
+              raw: item,
+            };
+          });
+          return data.value;
+        });
+      };
+
+      getList().then((res) => {
+        banner.value = res;
+      });
+
       return {
         dayjs,
         checkRef,
         sortRef,
         formState,
+        NotifyType,
+        banner,
         formRef,
+        checkType,
+        checkData,
         toIconify: () => {
           openWindow('https://iconify.design/');
         },
-        data: [
-          {
-            key: '1',
-            title: '通知标题示例测试1',
-            type: NotifyType.Banner,
-            status: '已上线',
-            startTime: '1212',
-            endTime: '232', // 举例：一小时后结束
-            creator: '创建人示例',
-          },
-          {
-            key: '2',
-            title: '通知标题示例测试2',
-            type: NotifyType.Banner,
-            status: '已上线',
-            startTime: '1212',
-            endTime: '232', // 举例：一小时后结束
-            creator: '创建人示例',
-          },
-          {
-            key: '3',
-            title: '通知标题示例测试3',
-            type: NotifyType.Banner,
-            status: '已上线',
-            startTime: '1212',
-            endTime: '232', // 举例：一小时后结束
-            creator: '创建人示例',
-          },
-        ],
+        data,
         columns: [
           {
             title: '通知标题',
@@ -171,27 +193,73 @@
         },
         onSubmit() {
           checkRef.value.controlModal(true);
+          checkType.value = 'create';
+          checkData.value = {};
+        },
+        sortSubmit(value) {
+          const ids = value.map((item) => item.id);
+          console.log('===value', ids);
+          if (ids.length) {
+            postSortList({
+              'sorted-notif-id': ids.join(','),
+            }).then(() => {
+              message.success('排序成功');
+              sortRef.value.controlModal(false);
+              getList();
+            });
+          }
+          // postSortList
+        },
+        checkSubmit(value, type) {
+          console.log(value, type);
+          if (type === 'create') {
+            postNotification(value).then(() => {
+              message.success('新增成功');
+              checkRef.value.controlModal(false);
+              getList();
+            });
+          } else if (type === 'edit') {
+            putNotification(value).then(() => {
+              message.success('编辑成功');
+              checkRef.value.controlModal(false);
+              getList();
+            });
+          }
         },
         onSort() {
           sortRef.value.controlModal(true);
         },
-        onSearch() {},
+        onSearch() {
+          getList();
+        },
 
         // 处理查看操作
         handleView(record: Record<string, any>) {
-          console.log('查看通知', record);
+          console.log('查看通知', record.raw);
           // 这里可以添加具体的查看逻辑
+          checkRef.value.controlModal(true);
+          checkType.value = 'view';
+          checkData.value = record.raw;
         },
 
         // 处理编辑操作
         handleEdit(record: Record<string, any>) {
           console.log('编辑通知', record);
           // 这里可以添加具体的编辑逻辑
+          checkRef.value.controlModal(true);
+          checkType.value = 'edit';
+          checkData.value = record.raw;
         },
 
         // 处理下线操作
         handleOffline(record: Record<string, any>) {
           console.log('下线通知', record);
+          postOffline({
+            'notif-id': record.id,
+          }).then(() => {
+            message.success('下线成功');
+            getList();
+          });
           // 这里可以添加具体的下线逻辑
         },
         resetForm() {

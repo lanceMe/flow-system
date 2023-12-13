@@ -1,10 +1,10 @@
 export const NotifyType = {
-  Banner: 'Banner',
-  Swiper: '首页轮播图',
+  banner: 'Banner',
+  homepage: '首页轮播图',
 };
 export const NotifyMap = {
   Banner: 'Banner',
-  Swiper: 'Swiper',
+  Swiper: 'homepage',
 };
 
 export const PhoneTail = [...Array(10)].map((_, i) => ({
@@ -19,7 +19,7 @@ export const GrayscaleMap = {
 
 export const GrayscaleType = {
   [GrayscaleMap.PhoneSuffix]: '手机尾号',
-  [GrayscaleMap.RandomRatio]: '随机比例',
+  // [GrayscaleMap.RandomRatio]: '随机比例',
   [GrayscaleMap.SpecificNumbers]: '指定手机号',
 };
 export const FormatTime = 'YYYY-MM-DD HH:MM:SS';

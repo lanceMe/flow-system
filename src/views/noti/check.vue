@@ -1,6 +1,12 @@
 <template>
-  <a-modal v-model:open="visible" @ok="onSubmit" :title="'新建通知流程'">
-    <a-form ref="formRef" :model="formState" :rules="rules" :label-col="labelCol">
+  <a-modal v-model:open="visible" @ok="onSubmit" :title="title + '通知'">
+    <a-form
+      ref="formRef"
+      :model="formState"
+      :rules="rules"
+      :label-col="labelCol"
+      :disabled="isDisabled"
+    >
       <!-- 通知标题 -->
       <a-form-item label="通知标题" name="title">
         <a-input v-model:value="formState.title" />
@@ -38,6 +44,7 @@
       <a-form-item
         label="背景图片"
         name="backgroundImage"
+        action="/v1/upload_public_file"
         :rules="[
           {
             required: formState.type === NotifyMap.Swiper,
@@ -46,7 +53,12 @@
           },
         ]"
       >
-        <a-upload v-model:value="formState.backgroundImage">
+        <a-upload
+          v-model:file-list="formState.backgroundImage"
+          :max-count="1"
+          list-type="picture"
+          :customRequest="customRequest"
+        >
           <a-button icon="upload">上传图片</a-button>
         </a-upload>
       </a-form-item>
@@ -101,7 +113,7 @@
 </template>
 
 <script lang="ts" setup>
-  import { ref, reactive } from 'vue';
+  import { ref, reactive, computed, watch } from 'vue';
   import dayjs from 'dayjs';
   import {
     Form as AForm,
@@ -116,17 +128,48 @@
     Select as ASelect,
     InputNumber as AInputNumber,
     Textarea as ATextarea,
+    message,
   } from 'ant-design-vue';
   import type { Rule } from 'ant-design-vue/es/form';
+  import { postUploadFile, postNotification } from '/@/api/noti/index';
   import { NotifyType, NotifyMap, PhoneTail, GrayscaleType, GrayscaleMap } from './constant';
+  import { encode } from '/@/utils/base64';
 
   const formRef = ref();
   const visible = ref(false);
   const controlModal = (bl: boolean) => {
     visible.value = bl;
   };
+
+  const props = defineProps({
+    data: {
+      type: Object,
+      default: () => {},
+    },
+    checkType: {
+      type: String,
+      default: '',
+    },
+  });
   defineExpose({
     controlModal,
+  });
+
+  const isDisabled = computed(() => {
+    return props.checkType === 'view';
+  });
+
+  const currentId = ref('');
+
+  const title = computed(() => {
+    if (props.checkType === 'view') {
+      return '查看';
+    } else if (props.checkType === 'create') {
+      return '新建';
+    } else if (props.checkType === 'edit') {
+      return '编辑';
+    }
+    return '';
   });
 
   const formState = reactive({
@@ -135,12 +178,51 @@
     displayTime: [dayjs(), dayjs().add(1, 'day')],
     buttonText: '',
     link: '',
-    backgroundImage: '',
+    backgroundImage: [],
     grayscaleType: GrayscaleMap.PhoneSuffix,
     selectedPhoneSuffix: [],
-    randomRatio: 1,
     selectedPhoneNumbers: '',
   });
+
+  watch(
+    () => props.data,
+    (value) => {
+      currentId.value = value.notif_id ?? '';
+      formState.title = value.notif_title ?? '';
+      formState.type = value.notif_type ?? NotifyMap.Banner;
+      formState.displayTime = value.notif_display_since
+        ? [dayjs(value.notif_display_since), dayjs(value.notif_display_until)]
+        : [dayjs(), dayjs().add(1, 'day')];
+      formState.buttonText = value.notif_btn_text ?? '';
+      formState.link = value.notif_target_url ?? '';
+      formState.backgroundImage = value.notif_image_url
+        ? [
+            {
+              thumbUrl: value.notif_image_url,
+              response: {
+                url: value.notif_image_url,
+              },
+            },
+          ]
+        : [];
+
+      if (!value.notif_visible_phone_rule) {
+        formState.grayscaleType = GrayscaleMap.PhoneSuffix;
+        formState.selectedPhoneSuffix = [];
+        formState.selectedPhoneNumbers = '';
+      } else if (value.notif_visible_phone_rule.indexOf('*') === -1) {
+        formState.grayscaleType = GrayscaleMap.SpecificNumbers;
+        formState.selectedPhoneNumbers = value.notif_visible_phone_rule.replace(/,/g, '\n');
+      } else {
+        formState.grayscaleType = GrayscaleMap.PhoneSuffix;
+        // 使用正则表达式匹配数字
+        const match = value.notif_visible_phone_rule.match(/\d+/);
+        // 将匹配到的数字转换成数组
+        formState.selectedPhoneSuffix = match?.[0]?.split('').map(Number) ?? [];
+      }
+      console.log('=valuewatch', value);
+    },
+  );
   const rules: Record<string, Rule[]> = {
     title: [{ required: true, message: '请输入通知标题', trigger: 'blur' }, { max: 20 }],
     type: [{ required: true, message: '请选择通知类型', trigger: 'change' }],
@@ -174,23 +256,73 @@
     // ],
   };
 
+  const emits = defineEmits(['onSubmit']);
+
   const onSubmit = () => {
+    if (isDisabled.value) {
+      controlModal(false);
+      return;
+    }
     formRef.value
       .validate()
       .then(() => {
         console.log('提交表单', formState);
         const { selectedPhoneNumbers } = formState;
-        const splitSelectedPhoneNumbers = selectedPhoneNumbers.split('\n').filter((item) => item);
-        console.log(
-          '%c [ splitSelectedPhoneNumbers ]-184',
-          'font-size:13px; background:pink; color:#bf2c9f;',
-          splitSelectedPhoneNumbers,
-        );
+        // postNotification().then(()=>{
+
+        // })
         // 在这里可以执行表单提交的逻辑
+        const backgroundImage = formState.backgroundImage?.[0]?.response?.url ?? '';
+        let phoneRule = '';
+        if (formState.grayscaleType === GrayscaleMap.PhoneSuffix) {
+          phoneRule = `*[${formState.selectedPhoneSuffix.join('')}]`;
+        } else if (formState.grayscaleType === GrayscaleMap.SpecificNumbers) {
+          const splitSelectedPhoneNumbers = selectedPhoneNumbers
+            .split('\n')
+            .map((item) => item.trim());
+          phoneRule = splitSelectedPhoneNumbers.join(',');
+        }
+        const parmas = {
+          'notif-title': encode(formState.title),
+          'notif-type': formState.type,
+          'notif-display-since': formState.displayTime?.[0]?.format('YYYY-MM-DDTHH:mm:ss'),
+          'notif-display-until': formState.displayTime?.[1]?.format('YYYY-MM-DDTHH:mm:ss'),
+          'notif-btn-text': encode(formState.buttonText),
+          'notif-target-url': encode(formState.link),
+          'notif-image-url': encode(backgroundImage),
+          'notif-visible-phone-rule': phoneRule,
+          'notif-id': currentId.value,
+        };
+        emits('onSubmit', parmas, props.checkType);
+        // postNotification({
+        //   'notif-title': encode(formState.title),
+        //   'notif-type': formState.type,
+        //   'notif-display-since': formState
+        // });
       })
       .catch((error) => {
         console.log('表单验证失败', error);
       });
+  };
+
+  const customRequest = (file) => {
+    // file 是上传的文件 其内容会在放在下面截图中
+    // 后端需要接受的参数是 formData数据，
+    postUploadFile({
+      name: 'file',
+      file: file.file,
+      filename: 'banner.png',
+    })
+      .then((res) => {
+        console.log(res);
+        file.onSuccess(res.data, file);
+      })
+      .catch((err) => {
+        // 调用实例的失败方法通知组件该文件上传失败
+        file.onError(err);
+      });
+
+    // uploadFile 我自己的接口
   };
 
   const labelCol = { style: { width: '116px' } };
