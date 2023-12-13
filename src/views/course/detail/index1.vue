@@ -16,6 +16,7 @@
             labelField="ctpl_display_name"
             valueField="ctpl_id"
             :disabled="disabled"
+            :afterFetchFn="afterFetchFn"
             v-model:value="model[field]"
             @change="handleCouseChange"
           />
@@ -188,6 +189,28 @@
         });
       }
 
+      function afterFetchFn(res: []) {
+        if (!res || res.length < 1) return res;
+        const { courseType: type } = dataRef.value as any;
+        const list = [];
+        for (const course of res) {
+          if (
+            type === 'private' &&
+            (course['ctpl_type'] === 'privatelv1' || course['ctpl_type'] === 'privatelv2')
+          ) {
+            list.push(course);
+          } else if (
+            type === 'groupopen' &&
+            (course['ctpl_type'] === 'open' ||
+              course['ctpl_type'] === 'group' ||
+              course['ctpl_type'] === 'special')
+          ) {
+            list.push(course);
+          }
+        }
+        return list;
+      }
+
       return {
         registerModal,
         schemas,
@@ -200,6 +223,7 @@
         options,
         handleCouseChange,
         getTempleteList,
+        afterFetchFn,
       };
     },
   });

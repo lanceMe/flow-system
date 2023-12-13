@@ -1,107 +1,28 @@
 <template>
   <div :class="`${prefixCls}-page-wrapper`">
-    <BasicTable @register="registerTable">
-      <template #bodyCell="{ column, record }">
-        <template v-if="column.key === 'action'">
-          <TableAction
-            :actions="[
-              { label: '查看', onClick: handleView.bind(null, record), disabled: true },
-              { label: '编辑', onClick: handleEdit.bind(null, record), disabled: true },
-            ]"
-          />
-        </template>
-      </template>
-      <template #toolbar>
-        <a-button type="primary" @click="createCourse" :disabled="true"> 创建会员卡 </a-button>
-      </template>
-    </BasicTable>
-    <Modal @register="registerModal" @submit-success="changeCourseList" />
+    <span class="info">性别：{{ data.gender || '未设置' }}</span>
+    <span class="info">抱石水平：{{ data.bouldering_grade || '--' }}</span>
+    <span class="info">大岩壁水平：{{ data.wall_grade || '--' }}</span>
+    <span class="info">身高：{{ data.height || '--' }}</span>
+    <span class="info">体重：{{ data.weight || '--' }}</span>
+    <span class="info">生日：{{ data.birthday ? formatToDate(data.birthday) : '--' }}</span>
+    <span class="info">是否野攀：{{ data.nickname1 || '--' }}</span>
+    <span class="info">备注：{{ data.remarks || '--' }}</span>
   </div>
 </template>
 <script lang="ts">
   import { defineComponent, ref } from 'vue';
-  import { BasicTable, useTable, TableAction } from '/@/components/Table';
-  import { getTableColumns, getFormConfig } from './config';
-  import { getCardList } from '/@/api/cards';
-  import { useModal } from '/@/components/Modal';
-  import Modal from '/@/views/course/detail/index.vue';
   import { useDesign } from '/@/hooks/web/useDesign';
+  import { formatToDate } from '/@/utils/dateUtil';
 
   export default defineComponent({
-    components: { BasicTable, TableAction, Modal },
+    components: {},
+    props: ['data'],
     setup() {
-      const [registerTable, { reload }] = useTable({
-        api: getCardList,
-        columns: getTableColumns(),
-        canResize: false,
-        bordered: true,
-        showTableSetting: true,
-        tableSetting: { fullScreen: true },
-        handleSearchInfoFn,
-        afterFetch,
-        // showIndexColumn: false,
-        actionColumn: {
-          width: 200,
-          title: '操作',
-          dataIndex: 'action',
-        },
-      });
-
-      const searchParam = ref({ name: '', channel: '', type: '' });
-
-      const [registerModal, { openModal: openModal }] = useModal();
       const { prefixCls } = useDesign('vip-cards');
-      function handleEdit(event: any) {
-        console.log('handleEdit', event);
-        openModal(true, { type: 'edit', formData: event });
-      }
-
-      function handleView(event: any) {
-        console.log('handleView', event);
-        openModal(true, { type: 'view', formData: event });
-      }
-
-      function createCourse(event: any) {
-        console.log('createCourse', event);
-        openModal(true, { type: 'create' });
-      }
-
-      function changeCourseList() {
-        reload();
-      }
-
-      //本地存储筛选信息
-      function handleSearchInfoFn(params) {
-        searchParam.value = params;
-        return params;
-      }
-
-      //本地过滤筛选结果
-      function afterFetch(data: []) {
-        const { name: n, type: t, channel: c } = searchParam.value;
-        const filterData = data.filter((item) => {
-          const { name, type, class: cn, channel } = item;
-          return (
-            (!n || name === n) &&
-            (!c || channel === c) &&
-            (!t ||
-              type === t ||
-              (t === 'daypass1' && type === 'daypass' && cn === 'bundle') ||
-              (t === 'daypass2' && type === 'daypass' && cn === 'time'))
-          );
-        });
-        return filterData;
-      }
-
       return {
-        registerTable,
-        createCourse,
-        handleEdit,
-        handleView,
-        registerModal,
-        openModal,
-        changeCourseList,
         prefixCls,
+        formatToDate,
       };
     },
   });
@@ -111,9 +32,17 @@
 
   .@{prefix-cls} {
     &-page-wrapper {
-      // margin: 20px;
       // padding: 8px;
       // background-color: #fff;
+      display: flex;
+      flex-direction: column;
+      margin: 0 0 40px 40px;
+      font-size: 16px;
+
+      > span {
+        margin-top: 20px;
+      }
+
       .ant-row {
         flex-direction: row;
       }

@@ -1,117 +1,137 @@
-import { FormProps } from '/@/components/Form';
 import { BasicColumn } from '/@/components/Table/src/types/table';
 import { formatToDateTime } from '/@/utils/dateUtil';
-import dayjs from 'dayjs';
 
-export function getFormConfig(): Partial<FormProps> {
-  return {
-    labelWidth: 100,
-    schemas: [
-      {
-        field: `name`,
-        component: 'Input',
-        componentProps: { placeholder: '手机号' },
-        colProps: { xl: 6, xxl: 6 },
-      },
-      {
-        field: `type`,
-        component: 'Select',
-        colProps: { xl: 6, xxl: 6 },
-        componentProps: {
-          placeholder: '卡种',
-          options: [
-            { label: '课程卡-中级私教', value: 'privatelv1', key: 'privatelv1' },
-            { label: '课程卡-高级私教', value: 'privatelv2', key: 'privatelv2' },
-            { label: '课程卡-团课', value: 'group', key: 'group' },
-            { label: 'Daypass-次数卡', value: 'daypass1', key: 'daypass1' },
-            { label: 'Daypass-时间卡', value: 'daypass2', key: 'daypass2' },
-          ],
-        },
-      },
-    ],
-  };
-}
 export function getTableColumns(): BasicColumn[] {
   return [
     {
-      title: '昵称',
-      dataIndex: 'name',
-      // fixed: 'left',
+      title: '上课时间',
       width: 150,
-    },
-    {
-      title: '性别',
-      dataIndex: 'name',
-      // fixed: 'left',
-      width: 100,
-    },
-    {
-      title: '会员卡',
-      dataIndex: 'name',
-      // fixed: 'left',
-      width: 150,
-    },
-    // {
-    //   title: '卡种',
-    //   dataIndex: 'type',
-    //   format(type, { class: type1 }) {
-    //     let formatText = type;
-    //     switch (type) {
-    //       case 'privatelv1':
-    //         formatText = '课程卡-中级私教';
-    //         break;
-    //       case 'privatelv2':
-    //         formatText = '课程卡-高级私教';
-    //         break;
-    //       case 'group':
-    //         formatText = '课程卡-团课';
-    //         break;
-    //       case 'daypass':
-    //         if (type1 === 'bundle') formatText = 'Daypass-次数卡';
-    //         else formatText = 'Daypass-时间卡';
-
-    //         break;
-    //       default:
-    //         break;
-    //     }
-
-    //     return formatText;
-    //   },
-    //   width: 150,
-    // },
-    {
-      title: '抱石水平',
-      width: 100,
-      dataIndex: 'type',
-      format() {
-        return '--';
-      },
-    },
-    {
-      title: '最近到店',
-      width: 150,
-      dataIndex: 'created_at',
+      dataIndex: 'course_start_time',
       format(text) {
         if (text) return formatToDateTime(text);
         return text;
       },
     },
     {
-      title: '注册时间',
+      title: '课程',
+      dataIndex: 'course_display_name',
+      format(text) {
+        return text || '--';
+      },
       width: 150,
-      dataIndex: 'created_at',
+    },
+    {
+      title: '教练',
+      dataIndex: 'coach_nickname',
+      // fixed: 'left',
+      width: 100,
+      format(text) {
+        return text || '--';
+      },
+    },
+    {
+      title: '课程卡',
+      dataIndex: 'cardcat_name',
+      // fixed: 'left',
+      width: 150,
+      format(text) {
+        return text || '--';
+      },
+    },
+
+    {
+      title: '人数',
+      width: 50,
+      dataIndex: 'number',
+      format(text) {
+        return text || '--';
+      },
+    },
+    {
+      title: '预约时间',
+      width: 150,
+      dataIndex: 'attend_at',
       format(text) {
         if (text) return formatToDateTime(text);
         return text;
       },
     },
-    // {
-    //   title: '创建人',
-    //   width: 150,
-    //   dataIndex: 'created_by',
-    //   format(name) {
-    //     return name || '--';
-    //   },
-    // },
+    {
+      title: '预约状态',
+      width: 100,
+      dataIndex: 'attend_status',
+      format(status) {
+        let formatText = status;
+        switch (status) {
+          case 'reserved':
+            formatText = '已预约';
+            break;
+          case 'checkedin':
+            formatText = '已签到';
+            break;
+          default:
+            formatText = '已取消';
+            break;
+        }
+
+        return formatText;
+      },
+    },
+    {
+      title: '卡种',
+      dataIndex: 'cardcat_type',
+      format(type, { cardcat_class: type1 }) {
+        let formatText = type;
+        switch (type) {
+          case 'privatelv1':
+            formatText = '课程卡-中级私教';
+            break;
+          case 'privatelv2':
+            formatText = '课程卡-高级私教';
+            break;
+          case 'group':
+            formatText = '课程卡-团课';
+            break;
+          case 'daypass':
+            if (type1 === 'bundle') formatText = 'Daypass-次数卡';
+            else formatText = 'Daypass-时间卡';
+
+            break;
+          default:
+            break;
+        }
+
+        return formatText;
+      },
+      width: 150,
+    },
+    {
+      title: '预约方式',
+      width: 100,
+      dataIndex: 'attend_channel',
+      format(type) {
+        let formatText = type;
+        switch (type) {
+          case 'wx':
+            formatText = '小程序';
+            break;
+          case 'manual':
+            formatText = '后台';
+            break;
+
+          default:
+            break;
+        }
+        return formatText;
+      },
+    },
+    {
+      title: '备注',
+      width: 150,
+      dataIndex: 'attend_remarks',
+      format(text) {
+        return text || '--';
+      },
+    },
   ];
 }

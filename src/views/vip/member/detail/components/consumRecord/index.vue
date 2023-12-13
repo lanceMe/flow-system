@@ -1,44 +1,76 @@
 <template>
   <div :class="`${prefixCls}-page-wrapper`">
     <BasicTable @register="registerTable">
-      <template #bodyCell="{ column, record }">
+      <template #bodyCell="{ column, record, text }">
+        <template v-if="column.key === 'cardins_status'">
+          <Tag v-if="text === 'inactive'" color="blue">未开卡</Tag>
+          <Tag v-else-if="text === 'active'" color="success">已开卡</Tag>
+          <Tag v-else color="error">已作废</Tag>
+        </template>
         <template v-if="column.key === 'action'">
           <TableAction
             :actions="[
-              { label: '查看', onClick: handleView.bind(null, record), disabled: true },
-              { label: '编辑', onClick: handleEdit.bind(null, record), disabled: true },
+              { label: '续卡', onClick: handleView.bind(null, record), disabled: true },
+              { label: '扣费', onClick: handleView.bind(null, record), disabled: true },
+              { label: '停卡', onClick: handleView.bind(null, record), disabled: true },
+              { label: '作废', onClick: handleEdit.bind(null, record), disabled: true },
             ]"
           />
         </template>
       </template>
       <template #toolbar>
-        <a-button type="primary" @click="createCourse" :disabled="true"> 创建会员卡 </a-button>
+        <!-- <a-button type="primary" @click="createCourse" :disabled="true"> 创建会员卡 </a-button> -->
       </template>
     </BasicTable>
-    <Modal @register="registerModal" @submit-success="changeCourseList" />
+
+    <BasicTable @register="registerTable1">
+      <template #bodyCell="{ column, record, text }">
+        <template v-if="column.key === 'cardins_status'">
+          <Tag v-if="text === 'inactive'" color="blue">未开卡</Tag>
+          <Tag v-else-if="text === 'active'" color="success">已开卡</Tag>
+          <Tag v-else color="error">已作废</Tag>
+        </template>
+        <template v-if="column.key === 'action'">
+          <TableAction
+            :actions="[
+              { label: '续卡', onClick: handleView.bind(null, record), disabled: true },
+              { label: '扣费', onClick: handleView.bind(null, record), disabled: true },
+              { label: '停卡', onClick: handleView.bind(null, record), disabled: true },
+              { label: '作废', onClick: handleEdit.bind(null, record), disabled: true },
+            ]"
+          />
+        </template>
+      </template>
+      <template #toolbar>
+        <!-- <a-button type="primary" @click="createCourse" :disabled="true"> 创建会员卡 </a-button> -->
+      </template>
+    </BasicTable>
   </div>
 </template>
 <script lang="ts">
   import { defineComponent, ref } from 'vue';
   import { BasicTable, useTable, TableAction } from '/@/components/Table';
-  import { getTableColumns, getFormConfig } from './config';
-  import { getCardList } from '/@/api/cards';
-  import { useModal } from '/@/components/Modal';
-  import Modal from '/@/views/course/detail/index.vue';
+  import { getTableColumns } from './config';
+  import { getUserCardList } from '/@/api/cards';
   import { useDesign } from '/@/hooks/web/useDesign';
+  import { useRouter } from 'vue-router';
+
+  import { Tag } from 'ant-design-vue';
 
   export default defineComponent({
-    components: { BasicTable, TableAction, Modal },
+    components: { BasicTable, Tag, TableAction },
     setup() {
-      const [registerTable, { reload }] = useTable({
-        api: getCardList,
+      const { id } = useRouter()?.currentRoute?.value?.query || {};
+      const [registerTable] = useTable({
+        title: '会员卡明细',
+        api: getUserCardList,
+        searchInfo: { 'wxuser-token': 'UMgoFP05rBSt4Xj7R1lUa6WNCGLkcQsD' },
         columns: getTableColumns(),
         canResize: false,
         bordered: true,
         showTableSetting: true,
         tableSetting: { fullScreen: true },
-        handleSearchInfoFn,
-        afterFetch,
+        // showIndexColumn: false,
         actionColumn: {
           width: 200,
           title: '操作',
@@ -46,61 +78,44 @@
         },
       });
 
-      const searchParam = ref({ name: '', channel: '', type: '' });
+      const [registerTable1] = useTable({
+        title: '会员卡消费明细',
+        api: getUserCardList,
+        searchInfo: { 'wxuser-token': 'UMgoFP05rBSt4Xj7R1lUa6WNCGLkcQsD' },
+        columns: getTableColumns(),
+        canResize: false,
+        bordered: true,
+        showTableSetting: true,
+        tableSetting: { fullScreen: true },
+        // showIndexColumn: false,
+        actionColumn: {
+          width: 200,
+          title: '操作',
+          dataIndex: 'action',
+        },
+      });
 
-      const [registerModal, { openModal: openModal }] = useModal();
       const { prefixCls } = useDesign('vip-cards');
       function handleEdit(event: any) {
         console.log('handleEdit', event);
-        openModal(true, { type: 'edit', formData: event });
       }
 
       function handleView(event: any) {
         console.log('handleView', event);
-        openModal(true, { type: 'view', formData: event });
       }
 
       function createCourse(event: any) {
         console.log('createCourse', event);
-        openModal(true, { type: 'create' });
-      }
-
-      function changeCourseList() {
-        reload();
-      }
-
-      //本地存储筛选信息
-      function handleSearchInfoFn(params) {
-        searchParam.value = params;
-        return params;
-      }
-
-      //本地过滤筛选结果
-      function afterFetch(data: []) {
-        const { name: n, type: t, channel: c } = searchParam.value;
-        const filterData = data.filter((item) => {
-          const { name, type, class: cn, channel } = item;
-          return (
-            (!n || name === n) &&
-            (!c || channel === c) &&
-            (!t ||
-              type === t ||
-              (t === 'daypass1' && type === 'daypass' && cn === 'bundle') ||
-              (t === 'daypass2' && type === 'daypass' && cn === 'time'))
-          );
-        });
-        return filterData;
       }
 
       return {
         registerTable,
+        registerTable1,
         createCourse,
         handleEdit,
         handleView,
-        registerModal,
-        openModal,
-        changeCourseList,
         prefixCls,
+        TableAction,
       };
     },
   });
