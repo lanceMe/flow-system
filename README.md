@@ -2,7 +2,7 @@
 
 [![license](https://img.shields.io/github/license/anncwb/vue-vben-admin.svg)](LICENSE)
 
-<h1>Vue Flow Bouldering</h1>
+<h1>Vue Mellow Climbing Gym</h1>
 </div>
 
 **English** | [中文](./README.zh-CN.md)

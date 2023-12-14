@@ -150,7 +150,7 @@ const transform: AxiosTransform = {
       }
     }
 
-    // Flow Bouldering把data||params数据全放到header中，需要设置options.
+    // Mellow Climbing Gym把data||params数据全放到header中，需要设置options.
     flatParamsToRequestHeader(config, options);
 
     return config;
@@ -172,7 +172,7 @@ const transform: AxiosTransform = {
         ? `${options.authenticationScheme} ${token}`
         : token;
 
-      // Flow Bouldering user-token
+      // Mellow Climbing Gym user-token
       (config as Recordable).headers['user-token'] = token;
       // (config as Recordable).headers['wxuser-token'] = token;
     }
@@ -314,7 +314,7 @@ const transformResponseData = (data, dataKey) => {
   return data?.[dataKey];
 };
 
-// Flow Bouldering 相关的请求
+// Mellow Climbing Gym 相关的请求
 function flatParamsToRequestHeader(config: AxiosRequestConfig, options: RequestOptions) {
   const { moveParamsToHeader } = options || {};
   if (moveParamsToHeader) {
