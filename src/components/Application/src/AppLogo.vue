@@ -5,7 +5,7 @@
 <template>
   <div class="anticon" :class="getAppLogoClass" @click="goHome">
     <!-- <img src="../../../assets/images/logo.png" /> -->
-    <div class="ml-2 truncate md:opacity-100" :class="getTitleClass" v-show="showTitle">
+    <div class="ml-2 truncate md:opacity-100 title" :class="getTitleClass" v-show="showTitle">
       {{ title }}
     </div>
   </div>
@@ -76,7 +76,8 @@
     }
 
     &.light &__title {
-      color: @primary-color;
+      // color: @primary-color;
+      color: var(--text-color);
     }
 
     &.dark &__title {
