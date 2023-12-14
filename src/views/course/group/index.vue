@@ -35,7 +35,10 @@
       <div :class="`${prefixCls}-container`">
         <FullCalendar :options="opts" ref="fulcalendarRef">
           <template #eventContent="{ event }">
-            <div :class="`cell-content`" @dblclick="handleBbClick">
+            <div
+              :class="`cell-content ${event.extendedProps.isExpired ? 'expired' : ''}`"
+              @dblclick="handleBbClick"
+            >
               <div class="title">{{ event.extendedProps['display_name'] }}</div>
               <div class="event-time">{{ event.extendedProps.timeStr }}</div>
               <div class="coach">{{ event.extendedProps['coach_nickname'] }}</div>
@@ -78,18 +81,18 @@
 
   const Color = {
     normal: {
-      group: '#2468a2',
-      open: '#228fbd',
-      privatelv1: '7bbfea',
-      privatelv2: '#77ac98',
+      group: '#75855D',
+      open: '#C8D67A',
+      privatelv1: '#EED5D2',
+      privatelv2: '#f3d1cd',
       special: '#cde6c7',
     },
     expired: {
-      group: '#228fbd',
-      open: '#7bbfea',
-      privatelv1: '#007d65',
-      privatelv2: '#1d953f',
-      special: '#f58220',
+      group: 'rgba(117, 133, 93, 0.8)',
+      open: 'rgba(200, 214, 122, 0.8)',
+      privatelv1: 'rgba(238, 213, 210, 0.8)',
+      privatelv2: 'rgb(243, 209, 205,0.8)',
+      special: 'rgb(205, 230, 199,0.8)',
     },
   };
 
@@ -478,6 +481,7 @@
           flex-direction: column;
           justify-content: space-between;
           height: 100%;
+          color: #2e2e2a;
 
           .reverse > span {
             display: inline-block;
@@ -489,6 +493,10 @@
             text-overflow: ellipsis;
             white-space: nowrap;
           }
+        }
+
+        .expired {
+          color: #6c6c63;
         }
       }
     }
