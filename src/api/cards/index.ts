@@ -9,6 +9,7 @@ enum Api {
   getAccessList = '/v1/checkin_daypass',
   getUserCardList = '/v1/cardins',
   getWxUser = '/v1/wxuser',
+  getcardRecordList = '/v1/cardins_record',
 }
 /**
  * @description: 获取会员卡列表
@@ -87,6 +88,17 @@ export function getUserCardList(data) {
     { returnTransformResponseDataKey: 'cardins_list' },
   );
 }
+export function getcardRecordList(data) {
+  const params = {
+    'wxuser-token': data['wxuser-token'],
+  };
+
+  return request.get(
+    { url: Api.getcardRecordList, params },
+    { returnTransformResponseDataKey: 'cardins_record_list' },
+  );
+}
+
 export function getWxUser(wxId) {
   const params = {
     'wxuser-token': wxId,

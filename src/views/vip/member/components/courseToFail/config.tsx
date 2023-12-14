@@ -13,14 +13,14 @@ export function getFormConfig(): Partial<FormProps> {
         colProps: { xl: 6, xxl: 6 },
       },
       {
-        field: `cardcat-class`,
+        field: `cardcat-type`,
         component: 'Select',
         colProps: { xl: 6, xxl: 6 },
         componentProps: {
           placeholder: '卡别',
           options: [
-            { label: '次数卡', value: 'bundle', key: 'bundle' },
-            { label: '时间卡', value: 'time', key: 'time' },
+            { label: '团课', value: 'group', key: 'group' },
+            { label: '私教课', value: 'privatelv1,privatelv2', key: 'privatelv1,privatelv2' },
           ],
         },
       },

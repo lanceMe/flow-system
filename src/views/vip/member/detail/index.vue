@@ -92,6 +92,9 @@
 
   .@{prefix-cls} {
     &-page-wrapper {
+      margin: 20px 30px;
+      background-color: #fff;
+
       .ant-row {
         flex-direction: row;
       }

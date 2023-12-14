@@ -6,7 +6,7 @@ export function getTableColumns(): BasicColumn[] {
     {
       title: '到店时间',
       width: 150,
-      dataIndex: 'course_start_time',
+      dataIndex: 'checkin_time',
       format(text) {
         if (text) return formatToDateTime(text);
         return text;
@@ -14,7 +14,7 @@ export function getTableColumns(): BasicColumn[] {
     },
     {
       title: '会员卡',
-      dataIndex: 'course_display_name',
+      dataIndex: 'cardcat_name',
       format(text) {
         return text || '--';
       },
@@ -22,7 +22,7 @@ export function getTableColumns(): BasicColumn[] {
     },
     {
       title: '人数',
-      dataIndex: 'coach_nickname',
+      dataIndex: 'checkin_persons',
       // fixed: 'left',
       width: 50,
       format(text) {
@@ -31,7 +31,7 @@ export function getTableColumns(): BasicColumn[] {
     },
     {
       title: '卡种',
-      dataIndex: 'course_type',
+      dataIndex: 'cardcat_type',
       format(type, { class: type1 }) {
         let formatText = type;
         switch (type) {
@@ -60,7 +60,7 @@ export function getTableColumns(): BasicColumn[] {
     {
       title: '签到方式',
       width: 100,
-      dataIndex: 'attend_channel',
+      dataIndex: 'checkin_channel',
       format(type) {
         let formatText = type;
         switch (type) {
@@ -80,7 +80,7 @@ export function getTableColumns(): BasicColumn[] {
     {
       title: '备注',
       width: 150,
-      dataIndex: 'attend_remarks',
+      dataIndex: 'checkin_remarks',
       format(text) {
         return text || '--';
       },
