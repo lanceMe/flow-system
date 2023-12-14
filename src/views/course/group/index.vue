@@ -35,10 +35,7 @@
       <div :class="`${prefixCls}-container`">
         <FullCalendar :options="opts" ref="fulcalendarRef">
           <template #eventContent="{ event }">
-            <div
-              :class="`cell-content ${event.extendedProps.isExpired ? 'expired' : ''}`"
-              @dblclick="handleBbClick"
-            >
+            <div :class="`cell-content`" @dblclick="handleBbClick">
               <div class="title">{{ event.extendedProps['display_name'] }}</div>
               <div class="event-time">{{ event.extendedProps.timeStr }}</div>
               <div class="coach">{{ event.extendedProps['coach_nickname'] }}</div>
@@ -81,18 +78,18 @@
 
   const Color = {
     normal: {
-      group: '#75855D',
-      open: '#C8D67A',
-      privatelv1: '#EED5D2',
-      privatelv2: '#f3d1cd',
+      group: '#2468a2',
+      open: '#228fbd',
+      privatelv1: '7bbfea',
+      privatelv2: '#77ac98',
       special: '#cde6c7',
     },
     expired: {
-      group: 'rgba(117, 133, 93, 0.8)',
-      open: 'rgba(200, 214, 122, 0.8)',
-      privatelv1: 'rgba(238, 213, 210, 0.8)',
-      privatelv2: 'rgb(243, 209, 205,0.8)',
-      special: 'rgb(205, 230, 199,0.8)',
+      group: '#228fbd',
+      open: '#7bbfea',
+      privatelv1: '#007d65',
+      privatelv2: '#1d953f',
+      special: '#f58220',
     },
   };
 
@@ -462,7 +459,7 @@
 
       .fc-col-header-cell {
         height: 50px;
-        background-color: #bfbfbf;
+        background-color: #f2f2f2;
 
         .fc-col-header-cell-cushion {
           line-height: 50px;
@@ -479,14 +476,8 @@
         .cell-content {
           display: flex;
           flex-direction: column;
-          justify-content: flex-start;
+          justify-content: space-between;
           height: 100%;
-          overflow: hidden;
-          color: #360000;
-
-          > *:not(:last-child) {
-            margin-bottom: 5%;
-          }
 
           .reverse > span {
             display: inline-block;
@@ -494,12 +485,10 @@
           }
 
           .title {
-            line-height: 16px;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
           }
-        }
-
-        .expired {
-          color: #6c6c63;
         }
       }
     }
