@@ -35,7 +35,10 @@
       <div :class="`${prefixCls}-container`">
         <FullCalendar :options="opts" ref="fulcalendarRef">
           <template #eventContent="{ event }">
-            <div :class="`cell-content`" @dblclick="handleBbClick">
+            <div
+              :class="`cell-content ${event.extendedProps.isExpired ? 'expired' : ''}`"
+              @dblclick="handleBbClick"
+            >
               <div class="title">{{ event.extendedProps['display_name'] }}</div>
               <div class="event-time">{{ event.extendedProps.timeStr }}</div>
               <div class="coach">{{ event.extendedProps['coach_nickname'] }}</div>
@@ -78,18 +81,18 @@
 
   const Color = {
     normal: {
-      group: '#2468a2',
-      open: '#228fbd',
-      privatelv1: '7bbfea',
-      privatelv2: '#77ac98',
+      group: '#75855D',
+      open: '#C8D67A',
+      privatelv1: '#EED5D2',
+      privatelv2: '#f3d1cd',
       special: '#cde6c7',
     },
     expired: {
-      group: '#228fbd',
-      open: '#7bbfea',
-      privatelv1: '#007d65',
-      privatelv2: '#1d953f',
-      special: '#f58220',
+      group: 'rgba(117, 133, 93, 0.8)',
+      open: 'rgba(200, 214, 122, 0.8)',
+      privatelv1: 'rgba(238, 213, 210, 0.8)',
+      privatelv2: 'rgb(243, 209, 205,0.8)',
+      special: 'rgb(205, 230, 199,0.8)',
     },
   };
 
@@ -176,11 +179,14 @@
               if (isInCoachs) {
                 //通过课程类型筛选
                 if (
-                  props.type === 'privatge' &&
+                  props.type === 'private' &&
                   (course.type === 'privatelv1' || course.type === 'privatelv2')
                 ) {
                   isAvable = true;
-                } else if (course.type !== 'privatelv1' && course.type !== 'privatelv2') {
+                } else if (
+                  props.type === 'groupopen' &&
+                  (course.type === 'open' || course.type === 'group' || course.type === 'special')
+                ) {
                   isAvable = true;
                 }
               }
@@ -456,7 +462,7 @@
 
       .fc-col-header-cell {
         height: 50px;
-        background-color: #f2f2f2;
+        background-color: #bfbfbf;
 
         .fc-col-header-cell-cushion {
           line-height: 50px;
@@ -473,8 +479,14 @@
         .cell-content {
           display: flex;
           flex-direction: column;
-          justify-content: space-between;
+          justify-content: flex-start;
           height: 100%;
+          overflow: hidden;
+          color: #360000;
+
+          > *:not(:last-child) {
+            margin-bottom: 5%;
+          }
 
           .reverse > span {
             display: inline-block;
@@ -482,10 +494,12 @@
           }
 
           .title {
-            overflow: hidden;
-            text-overflow: ellipsis;
-            white-space: nowrap;
+            line-height: 16px;
           }
+        }
+
+        .expired {
+          color: #6c6c63;
         }
       }
     }
