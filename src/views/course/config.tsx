@@ -275,6 +275,12 @@ export function getFormSchema1(data): FormSchema[] {
       defaultValue: showDef ? f?.['course_id'] : undefined,
       dynamicDisabled,
       slot: 'course_name',
+      rules: [
+        {
+          required: true,
+          trigger: 'blur',
+        },
+      ],
     },
     {
       field: 'coach-id',

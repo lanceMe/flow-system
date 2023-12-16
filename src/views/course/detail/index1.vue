@@ -140,7 +140,7 @@
           'course-type': data?.['type'] || temp?.['ctpl_type'] || 'group',
           'course-price': data?.['course_price'] || temp?.['ctpl_price'] || '20',
         };
-        console.log('postApi', params, data, temp);
+        console.log('postApi', values, params, data, temp);
         requestFunc(params).then((resp) => {
           console.log(resp, params);
           closeModal();
