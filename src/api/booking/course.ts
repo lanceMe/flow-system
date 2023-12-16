@@ -29,6 +29,13 @@ export function deleteReserveCourse(data) {
 }
 
 /**
+ * @description: 取消候补课程
+ */
+export function deleteWaitingCourse(data) {
+  return request.delete({ url: '/v1/wait_course', data });
+}
+
+/**
  * @description: 未到场课程
  */
 export function noShowReserveCourse(data) {

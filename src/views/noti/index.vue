@@ -264,6 +264,8 @@
         },
         resetForm() {
           formRef.value.resetFields();
+          formState.text = undefined;
+          formState.notiType = undefined;
         },
 
         getWeek() {

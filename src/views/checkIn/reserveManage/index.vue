@@ -74,9 +74,15 @@
               >
               <a-button
                 type="link"
-                v-if="record.attend_status === 'reserved' || record.attend_status === 'waiting'"
+                v-if="record.attend_status === 'reserved'"
                 @click="cancelReserve(record, item.course_id)"
                 >取消预约</a-button
+              >
+              <a-button
+                type="link"
+                v-if="record.attend_status === 'waiting'"
+                @click="cancelWaiting(record, item.course_id)"
+                >取消候补</a-button
               >
               <a-button
                 type="link"
@@ -88,6 +94,7 @@
           </template>
         </a-table>
       </div>
+      <a-empty v-if="!courseList.length" />
       <a-pagination
         v-model:current="currentPage.current"
         :total="currentPage.total"
@@ -113,6 +120,7 @@
     RangePicker,
     Pagination,
     message,
+    Empty,
   } from 'ant-design-vue';
 
   import { openWindow } from '/@/utils';
@@ -125,6 +133,7 @@
     deleteReserveCourse,
     noShowReserveCourse,
     deleteCheckinCoures,
+    deleteWaitingCourse,
   } from '/@/api/booking/course';
   import { useRouter } from 'vue-router';
 
@@ -142,6 +151,7 @@
       ARangePicker: RangePicker,
       ASpace: Space,
       APagination: Pagination,
+      AEmpty: Empty,
       check,
       message,
     },
@@ -312,6 +322,15 @@
             'course-id': id,
           }).then(() => {
             message.success('取消预约成功');
+            getList(currentPage.current);
+          });
+        },
+        cancelWaiting(item, id) {
+          deleteWaitingCourse({
+            'wxuser-token': item.wxuser_token,
+            'course-id': id,
+          }).then(() => {
+            message.success('取消候补成功');
             getList(currentPage.current);
           });
         },

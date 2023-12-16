@@ -151,7 +151,7 @@
             memberCardType: cardType[item.cardcat_class],
             checkInTime: item.checkin_time,
             confirmType: 111,
-            checkInType: 'wechat',
+            checkInType: item.checkin_channel,
             memo: item.checkin_remarks,
             wxToken: item.wxuser_token,
             cardinsId: item.cardins_id,
