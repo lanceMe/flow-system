@@ -119,8 +119,7 @@ export function getTableColumns1(): BasicColumn[] {
       width: 150,
       dataIndex: 'record_price',
       format(text) {
-        if (text) return formatToDateTime(text);
-        return text;
+        return text || '';
       },
     },
     {
