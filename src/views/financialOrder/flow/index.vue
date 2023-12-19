@@ -50,6 +50,10 @@
           <template v-if="column.key === 'subtype'">
             {{ subtypeEnum[record.order_subtype] }}
           </template>
+          <template v-if="column.key === 'memberCard'">
+            <img class="member-img" :src="record.wxuser_avatar_fileid" alt="" />
+            <span>{{ record.wxuser_nickname }}</span>
+          </template>
           <template v-if="column.key === 'payType'"> 微信支付 </template>
           <template v-if="column.key === 'offPrice'">
             {{ record.order_original_price - record.order_paid_price }}
@@ -214,7 +218,7 @@
           },
           {
             title: '商品',
-            dataIndex: 'order_type',
+            dataIndex: 'cardcat_name',
             key: 'reserve',
           },
           {
@@ -272,12 +276,17 @@
         },
         onSearch() {
           console.log(formState);
+          if (!formState.date?.length) {
+            message.error('请选择日期');
+            return;
+          }
           getList(1);
         },
 
         resetForm() {
-          formState.coach = undefined;
-          formState.courseType = undefined;
+          formState.status = undefined;
+          formState.orderType = undefined;
+          formState.date = [];
         },
         disabledDate(current: any) {
           if (!selectPriceDate.value) {
@@ -324,6 +333,11 @@
     &-ab {
       margin-left: 20px;
     }
+  }
+
+  .member-img {
+    width: 40px;
+    margin-right: 10px;
   }
 
   .margin-right-10 {
