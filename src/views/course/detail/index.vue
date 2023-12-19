@@ -42,17 +42,18 @@
       const { prefixCls } = useDesign('course');
       const schemas = getFormSchema(dataRef.value);
 
-      const [registerForm, { updateSchema, validate, resetFields, resetSchema }] = useForm({
-        // labelWidth: 120,
-        schemas,
-        showActionButtonGroup: false,
-        baseColProps: {
-          span: 10,
-        },
-        actionColOptions: {
-          span: 24,
-        },
-      });
+      const [registerForm, { updateSchema, validate, resetFields, resetSchema, getFieldsValue }] =
+        useForm({
+          // labelWidth: 120,
+          schemas,
+          showActionButtonGroup: false,
+          baseColProps: {
+            span: 10,
+          },
+          actionColOptions: {
+            span: 24,
+          },
+        });
 
       const [register, { closeModal }] = useModalInner((data) => {
         data && onDataReceive(data);
@@ -134,7 +135,7 @@
 
       async function setFormData(data) {
         dataRef.value = data;
-        const schemas = getFormSchema(data);
+        const schemas = getFormSchema(data, getFieldsValue);
         if (data.type === 'create') resetSchema(data);
         else resetFields();
         // await resetSchema(schemas);

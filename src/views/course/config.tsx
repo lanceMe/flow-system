@@ -5,7 +5,10 @@ import { getTagList, getCoachList } from '/@/api/course';
 import dayjs from 'dayjs';
 // import { getCardList } from '/@/api/cards';
 
-export function getFormSchema(data): FormSchema[] {
+export function getFormSchema(
+  data,
+  getFieldsValue: Function | undefined = undefined,
+): FormSchema[] {
   const { type, formData: f } = data || {};
   const dynamicDisabled = type === 'view';
   const showDef = type !== 'create';
@@ -73,15 +76,50 @@ export function getFormSchema(data): FormSchema[] {
       defaultValue: showDef ? f?.['ctpl_min_attenders'] : undefined,
       required: true,
       dynamicDisabled,
+      rules: [
+        {
+          required: true,
+          type: 'integer',
+        },
+        {
+          required: true,
+          pattern: /^[1-9]\d*$/,
+          message: '请输入大于0的整数',
+        },
+      ],
     },
 
     {
       field: 'ctpl-max-attenders',
       component: 'InputNumber',
       label: '人数上限',
-      defaultValue: f?.['ctpl_max_attenders'],
+      defaultValue: showDef ? f?.['ctpl_max_attenders'] : undefined,
       required: true,
       dynamicDisabled,
+      rules: [
+        {
+          required: true,
+          trigger: 'blur',
+        },
+        {
+          type: 'integer',
+          pattern: /^[1-9]\d*$/,
+          message: '请输入大于0的整数',
+        },
+        {
+          validator: (_, val) => {
+            let min = f?.['ctpl_min_attenders'] || 0;
+            if (getFieldsValue) {
+              const fieldsValue = getFieldsValue();
+              min = fieldsValue?.['ctpl-min-attenders'] || 0;
+            }
+            if (min > val) {
+              return Promise.reject('人数下限必须不能大于人数上限');
+            }
+            return Promise.resolve();
+          },
+        },
+      ],
     },
     // {
     //   field: 'ctpl-reserve-type',
@@ -123,6 +161,20 @@ export function getFormSchema(data): FormSchema[] {
       defaultValue: showDef ? f?.['ctpl_price'] : undefined,
       // required: true,
       dynamicDisabled,
+      rules: [
+        {
+          required: true,
+          type: 'float',
+        },
+        {
+          validator: (_, val) => {
+            if (val < 0) {
+              return Promise.reject('价格大于0');
+            }
+            return Promise.resolve();
+          },
+        },
+      ],
     },
     {
       field: 'ctpl-duration-minutes',
@@ -131,6 +183,16 @@ export function getFormSchema(data): FormSchema[] {
       defaultValue: showDef ? f?.['ctpl_duration_minutes'] : undefined,
       required: true,
       dynamicDisabled,
+      rules: [
+        {
+          required: true,
+          type: 'integer',
+        },
+        {
+          pattern: /^[1-9]\d*$/,
+          message: '请输入大于0的整数',
+        },
+      ],
     },
     {
       field: 'ctpl-cancel-waiting-minutes',
@@ -139,6 +201,16 @@ export function getFormSchema(data): FormSchema[] {
       defaultValue: showDef ? f?.['ctpl_cancel_waiting_minutes'] : undefined,
       required: true,
       dynamicDisabled,
+      rules: [
+        {
+          required: true,
+          type: 'integer',
+        },
+        {
+          pattern: /^[1-9]\d*$/,
+          message: '请输入大于0的整数',
+        },
+      ],
     },
     {
       field: 'ctpl-no-cancel-reserve-minutes',
@@ -147,6 +219,16 @@ export function getFormSchema(data): FormSchema[] {
       defaultValue: showDef ? f?.['ctpl_no_cancel_reserve_minutes'] : undefined,
       required: true,
       dynamicDisabled,
+      rules: [
+        {
+          required: true,
+          type: 'integer',
+        },
+        {
+          pattern: /^[1-9]\d*$/,
+          message: '请输入大于0的整数',
+        },
+      ],
     },
     {
       field: 'ctpl-description',
@@ -243,7 +325,10 @@ export function getTableColumns(): BasicColumn[] {
   ];
 }
 
-export function getFormSchema1(data): FormSchema[] {
+export function getFormSchema1(
+  data,
+  getFieldsValue: Function | undefined = undefined,
+): FormSchema[] {
   const { type, formData: fd, templeteData: td, calendar: c } = data || {};
   const dynamicDisabled = type === 'view';
   const isNeedFillTemplete = td !== undefined;
@@ -271,7 +356,6 @@ export function getFormSchema1(data): FormSchema[] {
       field: 'course_id',
       component: 'ApiSelect',
       label: '课程名称',
-      required: true,
       defaultValue: showDef ? f?.['course_id'] : undefined,
       dynamicDisabled,
       slot: 'course_name',
@@ -329,6 +413,17 @@ export function getFormSchema1(data): FormSchema[] {
       defaultValue: showDef ? f?.['min_attenders'] : undefined,
       required: true,
       dynamicDisabled,
+      rules: [
+        {
+          required: true,
+          trigger: 'blur',
+          type: 'integer',
+        },
+        {
+          pattern: /^[1-9]\d*$/,
+          message: '请输入大于0的整数',
+        },
+      ],
     },
 
     {
@@ -338,6 +433,30 @@ export function getFormSchema1(data): FormSchema[] {
       defaultValue: showDef ? f?.['max_attenders'] : undefined,
       required: true,
       dynamicDisabled,
+      rules: [
+        {
+          required: true,
+          trigger: 'blur',
+          type: 'integer',
+        },
+        {
+          pattern: /^[1-9]\d*$/,
+          message: '请输入大于0的整数',
+        },
+        {
+          validator: (_, val) => {
+            let min = f?.['min_attenders'] || 0;
+            if (getFieldsValue) {
+              const fieldsValue = getFieldsValue();
+              min = fieldsValue?.['course-min-attenders'] || 0;
+            }
+            if (min > val) {
+              return Promise.reject('人数下限不能大于人数上限');
+            }
+            return Promise.resolve();
+          },
+        },
+      ],
     },
     {
       field: 'course-cancel-waiting-minutes',
@@ -346,6 +465,16 @@ export function getFormSchema1(data): FormSchema[] {
       defaultValue: showDef ? f?.['cancel_waiting_minutes'] : undefined,
       required: true,
       dynamicDisabled,
+      rules: [
+        {
+          required: true,
+          type: 'integer',
+        },
+        {
+          pattern: /^[1-9]\d*$/,
+          message: '请输入大于0的整数',
+        },
+      ],
     },
     {
       field: 'course-no-cancel-reserve-minutes',
@@ -354,6 +483,16 @@ export function getFormSchema1(data): FormSchema[] {
       defaultValue: showDef ? f?.['no_cancel_reserve_minutes'] : undefined,
       required: true,
       dynamicDisabled,
+      rules: [
+        {
+          required: true,
+          type: 'integer',
+        },
+        {
+          pattern: /^[1-9]\d*$/,
+          message: '请输入大于0的整数',
+        },
+      ],
     },
     {
       field: 'course-description',
