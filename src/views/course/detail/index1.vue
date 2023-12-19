@@ -63,18 +63,17 @@
       const couseTemplete = ref<any>({});
       const options = ref([]);
 
-      const [registerForm, { updateSchema, validate, resetFields, clearValidate, resetSchema }] =
-        useForm({
-          // labelWidth: 120,
-          schemas,
-          showActionButtonGroup: false,
-          baseColProps: {
-            span: 10,
-          },
-          actionColOptions: {
-            span: 24,
-          },
-        });
+      const [registerForm, { updateSchema, validate, resetFields, getFieldsValue }] = useForm({
+        // labelWidth: 120,
+        schemas,
+        showActionButtonGroup: false,
+        baseColProps: {
+          span: 10,
+        },
+        actionColOptions: {
+          span: 24,
+        },
+      });
 
       const [registerModal, { closeModal }] = useModalInner((data) => {
         data && onDataReceive(data);
@@ -180,7 +179,7 @@
 
       async function setFormData(data) {
         dataRef.value = data;
-        const schemas = getFormSchema1(data);
+        const schemas = getFormSchema1(data, getFieldsValue);
 
         await resetFields();
         console.log(schemas, 'setFormData');
