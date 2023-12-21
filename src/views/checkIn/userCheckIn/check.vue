@@ -157,6 +157,10 @@
           'checkin-remarks': encode(formState.desc),
         }).then(() => {
           emits('success');
+          formState.phone = '';
+          formState.checkNumber = 1;
+          formState.cardType = undefined;
+          formState.desc = '';
         });
       })
       .catch((error) => {
