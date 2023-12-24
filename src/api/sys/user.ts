@@ -1,11 +1,13 @@
-import { defHttp } from '/@/utils/http/axios';
+import { defHttp, request } from '/@/utils/http/axios';
 import { LoginParams, LoginResultModel, GetUserInfoModel } from './model/userModel';
 
 import { ErrorMessageMode } from '/#/axios';
 
+import { encode } from '/@/utils/base64';
+
 enum Api {
-  Login = '/login',
-  Logout = '/logout',
+  Login = '/v1/login',
+  Logout = '/v1/logout',
   GetUserInfo = '/getUserInfo',
   GetPermCode = '/getPermCode',
   TestRetry = '/testRetry',
@@ -14,16 +16,12 @@ enum Api {
 /**
  * @description: user login api
  */
-export function loginApi(params: LoginParams, mode: ErrorMessageMode = 'modal') {
-  return defHttp.post<LoginResultModel>(
-    {
-      url: Api.Login,
-      params,
-    },
-    {
-      errorMessageMode: mode,
-    },
-  );
+export function loginApi(paramsUser: LoginParams, mode: ErrorMessageMode = 'modal') {
+  const params = {
+    'staff-phone-number': paramsUser.username,
+    'staff-password': encode(paramsUser.password),
+  };
+  return request.post<LoginResultModel>({ url: Api.Login, params }, { errorMessageMode: mode });
 }
 
 /**
@@ -38,6 +36,7 @@ export function getPermCode() {
 }
 
 export function doLogout() {
+  // return request.post<LoginResultModel>({ url: Api.Login, params }, { errorMessageMode: mode });
   return defHttp.get({ url: Api.Logout });
 }
 
