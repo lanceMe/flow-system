@@ -1,6 +1,7 @@
 import type { AppRouteModule } from '/@/router/types';
 
 import { LAYOUT } from '/@/router/constant';
+import { RoleEnum } from '/@/enums/roleEnum';
 
 const vip: AppRouteModule = {
   path: '/vip',
@@ -11,6 +12,13 @@ const vip: AppRouteModule = {
     orderNo: 50,
     icon: 'bxs:id-card',
     title: '会员管理',
+    roles: [
+      RoleEnum.ADMIN,
+      RoleEnum.MANAGER,
+      RoleEnum.FINANCIAL,
+      RoleEnum.RECEPTION,
+      RoleEnum.COACH,
+    ],
   },
 
   children: [
@@ -20,6 +28,7 @@ const vip: AppRouteModule = {
       component: () => import('/@/views/vip/member/index.vue'),
       meta: {
         title: '会员列表',
+        roles: [RoleEnum.ADMIN, RoleEnum.MANAGER, RoleEnum.RECEPTION],
       },
     },
     {
@@ -28,6 +37,13 @@ const vip: AppRouteModule = {
       component: () => import('/@/views/vip/cards/index.vue'),
       meta: {
         title: '会员卡',
+        roles: [
+          RoleEnum.ADMIN,
+          RoleEnum.MANAGER,
+          RoleEnum.FINANCIAL,
+          RoleEnum.RECEPTION,
+          RoleEnum.COACH,
+        ],
       },
     },
     {
@@ -37,6 +53,13 @@ const vip: AppRouteModule = {
       meta: {
         hideMenu: true,
         title: '会员详情',
+        roles: [
+          RoleEnum.ADMIN,
+          RoleEnum.MANAGER,
+          RoleEnum.FINANCIAL,
+          RoleEnum.RECEPTION,
+          RoleEnum.COACH,
+        ],
       },
     },
   ],

@@ -1,6 +1,7 @@
 import type { AppRouteModule } from '/@/router/types';
 
 import { LAYOUT } from '/@/router/constant';
+import { RoleEnum } from '/@/enums/roleEnum';
 
 const dashboard: AppRouteModule = {
   path: '/dashboard',
@@ -12,6 +13,13 @@ const dashboard: AppRouteModule = {
     hideChildrenInMenu: true,
     icon: 'ant-design:home-filled',
     title: '首页',
+    roles: [
+      RoleEnum.ADMIN,
+      RoleEnum.MANAGER,
+      RoleEnum.FINANCIAL,
+      RoleEnum.RECEPTION,
+      RoleEnum.COACH,
+    ],
   },
   children: [
     {
@@ -22,6 +30,13 @@ const dashboard: AppRouteModule = {
         // affix: true,
         hideMenu: true,
         title: '首页',
+        roles: [
+          RoleEnum.ADMIN,
+          RoleEnum.MANAGER,
+          RoleEnum.FINANCIAL,
+          RoleEnum.RECEPTION,
+          RoleEnum.COACH,
+        ],
       },
     },
   ],

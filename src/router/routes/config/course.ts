@@ -1,6 +1,7 @@
 import type { AppRouteModule } from '/@/router/types';
 
 import { LAYOUT } from '/@/router/constant';
+import { RoleEnum } from '/@/enums/roleEnum';
 
 const course: AppRouteModule = {
   path: '/course',
@@ -12,6 +13,7 @@ const course: AppRouteModule = {
     icon: 'fa-solid:swatchbook',
     title: '课程管理',
     orderNo: 60,
+    roles: [RoleEnum.ADMIN, RoleEnum.MANAGER, RoleEnum.RECEPTION, RoleEnum.COACH],
   },
   children: [
     {
@@ -23,6 +25,7 @@ const course: AppRouteModule = {
       component: () => import('/@/views/course/group/index.vue'),
       meta: {
         title: '团课管理',
+        roles: [RoleEnum.ADMIN, RoleEnum.MANAGER, RoleEnum.RECEPTION, RoleEnum.COACH],
         // hideMenu: true,
       },
     },
@@ -35,6 +38,7 @@ const course: AppRouteModule = {
       },
       meta: {
         title: '私教课管理',
+        roles: [RoleEnum.ADMIN, RoleEnum.MANAGER, RoleEnum.RECEPTION, RoleEnum.COACH],
         // hideMenu: true,
       },
     },
@@ -43,7 +47,8 @@ const course: AppRouteModule = {
       name: 'CourseList',
       component: () => import('/@/views/course/index.vue'),
       meta: {
-        title: '课程管理',
+        title: '课程模版',
+        roles: [RoleEnum.ADMIN, RoleEnum.MANAGER, RoleEnum.RECEPTION, RoleEnum.COACH],
         // hideMenu: true,
       },
     },

@@ -166,10 +166,11 @@ export const useUserStore = defineStore({
       if (!this.getToken) return null;
       const data = await getUserInfo(this.getToken, this.getUserId);
       const userInfo = this.transferToUsers(data);
-      const { roles = [] } = userInfo;
+      let { roles = [] } = userInfo;
+      if (this.firstLogin) roles = [RoleEnum.FIRSTLOGIN];
       if (isArray(roles)) {
-        const roleList = roles.map((item) => item.value) as RoleEnum[];
-        this.setRoleList(roleList);
+        const roleList = roles; //roles.map((item) => item.value) as RoleEnum[];
+        this.setRoleList(roleList as RoleEnum[]);
       } else {
         userInfo.roles = [];
         this.setRoleList([]);
@@ -228,6 +229,7 @@ export const useUserStore = defineStore({
       const userInfo: UserInfo = {
         userId: data?.['staff_id'],
         username: data?.['staff_nickname'],
+        realName: data?.['staff_nickname'],
         avatar: data?.['staff_avatar_url'],
         desc: data?.['staff_short_description'],
         roles: data?.['staff_role'],
