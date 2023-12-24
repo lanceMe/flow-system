@@ -124,8 +124,10 @@ export const usePermissionStore = defineStore({
         const { roles } = meta || {};
 
         if (!roles) return false;
+
         // 进行角色权限判断
-        return roleList.some((role) => roles.includes(role));
+        const rest = roleList.some((role) => roles.includes(role));
+        return rest;
       };
 
       const routeRemoveIgnoreFilter = (route: AppRouteRecordRaw) => {

@@ -80,7 +80,7 @@ export const useUserStore = defineStore({
     },
     setUserId(info: string | undefined) {
       this.userId = info ? info : ''; // for null or undefined value
-      setAuthCache(USERID_KEY, info);
+      setAuthCache(USERID_KEY, this.userId);
     },
     setRoleList(roleList: RoleEnum[]) {
       this.roleList = roleList;
@@ -164,6 +164,7 @@ export const useUserStore = defineStore({
 
     async getUserInfoAction() {
       if (!this.getToken) return null;
+      console.log(this.getToken, this.getUserId, 88888);
       const data = await getUserInfo(this.getToken, this.getUserId);
       const userInfo = this.transferToUsers(data);
       let { roles = [] } = userInfo;
