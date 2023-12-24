@@ -179,7 +179,7 @@
     buttonText: '',
     link: '',
     backgroundImage: [],
-    grayscaleType: GrayscaleMap.PhoneSuffix,
+    grayscaleType: GrayscaleMap.AllUsers,
     selectedPhoneSuffix: [],
     selectedPhoneNumbers: '',
   });
@@ -207,7 +207,7 @@
         : [];
 
       if (!value.notif_visible_phone_rule) {
-        formState.grayscaleType = GrayscaleMap.PhoneSuffix;
+        formState.grayscaleType = GrayscaleMap.AllUsers;
         formState.selectedPhoneSuffix = [];
         formState.selectedPhoneNumbers = '';
       } else if (value.notif_visible_phone_rule.indexOf('*') === -1) {
@@ -281,6 +281,8 @@
             .split('\n')
             .map((item) => item.trim());
           phoneRule = splitSelectedPhoneNumbers.join(',');
+        } else if (formState.grayscaleType === GrayscaleMap.AllUsers) {
+          phoneRule = '*';
         }
         const parmas = {
           'notif-title': encode(formState.title),
