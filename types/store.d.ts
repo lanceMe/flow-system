@@ -43,6 +43,7 @@ export interface UserInfo {
   desc?: string;
   homePath?: string;
   roles: RoleInfo[];
+  [propsName: string]: any;
 }
 
 export interface BeforeMiniState {

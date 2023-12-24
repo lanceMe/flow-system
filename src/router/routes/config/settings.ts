@@ -22,6 +22,14 @@ const course: AppRouteModule = {
         title: '操作日志',
       },
     },
+    {
+      path: 'changePassword',
+      name: 'changePassword',
+      component: () => import('/@/views/settings/changePassword/index.vue'),
+      meta: {
+        title: '修改密码',
+      },
+    },
   ],
 };
 

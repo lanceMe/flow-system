@@ -32,6 +32,7 @@
         // 所以在生产环境直接改变状态来达到测试效果
         if (import.meta.env.PROD) {
           userStore.setToken(undefined);
+          userStore.setUserId(undefined);
           userStore.setSessionTimeout(true);
         } else {
           // 这个api会返回状态码为401的响应

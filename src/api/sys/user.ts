@@ -1,5 +1,5 @@
 import { defHttp, request } from '/@/utils/http/axios';
-import { LoginParams, LoginResultModel, GetUserInfoModel } from './model/userModel';
+import { LoginParams, LoginResultModel } from './model/userModel';
 
 import { ErrorMessageMode } from '/#/axios';
 
@@ -8,9 +8,10 @@ import { encode } from '/@/utils/base64';
 enum Api {
   Login = '/v1/login',
   Logout = '/v1/logout',
-  GetUserInfo = '/getUserInfo',
+  GetUserInfo = '/v1/staff',
   GetPermCode = '/getPermCode',
   TestRetry = '/testRetry',
+  ChangePassword = '/v1/staff_password',
 }
 
 /**
@@ -27,8 +28,15 @@ export function loginApi(paramsUser: LoginParams, mode: ErrorMessageMode = 'moda
 /**
  * @description: getUserInfo
  */
-export function getUserInfo() {
-  return defHttp.get<GetUserInfoModel>({ url: Api.GetUserInfo }, { errorMessageMode: 'none' });
+export function getUserInfo(userToken, staffId) {
+  const params = {
+    'user-token': userToken,
+    'staff-id ': staffId,
+  };
+  return request.get(
+    { url: Api.GetUserInfo, params },
+    { returnTransformResponseDataKey: 'staff', errorMessageMode: 'none' },
+  );
 }
 
 export function getPermCode() {
@@ -36,8 +44,8 @@ export function getPermCode() {
 }
 
 export function doLogout() {
-  // return request.post<LoginResultModel>({ url: Api.Login, params }, { errorMessageMode: mode });
-  return defHttp.get({ url: Api.Logout });
+  return request.post({ url: Api.Logout });
+  // return defHttp.get({ url: Api.Logout });
 }
 
 export function testRetry() {
@@ -51,4 +59,16 @@ export function testRetry() {
       },
     },
   );
+}
+
+/**
+ * @description: user login api
+ */
+export function changePassword(staffId, pwds) {
+  const params = {
+    'staff-id': staffId,
+    'staff-password': encode(pwds['staff-password']),
+    'staff-password-old': encode(pwds['staff-password-old']),
+  };
+  return request.post({ url: Api.ChangePassword, params });
 }

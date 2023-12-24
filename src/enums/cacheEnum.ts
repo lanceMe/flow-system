@@ -1,5 +1,7 @@
 // token key
 export const TOKEN_KEY = 'TOKEN__';
+export const USERID_KEY = 'USERID__';
+export const FIRSTLOGIN_KEY = 'USERID__';
 
 export const LOCALE_KEY = 'LOCALE__';
 
