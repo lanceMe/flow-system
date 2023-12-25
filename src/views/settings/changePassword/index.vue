@@ -1,6 +1,6 @@
 <template>
-  <PageWrapper>
-    <div :class="`${prefixCls}-form pt-3px pr-3px`">
+  <PageWrapper :class="`${prefixCls}-form`">
+    <div :class="`pt-3px pr-3px`">
       <div v-if="userStore.firstLogin" class="first-login"
         >新用户首次登录，需修改密码后方能正常使用</div
       >
@@ -98,11 +98,14 @@
   @prefix-cls: ~'@{namespace}-password';
   .@{prefix-cls} {
     &-form {
-      max-width: 400px;
-      padding: 50px;
+      height: calc(100% - 100px);
+      margin: 30px;
+      padding: 20px;
+      background-color: #fff;
 
       .ant-form-item {
-        width: 400px;
+        width: 350px;
+        margin-bottom: 40px !important;
       }
 
       .first-login {
