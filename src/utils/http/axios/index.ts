@@ -330,5 +330,10 @@ export const request = createAxios({
   requestOptions: {
     // 把params或data数据展开放到requset header中
     moveParamsToHeader: true,
+    retryRequest: {
+      isOpenRetry: false,
+      count: 0,
+      waitTime: 5 * 1000,
+    },
   },
 });
