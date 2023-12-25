@@ -122,24 +122,21 @@ export const useUserStore = defineStore({
         const data = await loginApi(loginParams, mode);
         // const { token, user_token } = data;
         const token = data?.user_token || data?.token;
-        const isFirstLogin = data?.result === -28;
         // save token
         this.setToken(token);
         this.setUserId(data?.staff_id);
-        this.setFirstLogin(isFirstLogin);
-        return this.afterLoginAction(goHome, isFirstLogin);
+
+        return this.afterLoginAction(goHome);
       } catch (error) {
         return Promise.reject(error);
       }
     },
-    async afterLoginAction(
-      goHome?: boolean,
-      firstLogin?: boolean,
-    ): Promise<GetUserInfoModel | null> {
+    async afterLoginAction(goHome?: boolean): Promise<GetUserInfoModel | null> {
       if (!this.getToken) return null;
       // get user info
       const userInfo = await this.getUserInfoAction();
-
+      const { firstLogin = false } = userInfo || {};
+      this.setFirstLogin(firstLogin);
       const sessionTimeout = this.sessionTimeout;
       if (sessionTimeout) {
         this.setSessionTimeout(false);
@@ -159,12 +156,12 @@ export const useUserStore = defineStore({
           await router.replace(userInfo?.homePath || PageEnum.BASE_HOME);
         }
       }
+
       return userInfo;
     },
 
     async getUserInfoAction() {
       if (!this.getToken) return null;
-      console.log(this.getToken, this.getUserId, 88888);
       const data = await getUserInfo(this.getToken, this.getUserId);
       const userInfo = this.transferToUsers(data);
       let { roles = [] } = userInfo;
@@ -233,6 +230,7 @@ export const useUserStore = defineStore({
         realName: data?.['staff_nickname'],
         avatar: data?.['staff_avatar_url'],
         desc: data?.['staff_short_description'],
+        firstLogin: data?.['staff_update_password_immediately'] === 1,
         roles: data?.['staff_role'],
         ...data,
       };
