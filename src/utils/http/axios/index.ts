@@ -56,7 +56,10 @@ const transform: AxiosTransform = {
     const { code, result, message } = data;
     // 这里逻辑可以根据项目进行修改
     const hasSuccess =
-      data && ((Reflect.has(data, 'code') && code === ResultEnum.SUCCESS) || result === 0);
+      data &&
+      ((Reflect.has(data, 'code') && code === ResultEnum.SUCCESS) ||
+        result === 0 ||
+        result === -28);
     if (hasSuccess) {
       let successMsg = message;
 
@@ -327,5 +330,10 @@ export const request = createAxios({
   requestOptions: {
     // 把params或data数据展开放到requset header中
     moveParamsToHeader: true,
+    retryRequest: {
+      isOpenRetry: false,
+      count: 0,
+      waitTime: 5 * 1000,
+    },
   },
 });

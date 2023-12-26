@@ -18,6 +18,7 @@ const whitePathList: PageEnum[] = [LOGIN_PATH];
 export function createPermissionGuard(router: Router) {
   const userStore = useUserStoreWithOut();
   const permissionStore = usePermissionStoreWithOut();
+
   router.beforeEach(async (to, from, next) => {
     if (
       from.path === ROOT_PATH &&
@@ -81,7 +82,7 @@ export function createPermissionGuard(router: Router) {
       return;
     }
 
-    // get userinfo while last fetch time is empty
+    //get userinfo while last fetch time is empty
     if (userStore.getLastUpdateTime === 0) {
       try {
         await userStore.getUserInfoAction();
@@ -90,7 +91,6 @@ export function createPermissionGuard(router: Router) {
         return;
       }
     }
-
     if (permissionStore.getIsDynamicAddedRoute) {
       next();
       return;

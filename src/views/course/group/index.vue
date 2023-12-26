@@ -499,6 +499,10 @@
           color: #6c6c63;
         }
       }
+
+      .fc-direction-ltr .fc-timegrid-col-events {
+        margin: 0 8px 0 1px;
+      }
     }
   }
 </style>

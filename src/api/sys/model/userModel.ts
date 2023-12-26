@@ -7,7 +7,7 @@ export interface LoginParams {
 }
 
 export interface RoleInfo {
-  roleName: string;
+  roleName?: string;
   value: string;
 }
 
@@ -15,9 +15,10 @@ export interface RoleInfo {
  * @description: Login interface return value
  */
 export interface LoginResultModel {
-  userId: string | number;
-  token: string;
-  roles: RoleInfo[];
+  token?: string;
+  user_token?: string;
+  role?: RoleInfo[];
+  [prop: string]: any;
 }
 
 /**

@@ -1,6 +1,7 @@
 import type { AppRouteModule } from '/@/router/types';
 
 import { LAYOUT } from '/@/router/constant';
+import { RoleEnum } from '/@/enums/roleEnum';
 
 const course: AppRouteModule = {
   path: '/settings',
@@ -11,6 +12,14 @@ const course: AppRouteModule = {
     orderNo: 90,
     icon: 'mingcute:safe-shield-2-fill',
     title: '系统设置',
+    roles: [
+      RoleEnum.ADMIN,
+      RoleEnum.MANAGER,
+      RoleEnum.FINANCIAL,
+      RoleEnum.RECEPTION,
+      RoleEnum.COACH,
+      RoleEnum.FIRSTLOGIN,
+    ],
   },
 
   children: [
@@ -20,6 +29,29 @@ const course: AppRouteModule = {
       component: () => import('/@/views/settings/index.vue'),
       meta: {
         title: '操作日志',
+        roles: [
+          RoleEnum.ADMIN,
+          RoleEnum.MANAGER,
+          RoleEnum.FINANCIAL,
+          RoleEnum.RECEPTION,
+          RoleEnum.COACH,
+        ],
+      },
+    },
+    {
+      path: 'changePassword',
+      name: 'changePassword',
+      component: () => import('/@/views/settings/changePassword/index.vue'),
+      meta: {
+        title: '修改密码',
+        roles: [
+          RoleEnum.ADMIN,
+          RoleEnum.MANAGER,
+          RoleEnum.FINANCIAL,
+          RoleEnum.RECEPTION,
+          RoleEnum.COACH,
+          RoleEnum.FIRSTLOGIN,
+        ],
       },
     },
   ],

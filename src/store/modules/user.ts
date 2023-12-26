@@ -4,10 +4,16 @@ import { defineStore } from 'pinia';
 import { store } from '/@/store';
 import { RoleEnum } from '/@/enums/roleEnum';
 import { PageEnum } from '/@/enums/pageEnum';
-import { ROLES_KEY, TOKEN_KEY, USER_INFO_KEY } from '/@/enums/cacheEnum';
+import {
+  ROLES_KEY,
+  TOKEN_KEY,
+  USER_INFO_KEY,
+  USERID_KEY,
+  FIRSTLOGIN_KEY,
+} from '/@/enums/cacheEnum';
 import { getAuthCache, setAuthCache } from '/@/utils/auth';
 import { GetUserInfoModel, LoginParams } from '/@/api/sys/model/userModel';
-import { doLogout, getUserInfo, loginApi } from '/@/api/sys/user';
+import { doLogout, getUserInfo, loginApi, changePassword } from '/@/api/sys/user';
 import { useI18n } from '/@/hooks/web/useI18n';
 import { useMessage } from '/@/hooks/web/useMessage';
 import { router } from '/@/router';
@@ -19,10 +25,13 @@ import { h } from 'vue';
 
 interface UserState {
   userInfo: Nullable<UserInfo>;
+  userId?: string;
   token?: string;
   roleList: RoleEnum[];
   sessionTimeout?: boolean;
   lastUpdateTime: number;
+  [props: string]: any;
+  firstLogin: boolean;
 }
 
 export const useUserStore = defineStore({
@@ -32,12 +41,14 @@ export const useUserStore = defineStore({
     userInfo: null,
     // token
     token: undefined,
+    userId: undefined,
     // roleList
     roleList: [],
     // Whether the login expired
     sessionTimeout: false,
     // Last fetch time
     lastUpdateTime: 0,
+    firstLogin: false,
   }),
   getters: {
     getUserInfo(state): UserInfo {
@@ -45,6 +56,9 @@ export const useUserStore = defineStore({
     },
     getToken(state): string {
       return state.token || getAuthCache<string>(TOKEN_KEY);
+    },
+    getUserId(state): string {
+      return state.userId || getAuthCache<string>(USERID_KEY);
     },
     getRoleList(state): RoleEnum[] {
       return state.roleList.length > 0 ? state.roleList : getAuthCache<RoleEnum[]>(ROLES_KEY);
@@ -55,11 +69,18 @@ export const useUserStore = defineStore({
     getLastUpdateTime(state): number {
       return state.lastUpdateTime;
     },
+    getFirstLogin(state): boolean {
+      return state.firstLogin || getAuthCache<boolean>(FIRSTLOGIN_KEY);
+    },
   },
   actions: {
     setToken(info: string | undefined) {
       this.token = info ? info : ''; // for null or undefined value
       setAuthCache(TOKEN_KEY, info);
+    },
+    setUserId(info: string | undefined) {
+      this.userId = info ? info : ''; // for null or undefined value
+      setAuthCache(USERID_KEY, this.userId);
     },
     setRoleList(roleList: RoleEnum[]) {
       this.roleList = roleList;
@@ -73,11 +94,19 @@ export const useUserStore = defineStore({
     setSessionTimeout(flag: boolean) {
       this.sessionTimeout = flag;
     },
+
+    setFirstLogin(flag: boolean) {
+      this.firstLogin = flag ? flag : false; // for null or undefined value
+      setAuthCache(FIRSTLOGIN_KEY, flag);
+    },
+
     resetState() {
       this.userInfo = null;
       this.token = '';
       this.roleList = [];
       this.sessionTimeout = false;
+      this.firstLogin = false;
+      this.userId = undefined;
     },
     /**
      * @description: login
@@ -91,10 +120,12 @@ export const useUserStore = defineStore({
       try {
         const { goHome = true, mode, ...loginParams } = params;
         const data = await loginApi(loginParams, mode);
-        const { token } = data;
-
+        // const { token, user_token } = data;
+        const token = data?.user_token || data?.token;
         // save token
         this.setToken(token);
+        this.setUserId(data?.staff_id);
+
         return this.afterLoginAction(goHome);
       } catch (error) {
         return Promise.reject(error);
@@ -104,7 +135,8 @@ export const useUserStore = defineStore({
       if (!this.getToken) return null;
       // get user info
       const userInfo = await this.getUserInfoAction();
-
+      const { firstLogin = false } = userInfo || {};
+      this.setFirstLogin(firstLogin);
       const sessionTimeout = this.sessionTimeout;
       if (sessionTimeout) {
         this.setSessionTimeout(false);
@@ -118,17 +150,25 @@ export const useUserStore = defineStore({
           router.addRoute(PAGE_NOT_FOUND_ROUTE as unknown as RouteRecordRaw);
           permissionStore.setDynamicAddedRoute(true);
         }
-        goHome && (await router.replace(userInfo?.homePath || PageEnum.BASE_HOME));
+        if (firstLogin) {
+          await router.replace(userInfo?.homePath || PageEnum.BASE_CHANGE_PASSWORD);
+        } else if (goHome) {
+          await router.replace(userInfo?.homePath || PageEnum.BASE_HOME);
+        }
       }
+
       return userInfo;
     },
-    async getUserInfoAction(): Promise<UserInfo | null> {
+
+    async getUserInfoAction() {
       if (!this.getToken) return null;
-      const userInfo = await getUserInfo();
-      const { roles = [] } = userInfo;
+      const data = await getUserInfo(this.getToken, this.getUserId);
+      const userInfo = this.transferToUsers(data);
+      let { roles = [] } = userInfo;
+      if (this.firstLogin) roles = [RoleEnum.FIRSTLOGIN];
       if (isArray(roles)) {
-        const roleList = roles.map((item) => item.value) as RoleEnum[];
-        this.setRoleList(roleList);
+        const roleList = roles; //roles.map((item) => item.value) as RoleEnum[];
+        this.setRoleList(roleList as RoleEnum[]);
       } else {
         userInfo.roles = [];
         this.setRoleList([]);
@@ -136,6 +176,18 @@ export const useUserStore = defineStore({
       this.setUserInfo(userInfo);
       return userInfo;
     },
+
+    async changePassword(pwds) {
+      if (!this.getToken) return null;
+      changePassword(this.getUserId, pwds).then(() => {
+        const { createMessage } = useMessage();
+        createMessage.success('密码修改成功，将跳转到登录页');
+        setTimeout(() => {
+          this.logout(true);
+        }, 1.5 * 1000);
+      });
+    },
+
     /**
      * @description: logout
      */
@@ -148,6 +200,8 @@ export const useUserStore = defineStore({
         }
       }
       this.setToken(undefined);
+      this.setUserId(undefined);
+      this.setFirstLogin(false);
       this.setSessionTimeout(false);
       this.setUserInfo(null);
       goLogin && router.push(PageEnum.BASE_LOGIN);
@@ -167,6 +221,20 @@ export const useUserStore = defineStore({
           await this.logout(true);
         },
       });
+    },
+
+    transferToUsers(data) {
+      const userInfo: UserInfo = {
+        userId: data?.['staff_id'],
+        username: data?.['staff_nickname'],
+        realName: data?.['staff_nickname'],
+        avatar: data?.['staff_avatar_url'],
+        desc: data?.['staff_short_description'],
+        firstLogin: data?.['staff_update_password_immediately'] === 1,
+        roles: data?.['staff_role'],
+        ...data,
+      };
+      return userInfo;
     },
   },
 });

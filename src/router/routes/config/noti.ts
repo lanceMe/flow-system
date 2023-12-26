@@ -1,4 +1,5 @@
 import { LAYOUT } from '../../constant';
+import { RoleEnum } from '/@/enums/roleEnum';
 import type { AppRouteModule } from '/@/router/types';
 
 const noti: AppRouteModule = {
@@ -11,6 +12,7 @@ const noti: AppRouteModule = {
     icon: 'clarity:notification-solid',
     title: '通知管理',
     orderNo: 40,
+    roles: [RoleEnum.ADMIN, RoleEnum.MANAGER, RoleEnum.RECEPTION],
   },
   children: [
     {
@@ -20,6 +22,7 @@ const noti: AppRouteModule = {
       meta: {
         title: '通知管理',
         hideMenu: true,
+        roles: [RoleEnum.ADMIN, RoleEnum.MANAGER, RoleEnum.RECEPTION],
       },
     },
   ],
