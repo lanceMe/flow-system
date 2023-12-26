@@ -27,7 +27,7 @@ const course: AppRouteModule = {
       name: 'detail',
       component: () => import('/@/views/staff/detail/index.vue'),
       meta: {
-        title: '员工详情',
+        title: '员工资料',
       },
     },
   ],
