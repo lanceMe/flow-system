@@ -501,7 +501,7 @@
       }
 
       .fc-direction-ltr .fc-timegrid-col-events {
-        margin: 0 8px 0 1px;
+        margin: 0 10% 0 1px;
       }
     }
   }

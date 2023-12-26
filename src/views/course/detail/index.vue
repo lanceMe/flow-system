@@ -86,7 +86,7 @@
         const [address, lat, long] = calAddress(values?.address, values?.['ctpl-address']);
         const params = {
           ...values,
-          // 'ctpl-no-cancel-reserve-minutes': data?.['ctpl_no_cancel_reserve_minutes'] || 60,
+          // 'ctpl-no-cancel-reserve-hours': data?.['ctpl_no_cancel_reserve_hours'] || 60,
           'ctpl-id': data?.['ctpl_id'],
           'ctpl-display-name': encode(values['ctpl-display-name']),
           'ctpl-description': encode(values['ctpl-description']),

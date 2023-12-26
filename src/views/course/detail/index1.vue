@@ -92,12 +92,12 @@
         couseTemplete.value = info;
 
         const templeteData = {
-          course_id: info['value'],
-          course_display_name: info['label'],
+          course_templete_id: info['value'],
+          display_name: info['label'],
           min_attenders: info['ctpl_min_attenders'],
           max_attenders: info['ctpl_max_attenders'],
           cancel_waiting_minutes: info['ctpl_cancel_waiting_minutes'],
-          no_cancel_reserve_minutes: info['ctpl_no_cancel_reserve_minutes'],
+          no_cancel_reserve_hours: info['ctpl_no_cancel_reserve_hours'],
           description: info['ctpl_description'],
           address: info['ctpl_address'],
         };
@@ -120,6 +120,7 @@
       function postApi(values) {
         const { formData: data, type } = dataRef.value as any;
         const requestFunc = type === 'create' ? createCourse : editCourse;
+        const courseId = type === 'create' ? undefined : data?.['course_id'];
         const s = values?.['course-start-time'];
         const e = values?.endDateTime;
         const courseDur = dayjs(e).diff(s, 'm');
@@ -135,11 +136,12 @@
           'course-address-long': long,
           'course-duration-minutes': courseDur,
           'course-tag': encode(values['course-tag'] || temp?.['ctpl_tag'] || 'test'),
-          'course-id': values['course_id'],
+          'course-id': courseId,
           'course-type': data?.['type'] || temp?.['ctpl_type'] || 'group',
           'course-price': data?.['course_price'] || temp?.['ctpl_price'] || '20',
+          course_templete_id: undefined,
         };
-        console.log('postApi', values, params, data, temp);
+        console.log('postApi', params);
         requestFunc(params).then((resp) => {
           console.log(resp, params);
           closeModal();

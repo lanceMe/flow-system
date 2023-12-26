@@ -159,13 +159,9 @@ export function getFormSchema(
       component: 'InputNumber',
       label: '课程价格',
       defaultValue: showDef ? f?.['ctpl_price'] : undefined,
-      // required: true,
+      required: true,
       dynamicDisabled,
       rules: [
-        {
-          required: true,
-          type: 'float',
-        },
         {
           validator: (_, val) => {
             if (val < 0) {
@@ -183,6 +179,9 @@ export function getFormSchema(
       defaultValue: showDef ? f?.['ctpl_duration_minutes'] : undefined,
       required: true,
       dynamicDisabled,
+      componentProps: {
+        placeholder: '请输入课程持续多少分钟',
+      },
       rules: [
         {
           required: true,
@@ -195,12 +194,15 @@ export function getFormSchema(
       ],
     },
     {
-      field: 'ctpl-cancel-waiting-minutes',
+      field: 'ctpl-cancel-if-not-enough-attenders-hours',
       component: 'InputNumber',
       label: '候补时间限制',
-      defaultValue: showDef ? f?.['ctpl_cancel_waiting_minutes'] : undefined,
+      defaultValue: showDef ? f?.['ctpl_cancel_if_not_enough_attenders_hours'] : undefined,
       required: true,
       dynamicDisabled,
+      componentProps: {
+        placeholder: '开课前几小时不允许候补',
+      },
       rules: [
         {
           required: true,
@@ -213,12 +215,15 @@ export function getFormSchema(
       ],
     },
     {
-      field: 'ctpl-no-cancel-reserve-minutes',
+      field: 'ctpl-no-cancel-reserve-hours',
       component: 'InputNumber',
       label: '取消时间限制',
-      defaultValue: showDef ? f?.['ctpl_no_cancel_reserve_minutes'] : undefined,
+      defaultValue: showDef ? f?.['ctpl_no_cancel_reserve_hours'] : undefined,
       required: true,
       dynamicDisabled,
+      componentProps: {
+        placeholder: '开课前几小时不允许取消报名',
+      },
       rules: [
         {
           required: true,
@@ -353,10 +358,10 @@ export function getFormSchema1(
   const end = endDate?.format('YYYY-MM-DD HH:mm:sss') || '';
   const ret: FormSchema[] = [
     {
-      field: 'course_id',
+      field: 'course_templete_id',
       component: 'ApiSelect',
       label: '课程名称',
-      defaultValue: showDef ? f?.['course_id'] : undefined,
+      defaultValue: showDef ? f?.['display_name'] : undefined,
       dynamicDisabled,
       slot: 'course_name',
       rules: [
@@ -459,12 +464,14 @@ export function getFormSchema1(
       ],
     },
     {
-      field: 'course-cancel-waiting-minutes',
+      field: 'course-cancel-if-not-enough-attenders-hours',
       component: 'InputNumber',
       label: '候补时间限制',
-      defaultValue: showDef ? f?.['cancel_waiting_minutes'] : undefined,
-      required: true,
+      defaultValue: showDef ? f?.['cancel_if_not_enough_attenders_hours'] : undefined,
       dynamicDisabled,
+      componentProps: {
+        placeholder: '开课前几小时不允许候补',
+      },
       rules: [
         {
           required: true,
@@ -477,12 +484,15 @@ export function getFormSchema1(
       ],
     },
     {
-      field: 'course-no-cancel-reserve-minutes',
+      field: 'course-no-cancel-reserve-hours',
       component: 'InputNumber',
       label: '取消时间限制',
-      defaultValue: showDef ? f?.['no_cancel_reserve_minutes'] : undefined,
+      defaultValue: showDef ? f?.['no_cancel_reserve_hours'] : undefined,
       required: true,
       dynamicDisabled,
+      componentProps: {
+        placeholder: '开课前几小时不允许取消报名',
+      },
       rules: [
         {
           required: true,
@@ -534,6 +544,5 @@ export function getFormSchema1(
   if (rangePicker && start && end) {
     rangePicker.defaultValue = [start, end];
   }
-  console.log(start, end, showDef, 8888889);
   return ret;
 }
