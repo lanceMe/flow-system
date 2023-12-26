@@ -165,7 +165,8 @@ export const useUserStore = defineStore({
       const data = await getUserInfo(this.getToken, this.getUserId);
       const userInfo = this.transferToUsers(data);
       let { roles = [] } = userInfo;
-      if (this.firstLogin) roles = [RoleEnum.FIRSTLOGIN];
+
+      if (userInfo?.firstLogin) roles = [RoleEnum.FIRSTLOGIN];
       if (isArray(roles)) {
         const roleList = roles; //roles.map((item) => item.value) as RoleEnum[];
         this.setRoleList(roleList as RoleEnum[]);
