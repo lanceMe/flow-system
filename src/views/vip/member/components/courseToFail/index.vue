@@ -2,6 +2,14 @@
   <div :class="`${prefixCls}-page-wrapper`">
     <BasicTable @register="registerTable">
       <template #bodyCell="{ column, record }">
+        <template v-if="column.key === 'wxuser_nickname'">
+          <Avatar
+            :size="40"
+            :src="record?.['wxuser_avatar_fileid'] || defaultAvatar"
+            @click="handleAvaterClick(record)"
+          />
+          <span>{{ record['wxuser_nickname'] || '--' }}</span>
+        </template>
         <template v-if="column.key === 'action'">
           <TableAction
             :actions="[
@@ -26,9 +34,12 @@
   import { useModal } from '/@/components/Modal';
   import Modal from '/@/views/course/detail/index.vue';
   import { useDesign } from '/@/hooks/web/useDesign';
+  import { Avatar } from 'ant-design-vue';
+  import defaultAvatar from '/@/assets/images/header.jpg';
+  import { useRouter } from 'vue-router';
 
   export default defineComponent({
-    components: { BasicTable, TableAction, Modal },
+    components: { BasicTable, TableAction, Modal, Avatar },
     setup() {
       const [registerTable, { reload }] = useTable({
         api: getVipExpiring,
@@ -49,7 +60,7 @@
           dataIndex: 'action',
         },
       });
-
+      const router = useRouter();
       const searchParam = ref({ name: '', channel: '', type: '' });
 
       const [registerModal, { openModal: openModal }] = useModal();
@@ -96,6 +107,14 @@
         return filterData;
       }
 
+      function handleAvaterClick(record) {
+        router.push({
+          path: '/vip/memberDetail',
+          // name: 'home',
+          query: { id: record?.['wxuser_token'] },
+        });
+      }
+
       return {
         registerTable,
         createCourse,
@@ -105,6 +124,8 @@
         openModal,
         changeCourseList,
         prefixCls,
+        defaultAvatar,
+        handleAvaterClick,
       };
     },
   });
@@ -119,6 +140,11 @@
       // background-color: #fff;
       .ant-row {
         flex-direction: row;
+      }
+
+      .ant-avatar {
+        display: inline-block;
+        margin-right: 10px;
       }
     }
   }

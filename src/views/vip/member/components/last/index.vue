@@ -5,7 +5,7 @@
         <template v-if="column.key === 'wxuser_nickname'">
           <Avatar
             :size="40"
-            :src="record.avatar || defaultAvatar"
+            :src="record?.['wxuser_avatar_fileid'] || defaultAvatar"
             @click="handleAvaterClick(record)"
           />
           <span>{{ record['wxuser_nickname'] || '--' }}</span>
