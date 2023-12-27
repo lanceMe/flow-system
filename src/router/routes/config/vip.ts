@@ -53,13 +53,7 @@ const vip: AppRouteModule = {
       meta: {
         hideMenu: true,
         title: '会员详情',
-        roles: [
-          RoleEnum.ADMIN,
-          RoleEnum.MANAGER,
-          RoleEnum.FINANCIAL,
-          RoleEnum.RECEPTION,
-          RoleEnum.COACH,
-        ],
+        roles: [RoleEnum.ADMIN, RoleEnum.MANAGER, RoleEnum.RECEPTION],
       },
     },
   ],
