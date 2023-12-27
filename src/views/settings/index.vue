@@ -1,18 +1,18 @@
 <template>
   <PageWrapper>
     <ASpace direction="vertical" style="width: 100%" size="middle">
-      <ASpace style="display: flex; flex-direction: row-reverse" size="middle">
+      <!-- <ASpace style="display: flex; flex-direction: row-reverse" size="middle">
         <a-button type="primary" @click="linkTo('create')">创建课程</a-button>
-      </ASpace>
+      </ASpace> -->
 
-      <a-table :columns="columns" :data-source="data" :scroll="{ x: 1000 }">
+      <!-- <a-table :columns="columns" :data-source="data" :scroll="{ x: 1000 }">
         <template #bodyCell="{ column }">
           <template v-if="column.key === 'operation'">
             <a-button type="link" @click="linkTo('view')">查看</a-button>
             <a-button type="link" @click="linkTo('edit')">编辑</a-button>
           </template>
         </template>
-      </a-table>
+      </a-table> -->
     </ASpace>
   </PageWrapper>
 </template>

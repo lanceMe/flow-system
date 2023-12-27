@@ -64,7 +64,7 @@ export function getCourseList(startDate, endDate) {
     'from-date': startDate,
     'to-date': endDate,
     fields:
-      'course_id, type, display_name, description, address, start_time, duration_minutes, max_attenders, current_attenders, waiting_attenders, coach_id, coach_nickname, coach_avatar_url, coach_liked_by_user, status,user_can_cancel_reserve,user_can_reserve,user_can_wait,cancel_waiting_minutes,no_cancel_reserve_minutes,min_attenders',
+      'course_id, type, display_name, description, address, start_time, duration_minutes, max_attenders, current_attenders, waiting_attenders, coach_id, coach_nickname, coach_avatar_url, coach_liked_by_user, status,user_can_cancel_reserve,user_can_reserve,user_can_wait,cancel_if_not_enough_attenders_hours,no_cancel_reserve_hours,min_attenders',
     //,address_lat,address_long
   };
   return request.get(

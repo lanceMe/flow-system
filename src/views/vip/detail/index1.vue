@@ -96,8 +96,8 @@
           course_display_name: info['label'],
           min_attenders: info['ctpl_min_attenders'],
           max_attenders: info['ctpl_max_attenders'],
-          cancel_waiting_minutes: info['ctpl_cancel_waiting_minutes'],
-          no_cancel_reserve_minutes: info['ctpl_no_cancel_reserve_minutes'],
+          cancel_if_not_enough_attenders_hours: info['ctpl_cancel_if_not_enough_attenders_hours'],
+          no_cancel_reserve_hours: info['ctpl_no_cancel_reserve_hours'],
           description: info['ctpl_description'],
           address: info['ctpl_address'],
         };

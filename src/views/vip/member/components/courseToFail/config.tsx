@@ -34,6 +34,7 @@ export function getTableColumns(): BasicColumn[] {
       dataIndex: 'wxuser_nickname',
       // fixed: 'left',
       width: 200,
+      align: 'left',
     },
     {
       title: '性别',
