@@ -23,12 +23,14 @@
           </a-descriptions-item>
         </a-descriptions>
       </a-tab-pane>
-      <a-tab-pane key="2" tab="我的课程" force-render>我的课程</a-tab-pane>
+      <a-tab-pane v-if="isShowCourse" key="2" tab="我的课程" force-render>
+        <course-table />
+      </a-tab-pane>
     </a-tabs>
   </PageWrapper>
 </template>
 <script lang="ts" setup>
-  import { defineComponent, onMounted, ref } from 'vue';
+  import { defineComponent, onMounted, ref, computed } from 'vue';
   import {
     Table,
     Tabs as ATabs,
@@ -42,10 +44,15 @@
   import dayjs from 'dayjs';
   import { useRoute, useRouter } from 'vue-router';
   import { useUserStore } from '/@/store/modules/user';
-  import { getStaffInfo } from '/@/api/staff/index';
+  import { getStaffInfo, getCourseList } from '/@/api/staff/index';
+  import course from '/@/router/routes/config/course';
+  import courseTable from './course-table.vue';
 
   const activeKey = ref('1');
-  const data = ref<any>(null);
+  const data = ref<any>({});
+  const isShowCourse = computed(() => {
+    return data.value?.staff_role && data.value?.staff_role?.indexOf('coach') !== -1;
+  });
 
   onMounted(() => {
     const userStore = useUserStore();

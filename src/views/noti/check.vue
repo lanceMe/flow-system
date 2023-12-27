@@ -25,6 +25,19 @@
       <a-form-item label="展示时间" name="displayTime">
         <a-range-picker v-model:value="formState.displayTime" show-time />
       </a-form-item>
+      <a-form-item
+        v-if="title === '新建'"
+        label="通知排序"
+        name="sort"
+        :rules="[{ required: true, message: '请输入排序', trigger: 'change', type: 'number' }]"
+      >
+        <a-input-number
+          v-model:value="formState.sort"
+          :min="0"
+          :max="props.homepageLength ? props.homepageLength : 0"
+          :disabled="formState.type === 'banner'"
+        />
+      </a-form-item>
 
       <!-- 跳转按钮文案 -->
       <a-form-item label="跳转按钮文案" name="buttonText">
@@ -63,8 +76,8 @@
         </a-upload>
       </a-form-item>
 
-      <!-- 通知灰度 -->
-      <a-form-item label="通知灰度" name="grayscaleType">
+      <!-- 通知范围 -->
+      <a-form-item label="通知范围" name="grayscaleType">
         <a-radio-group v-model:value="formState.grayscaleType">
           <a-radio v-for="item in Object.keys(GrayscaleType)" :key="item" :value="item">{{
             GrayscaleType[item]
@@ -150,6 +163,9 @@
       type: String,
       default: '',
     },
+    homepageLength: {
+      type: Number,
+    },
   });
   defineExpose({
     controlModal,
@@ -182,6 +198,7 @@
     grayscaleType: GrayscaleMap.AllUsers,
     selectedPhoneSuffix: [],
     selectedPhoneNumbers: '',
+    sort: 0,
   });
 
   watch(
@@ -223,6 +240,15 @@
       console.log('=valuewatch', value);
     },
   );
+  watch(
+    () => formState.type,
+    (value) => {
+      if (value === 'banner') {
+        formState.sort = 0;
+      }
+    },
+    { immediate: true },
+  );
   const rules: Record<string, Rule[]> = {
     title: [{ required: true, message: '请输入通知标题', trigger: 'blur' }, { max: 20 }],
     type: [{ required: true, message: '请选择通知类型', trigger: 'change' }],
@@ -230,7 +256,6 @@
     buttonText: [
       { required: false, max: 12, message: '跳转按钮文案长度不能超过12个字符', trigger: 'blur' },
     ],
-
     grayscaleType: [{ required: true, message: '请选择通知灰度类型', trigger: 'change' }],
     selectedPhoneSuffix: [
       {
@@ -294,6 +319,7 @@
           'notif-image-url': encode(backgroundImage),
           'notif-visible-phone-rule': phoneRule,
           'notif-id': currentId.value,
+          'notif-sort-at': formState.sort,
         };
         emits('onSubmit', parmas, props.checkType);
         // postNotification({

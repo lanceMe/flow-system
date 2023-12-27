@@ -45,7 +45,13 @@
         </template>
       </a-table>
     </ASpace>
-    <check ref="checkRef" :data="checkData" :checkType="checkType" @on-submit="checkSubmit" />
+    <check
+      ref="checkRef"
+      :homepageLength="homepageLength"
+      :data="checkData"
+      :checkType="checkType"
+      @on-submit="checkSubmit"
+    />
     <sort ref="sortRef" :data="banner" @on-submit="sortSubmit" />
   </PageWrapper>
 </template>
@@ -105,12 +111,14 @@
       const checkType = ref('create');
       const data = ref([]);
       const banner = ref([]);
+      const homepageLength = ref<any>(null);
       const getList = () => {
         return getNotificationList({
           'notif-status': formState.notiType,
           'notif-title': encode(formState.text),
         }).then((res) => {
           console.log('===getNotificationList', res);
+          homepageLength.value = countOnlineNotifications(res);
           data.value = res.map((item) => {
             return {
               key: item.notif_id,
@@ -127,6 +135,19 @@
           return data.value;
         });
       };
+      const countOnlineNotifications = (data) => {
+        if (!data) return;
+        let count = 0;
+        for (let i = 0; i < data.length; i++) {
+          if (
+            data[i].notif_type === 'homepage' &&
+            (data[i].notif_status === 'online' || data[i].notif_status === 'preonline')
+          ) {
+            count++;
+          }
+        }
+        return count;
+      };
 
       getList().then((res) => {
         banner.value = res;
@@ -142,6 +163,7 @@
         formRef,
         checkType,
         checkData,
+        homepageLength,
         toIconify: () => {
           openWindow('https://iconify.design/');
         },

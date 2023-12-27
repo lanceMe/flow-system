@@ -40,9 +40,6 @@
 
       <ASpace style="display: flex; flex-direction: row-reverse" size="middle">
         <a-button type="primary" @click="onSubmit">签到</a-button>
-        <div>当日到店人数：34</div>
-
-        <div>预收/确认：1325.8元/238元 </div>
       </ASpace>
 
       <a-table :columns="columns" :data-source="data">
@@ -116,20 +113,7 @@
         date: dayjs(),
       });
 
-      const data = ref([
-        {
-          key: '1',
-          Nickname: 'Mike',
-          phone: 32,
-          num: 1,
-          memberCard: 1,
-          memberCardType: 'month',
-          checkInTime: dayjs(),
-          confirmType: 111,
-          checkInType: 'wechat',
-          memo: 777,
-        },
-      ]);
+      const data = ref([]);
       const calendarPriceRangeChange = (date) => {
         selectPriceDate.value = date;
       };

@@ -10,6 +10,13 @@ export function getStaffList(params) {
   );
 }
 
+export function getCourseList(params) {
+  return request.get(
+    { url: '/v1/course_by_staff_list', params },
+    { returnTransformResponseDataKey: 'courses' },
+  );
+}
+
 /**
  * @description: 获取员工信息
  */

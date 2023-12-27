@@ -51,7 +51,7 @@
             {{
               !record.staff_enable
                 ? '停用'
-                : record.staff_update_password_immediately
+                : !record.staff_update_password_immediately
                 ? '正常'
                 : '未激活'
             }}
@@ -91,7 +91,7 @@
   import { PageWrapper } from '/@/components/Page';
   import check from './check.vue';
   import dayjs from 'dayjs';
-  import { getStaffList } from '/@/api/staff/index';
+  import { getStaffList, getCourseList } from '/@/api/staff/index';
   import { useRouter } from 'vue-router';
 
   export default defineComponent({

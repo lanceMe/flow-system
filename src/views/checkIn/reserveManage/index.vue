@@ -53,9 +53,6 @@
           <div class="margin-right-10">{{ item.course_start_time }}</div>
           <div class="margin-right-10">{{ item.coach_nickname }}</div>
           <div class="reserve-item-btn">
-            <!-- <div class="margin-right-10">预收/确认：1325.8元/238元 </div>
-            <div class="margin-right-10">预约人数:5/5</div>
-            <div class="margin-right-10">候补人数：2</div> -->
             <a-button class="reserve-item-ab" type="primary" @click="onSubmit(item)">预约</a-button>
           </div>
         </div>
@@ -96,6 +93,7 @@
       </div>
       <a-empty v-if="!courseList.length" />
       <a-pagination
+        v-if="!courseList.length"
         v-model:current="currentPage.current"
         :total="currentPage.total"
         @change="pageNumberChange"
