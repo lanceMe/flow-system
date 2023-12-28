@@ -196,12 +196,12 @@ export function getFormSchema(
     {
       field: 'ctpl-cancel-if-not-enough-attenders-hours',
       component: 'InputNumber',
-      label: '候补时间限制',
+      label: '开课确认时间',
       defaultValue: showDef ? f?.['ctpl_cancel_if_not_enough_attenders_hours'] : undefined,
       required: true,
       dynamicDisabled,
       componentProps: {
-        placeholder: '开课前几小时不允许候补',
+        placeholder: '开课前几小时确认报名人数，若不足下限则取消',
       },
       rules: [
         {
@@ -466,11 +466,11 @@ export function getFormSchema1(
     {
       field: 'course-cancel-if-not-enough-attenders-hours',
       component: 'InputNumber',
-      label: '候补时间限制',
+      label: '开课确认时间',
       defaultValue: showDef ? f?.['cancel_if_not_enough_attenders_hours'] : undefined,
       dynamicDisabled,
       componentProps: {
-        placeholder: '开课前几小时不允许候补',
+        placeholder: '开课前几小时确认报名人数，若不足下限则取消',
       },
       rules: [
         {

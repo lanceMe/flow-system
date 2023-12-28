@@ -48,7 +48,7 @@
           schemas,
           showActionButtonGroup: false,
           baseColProps: {
-            span: 10,
+            span: 15,
           },
           actionColOptions: {
             span: 24,
