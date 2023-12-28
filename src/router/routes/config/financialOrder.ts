@@ -36,21 +36,21 @@ const financialOrder: AppRouteModule = {
         ],
       },
     },
-    {
-      path: 'flow',
-      name: 'flow',
-      component: () => import('/@/views/financialOrder/flow/index.vue'),
-      meta: {
-        title: '交易流水',
-        roles: [
-          RoleEnum.ADMIN,
-          RoleEnum.MANAGER,
-          RoleEnum.FINANCIAL,
-          RoleEnum.RECEPTION,
-          RoleEnum.COACH,
-        ],
-      },
-    },
+    // {
+    //   path: 'flow',
+    //   name: 'flow',
+    //   component: () => import('/@/views/financialOrder/flow/index.vue'),
+    //   meta: {
+    //     title: '交易流水',
+    //     roles: [
+    //       RoleEnum.ADMIN,
+    //       RoleEnum.MANAGER,
+    //       RoleEnum.FINANCIAL,
+    //       RoleEnum.RECEPTION,
+    //       RoleEnum.COACH,
+    //     ],
+    //   },
+    // },
     {
       path: 'revenueReport',
       name: 'revenueReport',
