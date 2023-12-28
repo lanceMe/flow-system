@@ -12,7 +12,6 @@ export function getFormSchema(
   const { type, formData: f } = data || {};
   const dynamicDisabled = type === 'view';
   const showDef = type !== 'create';
-  const address = f?.['ctpl_address'] === 'Mellow Climbing Gym' ? 1 : 2;
   return [
     {
       field: 'ctpl-display-name',
@@ -55,20 +54,6 @@ export function getFormSchema(
         },
       },
     },
-    // {
-    //   fields: ['ctpl-max-attenders'],
-    //   field: 'ctpl-min-attenders',
-    //   component: 'InputNumber',
-    //   label: '人数上下限',
-    //   slot: 'attenders',
-    //   defaultValue: f?.['ctpl_min_attenders'],
-    //   defaultValueObj: {
-    //     'ctpl-max-attenders': f?.['ctpl_max_attenders'],
-    //   },
-    //   required: true,
-    //   dynamicDisabled,
-    // },
-
     {
       field: 'ctpl-min-attenders',
       component: 'InputNumber',
@@ -121,39 +106,6 @@ export function getFormSchema(
         },
       ],
     },
-    // {
-    //   field: 'ctpl-reserve-type',
-    //   component: 'ApiSelect',
-    //   label: '预约方式',
-    //   // defaultValue: f?.['ctpl_type'],
-    //   // required: true,
-    //   dynamicDisabled,
-    //   componentProps: {
-    //     api: getCardList,
-    //     immediate: true,
-    //     labelField: 'name',
-    //     valueField: 'id',
-    //     onChange: (e, v) => {
-    //       console.log('ApiSelect====>:', e, v);
-    //     },
-    //   },
-    // },
-
-    // {
-    //   field: 'ctpl-cards-type',
-    //   component: 'Select',
-    //   label: '卡种',
-    //   // defaultValue: f?.['ctpl_type'],
-    //   // required: true,
-    //   dynamicDisabled,
-    //   componentProps: {
-    //     options: [
-    //       { label: '团课', value: 'group', key: 'group' },
-    //       { label: '中级私教课', value: 'privatelv1', key: 'privatelv1' },
-    //       { label: '高级私教课', value: 'privatelv2', key: 'privatelv2' },
-    //     ],
-    //   },
-    // },
     {
       field: 'ctpl-price',
       component: 'InputNumber',
@@ -243,31 +195,31 @@ export function getFormSchema(
       // required: true,
       dynamicDisabled,
     },
-    {
-      field: 'address',
-      component: 'RadioGroup',
-      label: '地点',
-      defaultValue: showDef ? address : undefined,
-      componentProps: {
-        options: [
-          { label: '岩馆地址', value: 1 },
-          { label: '其他地址', value: 2 },
-        ],
-      },
-    },
-    {
-      field: 'ctpl-address',
-      component: 'Input',
-      label: '',
-      defaultValue: showDef ? f?.['ctpl_address'] : undefined,
-      required: ({ values }) => {
-        return values.address === 2;
-      },
-      ifShow: ({ values }) => {
-        return values.address === 2;
-      },
-      dynamicDisabled,
-    },
+    // {
+    //   field: 'address',
+    //   component: 'RadioGroup',
+    //   label: '地点',
+    //   defaultValue: f?.address,
+    //   componentProps: {
+    //     options: [
+    //       { label: '岩馆地址', value: 1 },
+    //       { label: '其他地址', value: 2 },
+    //     ],
+    //   },
+    // },
+    // {
+    //   field: 'ctpl-address',
+    //   component: 'Input',
+    //   label: '',
+    //   defaultValue: showDef ? f?.['ctpl_address'] : undefined,
+    //   required: ({ values }) => {
+    //     return values.address === 2;
+    //   },
+    //   ifShow: ({ values }) => {
+    //     return values.address === 2;
+    //   },
+    //   dynamicDisabled,
+    // },
   ];
 }
 
@@ -340,7 +292,7 @@ export function getFormSchema1(
   const showDef = type === 'edit' || type === 'view' || isNeedFillTemplete;
   const f = isNeedFillTemplete ? td : fd;
 
-  const address = !f?.['address'] || f?.['address'] === 'Mellow Climbing Gym' ? 1 : 2;
+  // const address = !f?.['address'] || f?.['address'] === 'Mellow Climbing Gym' ? 1 : 2;
 
   const startDate = f?.['start_time']
     ? dayjs(f?.['start_time'])
@@ -512,31 +464,31 @@ export function getFormSchema1(
       // required: true,
       dynamicDisabled,
     },
-    {
-      field: 'address',
-      component: 'RadioGroup',
-      label: '地点',
-      defaultValue: showDef ? address : undefined,
-      componentProps: {
-        options: [
-          { label: '岩馆地址', value: 1 },
-          { label: '其他地址', value: 2 },
-        ],
-      },
-    },
-    {
-      field: 'course-address',
-      component: 'Input',
-      label: '',
-      defaultValue: showDef ? f?.['address'] : undefined,
-      required: ({ values }) => {
-        return values.address === 2;
-      },
-      ifShow: ({ values }) => {
-        return values.address === 2;
-      },
-      dynamicDisabled,
-    },
+    // {
+    //   field: 'address',
+    //   component: 'RadioGroup',
+    //   label: '地点',
+    //   defaultValue: showDef ? address : undefined,
+    //   componentProps: {
+    //     options: [
+    //       { label: '岩馆地址', value: 1 },
+    //       { label: '其他地址', value: 2 },
+    //     ],
+    //   },
+    // },
+    // {
+    //   field: 'course-address',
+    //   component: 'Input',
+    //   label: '',
+    //   defaultValue: showDef ? f?.['address'] : undefined,
+    //   required: ({ values }) => {
+    //     return values.address === 2;
+    //   },
+    //   ifShow: ({ values }) => {
+    //     return values.address === 2;
+    //   },
+    //   dynamicDisabled,
+    // },
   ];
 
   const rangePicker = ret.find((item) => item.field === '[course-start-time, endDateTime]');

@@ -95,7 +95,7 @@
           'ctpl-address-lat': lat,
           'ctpl-address-long': long,
         };
-        console.log('postApi', params, data);
+        console.log('postApi', address, lat, long, values, data);
         requestFunc(params).then((resp) => {
           console.log(resp, params);
           closeModal();
@@ -104,12 +104,12 @@
       }
 
       function calAddress(addressType: number, addressInput: string) {
-        let lat = 50;
-        let long = 50;
+        let lat = '39.97337859782243';
+        let long = '116.49615152848547';
         let text = 'Mellow Climbing Gym';
         if (addressType === 2) {
-          lat = 0;
-          long = 0;
+          lat = '0';
+          long = '0';
           text = addressInput;
         }
         return [text, lat, long];
@@ -134,12 +134,25 @@
       }
 
       async function setFormData(data) {
-        dataRef.value = data;
-        const schemas = getFormSchema(data, getFieldsValue);
-        if (data.type === 'create') resetSchema(data);
-        else resetFields();
-        // await resetSchema(schemas);
-        await updateSchema(schemas);
+        const dataJoin = initAddress(data);
+        dataRef.value = dataJoin;
+
+        const schemas = getFormSchema(dataJoin, getFieldsValue);
+
+        await resetFields();
+        nextTick(() => {
+          updateSchema(schemas, true);
+        });
+      }
+
+      function initAddress(data) {
+        const f = data?.formData || {};
+        const addr = f['ctpl_address'];
+        let address = 1;
+        if (addr && addr !== 'Mellow Climbing Gym') address = 2;
+        f.address = address;
+        data.formData = f;
+        return data;
       }
 
       return {
