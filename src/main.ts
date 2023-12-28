@@ -12,6 +12,7 @@ import STable from '@surely-vue/table';
 import { registerGlobComp } from '@/components/registerGlobComp';
 import { setupGlobDirectives } from '@/directives';
 import { setupI18n } from '@/locales/setupI18n';
+import { setupDayjsLocale } from '@/locales/setupDayjsLocale';
 import { setupErrorHandle } from '@/logics/error-handle';
 import { initAppConfigStore } from '@/logics/initAppConfig';
 import { router, setupRouter } from '@/router';
@@ -26,6 +27,9 @@ async function bootstrap() {
   // Configure store
   // 配置 store
   setupStore(app);
+
+  // 配置 dayjs
+  setupDayjsLocale();
 
   // Initialize internal system configuration
   // 初始化内部系统配置

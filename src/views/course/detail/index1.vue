@@ -96,7 +96,7 @@
           display_name: info['label'],
           min_attenders: info['ctpl_min_attenders'],
           max_attenders: info['ctpl_max_attenders'],
-          cancel_waiting_minutes: info['ctpl_cancel_waiting_minutes'],
+          cancel_if_not_enough_attenders_hours: info['ctpl_cancel_if_not_enough_attenders_hours'],
           no_cancel_reserve_hours: info['ctpl_no_cancel_reserve_hours'],
           description: info['ctpl_description'],
           address: info['ctpl_address'],
@@ -141,7 +141,7 @@
           'course-price': data?.['course_price'] || temp?.['ctpl_price'] || '20',
           course_templete_id: undefined,
         };
-        console.log('postApi', params);
+        console.log('postApi', params, address, lat, long);
         requestFunc(params).then((resp) => {
           console.log(resp, params);
           closeModal();
@@ -150,17 +150,17 @@
       }
 
       function calAddress(addressType: number, addressInput: string) {
-        let lat = 50;
-        let long = 50;
+        let lat = '39.97337859782243';
+        let long = '116.49615152848547';
         let text = 'Mellow Climbing Gym';
         if (addressType === 2) {
-          lat = 0;
-          long = 0;
+          lat = '0';
+          long = '0';
           text = addressInput;
         }
-
         return [text, lat, long];
       }
+
       function setType(type: string) {
         setTitle(type);
       }
@@ -188,6 +188,16 @@
         nextTick(() => {
           updateSchema(schemas, true);
         });
+      }
+
+      function initAddress(data) {
+        const f = data?.formData || {};
+        const addr = f['ctpl_address'];
+        let address = 1;
+        if (addr && addr !== 'Mellow Climbing Gym') address = 2;
+        f.address = address;
+        data.formData = f;
+        return data;
       }
 
       function afterFetchFn(res: []) {
