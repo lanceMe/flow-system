@@ -93,7 +93,7 @@
       </div>
       <a-empty v-if="!courseList.length" />
       <a-pagination
-        v-if="!courseList.length"
+        v-else
         v-model:current="currentPage.current"
         :total="currentPage.total"
         @change="pageNumberChange"
