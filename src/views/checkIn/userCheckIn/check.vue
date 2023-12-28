@@ -37,7 +37,7 @@
         >
           <!--eslint-disable-next-line vue/valid-v-for-->
           <a-select-option v-for="item in cardListFilter" :value="item.cardins_id">{{
-            item.cardcat_description
+            item.cardcat_name
           }}</a-select-option>
         </a-select>
       </a-form-item>

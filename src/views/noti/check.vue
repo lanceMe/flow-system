@@ -230,6 +230,8 @@
       } else if (value.notif_visible_phone_rule.indexOf('*') === -1) {
         formState.grayscaleType = GrayscaleMap.SpecificNumbers;
         formState.selectedPhoneNumbers = value.notif_visible_phone_rule.replace(/,/g, '\n');
+      } else if (value.notif_visible_phone_rule === '*') {
+        formState.grayscaleType = GrayscaleMap.AllUsers;
       } else {
         formState.grayscaleType = GrayscaleMap.PhoneSuffix;
         // 使用正则表达式匹配数字

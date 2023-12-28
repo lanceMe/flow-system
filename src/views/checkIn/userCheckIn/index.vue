@@ -237,10 +237,10 @@
         },
         onCancelCheckIn(record) {
           console.log('===record', record);
-
           deleteCheckin({
             'wxuser-token': record.wxToken,
-            'cardins-id ': record.cardinsId,
+            'cardins-id': record.cardinsId,
+            'checkin-time': record.checkInTime,
           }).then(() => {
             message.success('取消签到成功');
             getList();
