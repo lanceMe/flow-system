@@ -48,7 +48,7 @@
           schemas,
           showActionButtonGroup: false,
           baseColProps: {
-            span: 10,
+            span: 15,
           },
           actionColOptions: {
             span: 24,
@@ -122,13 +122,13 @@
       function setTitle(type: string) {
         switch (type) {
           case 'edit':
-            titleRef.value = '编辑课程';
+            titleRef.value = '编辑模版';
             break;
           case 'create':
-            titleRef.value = '新建课程';
+            titleRef.value = '新建模版';
             break;
           default:
-            titleRef.value = '查看课程';
+            titleRef.value = '查看模版';
             break;
         }
       }

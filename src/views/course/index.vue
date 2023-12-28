@@ -22,7 +22,7 @@
           </template>
         </template>
         <template #toolbar>
-          <a-button type="primary" @click="createCourse"> 创建课程 </a-button>
+          <a-button type="primary" @click="createCourse"> 新建模版 </a-button>
         </template>
       </BasicTable>
     </div>
