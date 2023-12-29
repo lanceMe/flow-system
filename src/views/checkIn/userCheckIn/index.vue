@@ -45,9 +45,7 @@
       <a-table :columns="columns" :data-source="data">
         <template #bodyCell="{ column, record }">
           <template v-if="column.key === 'operation'">
-            <a-button type="link" :disabled="record.isCheckIn" @click="onCancelCheckIn(record)"
-              >取消签到</a-button
-            >
+            <a-button type="link" @click="onCancelCheckIn(record)">取消签到</a-button>
           </template>
         </template>
       </a-table>
