@@ -248,7 +248,7 @@
           },
           {
             title: '会员卡',
-            dataIndex: 'cardcat_description',
+            dataIndex: 'cardcat_name',
             key: 'memberCard',
           },
           {
