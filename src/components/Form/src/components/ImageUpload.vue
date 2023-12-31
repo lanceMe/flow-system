@@ -52,6 +52,10 @@
         type: Function as PropType<(file: UploadFile) => Promise<string>>,
         default: null,
       },
+      apiRespKey: {
+        type: String,
+        default: '',
+      },
       listType: {
         type: String as PropType<ImageUploadType>,
         default: () => 'picture-card',
@@ -201,9 +205,12 @@
       /** 自定义上传 */
       const handleCustomRequest = async (option: any) => {
         const { file } = option;
+        const base64 = await getBase64(file);
+        option.base64 = base64;
         await props
           .api(option)
-          .then((url) => {
+          .then((resp) => {
+            const url = resp;
             file.url = url;
             file.status = 'done';
             fileList.value.pop();
@@ -212,6 +219,7 @@
           .catch(() => {
             fileList.value.pop();
           });
+        ``;
       };
 
       function getBase64(file: File) {

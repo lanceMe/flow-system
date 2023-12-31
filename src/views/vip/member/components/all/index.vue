@@ -14,7 +14,7 @@
           <TableAction
             :actions="[
               { label: '查看', onClick: handleView.bind(null, record) },
-              { label: '编辑', disabled: true, onClick: handleEdit.bind(null, record) },
+              // { label: '编辑', disabled: true, onClick: handleEdit.bind(null, record) },
             ]"
           />
         </template>
