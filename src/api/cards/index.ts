@@ -10,6 +10,7 @@ enum Api {
   getUserCardList = '/v1/cardins',
   getWxUser = '/v1/wxuser',
   getcardRecordList = '/v1/cardins_record',
+  bindCard = '/v1/manual_cardins',
 }
 /**
  * @description: 获取会员卡列表
@@ -105,4 +106,25 @@ export function getWxUser(wxId) {
   };
 
   return request.get({ url: Api.getWxUser, params });
+}
+
+/**
+ * @description: 延卡/扣费
+ */
+export function changeCardins(params) {
+  return request.put({ url: Api.getUserCardList, params }, { successMessageMode: 'message' });
+}
+
+/**
+ * @description: 绑卡
+ */
+export function bindCard(params) {
+  return request.post({ url: Api.bindCard, params }, { successMessageMode: 'message' });
+}
+
+/**
+ * @description: 停卡
+ */
+export function stopCard(params) {
+  return request.post({ url: Api.bindCard, params }, { successMessageMode: 'message' });
 }

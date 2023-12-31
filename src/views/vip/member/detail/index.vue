@@ -10,7 +10,7 @@
         </div>
       </div>
       <div class="toolbar">
-        <a-button type="primary" @click="handleBindCards" :disabled="true"> 绑卡 </a-button>
+        <a-button type="primary" @click="handleBindCards"> 绑卡 </a-button>
         <a-button type="primary" @click="handleEditMember" :disabled="true"> 编辑 </a-button>
       </div>
     </div>
@@ -21,6 +21,7 @@
         </TabPane>
       </template>
     </Tabs>
+    <Modal @register="registerModal" @submit-success="reLoad" />
   </PageWrapper>
 </template>
 
@@ -43,6 +44,9 @@
   import { useRouter } from 'vue-router';
   import { formatToDateTime } from '/@/utils/dateUtil';
 
+  import { useModal } from '/@/components/Modal';
+  import Modal from '/@/views/vip/member/detail/operation/index.vue';
+
   export default defineComponent({
     components: {
       PageWrapper,
@@ -54,21 +58,35 @@
       MemberProfile,
       UserOutlined,
       Avatar,
+      Modal,
     },
     setup() {
       const { prefixCls } = useDesign('vip-member');
       const profile = ref({});
       const creatAt = ref('');
       const { id } = useRouter()?.currentRoute?.value?.query || {};
-      getWxUser(id).then((resp) => {
-        profile.value = resp;
-        creatAt.value = resp?.created_at ? formatToDateTime(resp.created_at) : '--';
-      });
+
+      const [registerModal, { openModal: openModal }] = useModal();
+
+      function init() {
+        getWxUser(id).then((resp) => {
+          profile.value = resp;
+          creatAt.value = resp?.created_at ? formatToDateTime(resp.created_at) : '--';
+        });
+      }
+
+      init();
       function handleBindCards(event: any) {
         console.log('handleBindCards', event);
+        openModal(true, { type: 'bind', formData: event, userData: profile });
       }
       function handleEditMember(event: any) {
         console.log('handleEditMember', event);
+        openModal(true, { type: 'editUser', formData: event, userData: profile });
+      }
+
+      function reLoad() {
+        init();
       }
 
       return {
@@ -83,6 +101,8 @@
         defaultAvatar,
         profile,
         creatAt,
+        registerModal,
+        reLoad,
       };
     },
   });
