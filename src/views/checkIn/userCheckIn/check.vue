@@ -37,7 +37,7 @@
         >
           <!--eslint-disable-next-line vue/valid-v-for-->
           <a-select-option v-for="item in cardListFilter" :value="item.cardins_id">{{
-            item.cardcat_name
+            item.showTitle
           }}</a-select-option>
         </a-select>
       </a-form-item>
@@ -76,7 +76,7 @@
   console.log(router.query.type);
   const formRef = ref();
   const labelCol = { span: 5 };
-  const wrapperCol = { span: 13 };
+  const wrapperCol = { span: 18 };
   const formState: UnwrapRef<any> = reactive({
     phone: '',
     checkNumber: 1,
@@ -86,6 +86,15 @@
   const open = ref(false);
   const cardList = ref<any>([]);
   const cardListFilter = ref<any>([]);
+  //未开卡(inactive)/已开卡(active)/已用完(exhausted)/已转卡(transferred)/已暂停(suspended)/已退款(refunded)
+  const CardStaus = {
+    inactive: '未开卡',
+    active: '已开卡',
+    exhausted: '已用完',
+    transferred: '已转卡',
+    suspended: '已暂停',
+    refunded: '已退款',
+  };
 
   const controlModal = (bl: boolean) => {
     open.value = bl;
@@ -171,6 +180,16 @@
     console.log(wxToken);
     getCardInfo(wxToken).then((res) => {
       cardList.value = res.filter((item) => {
+        //<name>（<status>，[剩余 x 次，]过期日期 <expire_date>）
+        const status = CardStaus[item?.cardins_status];
+        let leftTimes: any = undefined;
+        if (item?.cardcat_class === 'bundle') {
+          leftTimes = (item?.cardins_max_consume_times || 0) - (item?.cardins_consume_times || 0);
+        }
+        const leftTimesStr = leftTimes !== undefined && leftTimes > 0 ? `剩余${leftTimes}次,` : '';
+        const expireDateStr = `${item?.cardins_expire_date || '--'}过期`;
+        item.showTitle = `${item.cardcat_name}(${status},${leftTimesStr}${expireDateStr})`;
+
         return item.cardcat_type === 'daypass';
       });
       console.log('===getCardInfo', cardList.value);
