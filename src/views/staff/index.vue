@@ -40,6 +40,9 @@
           <a-button type="primary" @click="onSearch">搜索</a-button>
         </a-form-item>
       </a-form>
+      <ASpace style="display: flex; flex-direction: row-reverse" size="middle">
+        <a-button @click="handleCreate" type="primary">创建账号</a-button>
+      </ASpace>
 
       <!-- <h5 style="font-size: 16px">{{ getWeek() }} | {{ getDate() }}</h5> -->
       <a-table :columns="columns" :data-source="orderData" :pagination="false">
@@ -57,13 +60,14 @@
             }}
           </template>
 
-          <!-- <template v-if="column.key === 'operation'">
+          <template v-if="column.key === 'operation'">
             <a-button @click="handleEdit(record)" type="link">编辑</a-button>
             <a-button v-if="record.staff_enable" @click="handleView(record)" type="link"
               >启用</a-button
             >
             <a-button v-else @click="handleView(record)" type="link">停用</a-button>
-          </template> -->
+            <a-button @click="handleView(record)" type="link" danger>删除</a-button>
+          </template>
         </template>
       </a-table>
     </ASpace>
@@ -91,7 +95,7 @@
   import { PageWrapper } from '/@/components/Page';
   import check from './check.vue';
   import dayjs from 'dayjs';
-  import { getStaffList, getCourseList } from '/@/api/staff/index';
+  import { getStaffList, postStaffInfo, putStaffInfo } from '/@/api/staff/index';
   import { useRouter } from 'vue-router';
 
   export default defineComponent({
@@ -186,13 +190,27 @@
         }).then((res) => {
           console.log('===res', res);
           orderData.value = res;
+          checkRef.value.controlModal(false);
         });
       };
 
       getList();
       const checkData = ref<any>(null);
       const checkType = ref('create');
-      const checkSubmit = () => {};
+      const checkSubmit = (item, type) => {
+        console.log('===onSubmit', item);
+        if (type === 'create') {
+          postStaffInfo(item).then(() => {
+            getList();
+            message.success('新建成功');
+          });
+        } else {
+          putStaffInfo(item).then(() => {
+            getList();
+            message.success('编辑成功');
+          });
+        }
+      };
 
       return {
         dayjs,
@@ -254,15 +272,7 @@
           month: '月卡',
           demand: '次卡',
         },
-        onSubmit(item) {
-          console.log('===item', item);
-          checkRef.value.controlModal(true, item);
-        },
-        successCheckIn() {
-          message.success('预约成功');
-          checkRef.value.controlModal(false);
-          getList();
-        },
+
         onSearch() {
           getList();
         },
@@ -277,6 +287,10 @@
           checkRef.value.controlModal(true);
           checkType.value = 'edit';
           checkData.value = record;
+        },
+        handleCreate() {
+          checkRef.value.controlModal(true);
+          checkType.value = 'create';
         },
         disabledDate(current: any) {
           if (!selectPriceDate.value) {
@@ -328,5 +342,9 @@
 
   .margin-right-10 {
     margin-right: 10px;
+  }
+
+  .ant-modal-body {
+    padding-right: 20px !important;
   }
 </style>

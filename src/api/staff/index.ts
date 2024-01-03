@@ -23,3 +23,17 @@ export function getCourseList(params) {
 export function getStaffInfo(params) {
   return request.get({ url: '/v1/staff', params }, { returnTransformResponseDataKey: 'staff' });
 }
+
+/**
+ * @description: 新建员工信息
+ */
+export function postStaffInfo(params) {
+  return request.post({ url: '/v1/staff', params }, { returnTransformResponseDataKey: 'staff' });
+}
+
+/**
+ * @description: 编辑员工信息
+ */
+export function putStaffInfo(params) {
+  return request.put({ url: '/v1/staff', params }, { returnTransformResponseDataKey: 'staff' });
+}
