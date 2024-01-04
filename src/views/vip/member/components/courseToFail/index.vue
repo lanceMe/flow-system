@@ -13,8 +13,8 @@
         <template v-if="column.key === 'action'">
           <TableAction
             :actions="[
-              { label: '查看', onClick: handleView.bind(null, record), disabled: true },
-              { label: '编辑', onClick: handleEdit.bind(null, record), disabled: true },
+              { label: '查看', onClick: handleView.bind(null, record) },
+              // { label: '编辑', onClick: handleEdit.bind(null, record), disabled: true },
             ]"
           />
         </template>
@@ -71,8 +71,7 @@
       }
 
       function handleView(event: any) {
-        console.log('handleView', event);
-        openModal(true, { type: 'view', formData: event });
+        handleAvaterClick(event);
       }
 
       function createCourse(event: any) {

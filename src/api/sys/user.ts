@@ -48,6 +48,11 @@ export function doLogout() {
   // return defHttp.get({ url: Api.Logout });
 }
 
+export function changeUser(params) {
+  return request.post({ url: '/v1/wxuser/info', params }, { successMessageMode: 'message' });
+  // return defHttp.get({ url: Api.Logout });
+}
+
 export function testRetry() {
   return defHttp.get(
     { url: Api.TestRetry },

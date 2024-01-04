@@ -10,8 +10,8 @@
         </div>
       </div>
       <div class="toolbar">
-        <a-button type="primary" @click="handleBindCards" :disabled="true"> 绑卡 </a-button>
-        <a-button type="primary" @click="handleEditMember" :disabled="true"> 编辑 </a-button>
+        <a-button type="primary" @click="handleBindCards"> 绑卡 </a-button>
+        <a-button type="primary" @click="handleEditMember"> 编辑 </a-button>
       </div>
     </div>
     <Tabs :tabBarStyle="tabBarStyle">
@@ -21,6 +21,8 @@
         </TabPane>
       </template>
     </Tabs>
+    <Modal @register="registerModal" />
+    <ModalUser @register="registerModalUser" @submit-success="reLoad" />
   </PageWrapper>
 </template>
 
@@ -43,6 +45,10 @@
   import { useRouter } from 'vue-router';
   import { formatToDateTime } from '/@/utils/dateUtil';
 
+  import { useModal } from '/@/components/Modal';
+  import ModalUser from '/@/views/vip/member/detail/editUser.vue';
+  import Modal from '/@/views/vip/member/detail/operation/index.vue';
+
   export default defineComponent({
     components: {
       PageWrapper,
@@ -54,21 +60,41 @@
       MemberProfile,
       UserOutlined,
       Avatar,
+      Modal,
+      ModalUser,
     },
     setup() {
       const { prefixCls } = useDesign('vip-member');
       const profile = ref({});
       const creatAt = ref('');
       const { id } = useRouter()?.currentRoute?.value?.query || {};
-      getWxUser(id).then((resp) => {
-        profile.value = resp;
-        creatAt.value = resp?.created_at ? formatToDateTime(resp.created_at) : '--';
-      });
+
+      const [registerModal, { openModal: openModal }] = useModal();
+      const [registerModalUser, { openModal: openModalUser }] = useModal();
+
+      function init() {
+        getWxUser(id).then((resp) => {
+          console.log(resp, 8888);
+          profile.value = resp;
+          creatAt.value = resp?.created_at ? formatToDateTime(resp.created_at) : '--';
+        });
+      }
+
+      init();
+
       function handleBindCards(event: any) {
         console.log('handleBindCards', event);
+        openModal(true, { type: 'bind', formData: event, userData: profile });
       }
+
       function handleEditMember(event: any) {
         console.log('handleEditMember', event);
+        openModalUser(true, { type: 'editUser', userData: profile });
+      }
+
+      function reLoad() {
+        console.log(23424234);
+        init();
       }
 
       return {
@@ -83,6 +109,9 @@
         defaultAvatar,
         profile,
         creatAt,
+        registerModal,
+        registerModalUser,
+        reLoad,
       };
     },
   });

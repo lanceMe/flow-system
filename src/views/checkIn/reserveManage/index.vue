@@ -87,6 +87,12 @@
                 @click="noShowCourse(record, item.course_id)"
                 >未到场</a-button
               >
+              <a-button
+                type="link"
+                v-if="record.attend_status === 'reserved'"
+                @click="checkInCourse(record, item.course_id)"
+                >签到</a-button
+              >
             </template>
           </template>
         </a-table>
@@ -132,6 +138,7 @@
     noShowReserveCourse,
     deleteCheckinCoures,
     deleteWaitingCourse,
+    checkinCoure,
   } from '/@/api/booking/course';
   import { useRouter } from 'vue-router';
 
@@ -348,6 +355,16 @@
             'course-id': id,
           }).then(() => {
             message.success('未到场记录成功');
+            getList(currentPage.current);
+          });
+        },
+
+        checkInCourse(item, id) {
+          checkinCoure({
+            'wxuser-token': item.wxuser_token,
+            'course-id': id,
+          }).then(() => {
+            message.success('签到成功');
             getList(currentPage.current);
           });
         },

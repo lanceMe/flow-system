@@ -48,3 +48,10 @@ export function noShowReserveCourse(data) {
 export function deleteCheckinCoures(data) {
   return request.delete({ url: '/v1/checkin_course', data });
 }
+
+/**
+ * @description: 取消签到课程
+ */
+export function checkinCoure(data) {
+  return request.post({ url: '/v1/checkin_course', data });
+}

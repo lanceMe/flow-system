@@ -10,10 +10,22 @@
         <template v-if="column.key === 'action'">
           <TableAction
             :actions="[
-              { label: '续卡', onClick: handleView.bind(null, record), disabled: true },
-              { label: '扣费', onClick: handleView.bind(null, record), disabled: true },
-              { label: '停卡', onClick: handleView.bind(null, record), disabled: true },
-              { label: '作废', onClick: handleEdit.bind(null, record), disabled: true },
+              {
+                label: '续卡',
+                disabled: true,
+                onClick: handleOperation.bind(null, 'renew', record),
+              },
+              {
+                label: '扣费',
+                disabled: true,
+                onClick: handleOperation.bind(null, 'deduct', record),
+              },
+              {
+                label: '停卡',
+                disabled: true,
+                onClick: handleOperation.bind(null, 'stop', record),
+              },
+              { label: '作废', disabled: true, onClick: handleBan.bind(null, record) },
             ]"
           />
         </template>
@@ -22,23 +34,34 @@
     <br />
     <br />
     <BasicTable @register="registerTable1" />
+    <Modal @register="registerModal" @submit-success="reLoad" />
   </div>
 </template>
 <script lang="ts">
-  import { defineComponent, ref } from 'vue';
+  import { defineComponent } from 'vue';
   import { BasicTable, useTable, TableAction } from '/@/components/Table';
   import { getTableColumns, getTableColumns1 } from './config';
   import { getUserCardList, getcardRecordList } from '/@/api/cards';
   import { useDesign } from '/@/hooks/web/useDesign';
   import { useRouter } from 'vue-router';
 
+  import { useModal } from '/@/components/Modal';
+  import Modal from '/@/views/vip/member/detail/operation/index.vue';
+  import { useMessage } from '/@/hooks/web/useMessage';
+
   import { Tag } from 'ant-design-vue';
 
+  const props = {
+    data: { type: Object, default: {} },
+  };
+
   export default defineComponent({
-    components: { BasicTable, Tag, TableAction },
-    setup() {
+    components: { BasicTable, Tag, TableAction, Modal },
+    props,
+    setup(props) {
       const { id } = useRouter()?.currentRoute?.value?.query || {};
-      const [registerTable] = useTable({
+      const { createConfirm } = useMessage();
+      const [registerTable, { reload: reloadTable }] = useTable({
         title: '会员卡明细',
         api: getUserCardList,
         searchInfo: { 'wxuser-token': id },
@@ -67,27 +90,39 @@
         // showIndexColumn: false,
       });
 
+      const [registerModal, { openModal: openModal }] = useModal();
+
       const { prefixCls } = useDesign('vip-cards');
-      function handleEdit(event: any) {
-        console.log('handleEdit', event);
+
+      function handleOperation(type: string, event: any) {
+        console.log('handleOperation', event);
+        openModal(true, { type, formData: event, userData: props.data });
       }
 
-      function handleView(event: any) {
-        console.log('handleView', event);
+      function handleBan(event: any) {
+        console.log('handleBan', event);
+        createConfirm({
+          iconType: 'info',
+          title: '作废',
+          content: '作废后，用户当前会员卡不可使用，确认操作请点击确定',
+          onOk: () => {
+            // postApi(values);
+          },
+        });
       }
-
-      function createCourse(event: any) {
-        console.log('createCourse', event);
+      function reLoad() {
+        reloadTable();
       }
 
       return {
         registerTable,
         registerTable1,
-        createCourse,
-        handleEdit,
-        handleView,
+        handleOperation,
         prefixCls,
         TableAction,
+        registerModal,
+        reLoad,
+        handleBan,
       };
     },
   });
