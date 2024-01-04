@@ -48,7 +48,7 @@
   import dayjs from 'dayjs';
   import { useRoute, useRouter } from 'vue-router';
   import { useUserStore } from '/@/store/modules/user';
-  import { getStaffInfo, postStaffInfo, putStaffInfo } from '/@/api/staff/index';
+  import { getStaffInfo, postStaffRole, putStaffInfo } from '/@/api/staff/index';
   import course from '/@/router/routes/config/course';
   import courseTable from './course-table.vue';
   import check from '../check.vue';
@@ -67,16 +67,24 @@
   };
   const checkSubmit = (item) => {
     console.log('===onSubmit', item);
-    putStaffInfo(item).then(() => {
-      message.success('编辑成功');
-      checkRef.value.controlModal(false);
-      getStaffInfo({
-        'staff-id': userStore.getUserId,
-      }).then((res) => {
-        console.log('===res', res);
-        data.value = res;
+    putStaffInfo(item)
+      .then(() => {
+        message.success('编辑成功');
+        return postStaffRole({
+          'staff-role': item['staff-role'],
+          'staff-id': item['staff-id'],
+        });
+      })
+      .then(() => {
+        checkRef.value.controlModal(false);
+        message.success('权限编辑成功');
+        getStaffInfo({
+          'staff-id': userStore.getUserId,
+        }).then((res) => {
+          console.log('===res', res);
+          data.value = res;
+        });
       });
-    });
   };
 
   onMounted(() => {

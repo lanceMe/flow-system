@@ -58,18 +58,7 @@
       </a-form-item>
 
       <!-- 头像 -->
-      <a-form-item
-        label="头像"
-        name="backgroundImage"
-        action="/v1/upload_public_file"
-        :rules="[
-          {
-            required: formState.type === NotifyMap.Swiper,
-            message: '头像',
-            trigger: 'blur',
-          },
-        ]"
-      >
+      <a-form-item label="头像" name="backgroundImage" action="/v1/upload_public_file">
         <a-upload
           v-model:file-list="formState.backgroundImage"
           :max-count="1"
@@ -107,9 +96,22 @@
   import { NotifyType, NotifyMap, PhoneTail, GrayscaleType, GrayscaleMap } from './constant';
   import { encode } from '/@/utils/base64';
 
+  class State {
+    title = '';
+    phone = '';
+    gender = 'male';
+    backgroundImage = [];
+    desc = '';
+    name = '';
+    status = [];
+    isMiniVisible = 0;
+  }
   const formRef = ref();
   const visible = ref(false);
-  const controlModal = (bl: boolean) => {
+  const controlModal = (bl: boolean, isClear: boolean = false) => {
+    if (isClear) {
+      Object.assign(formState, new State());
+    }
     visible.value = bl;
   };
 
@@ -144,16 +146,7 @@
     return '';
   });
 
-  const formState = reactive({
-    title: '',
-    phone: '',
-    gender: 'male',
-    backgroundImage: [],
-    desc: '',
-    name: '',
-    status: [],
-    isMiniVisible: 0,
-  });
+  const formState = reactive(new State());
 
   const id = ref<any>(null);
 
@@ -225,6 +218,7 @@
     desc: [{ required: true, message: '请输入个人介绍', trigger: 'change' }],
     status: [{ required: true, message: '请选择员工角色', trigger: 'change' }],
     name: [{ required: true, message: '请输入姓名', trigger: 'blur' }],
+    backgroundImage: [{ required: true, message: '请选择头像', trigger: 'change' }],
   };
 
   const emits = defineEmits(['onSubmit']);

@@ -144,7 +144,7 @@
     message,
   } from 'ant-design-vue';
   import type { Rule } from 'ant-design-vue/es/form';
-  import { postUploadFile, postNotification } from '/@/api/noti/index';
+  import { postUploadFile } from '/@/api/noti/index';
   import { NotifyType, NotifyMap, PhoneTail, GrayscaleType, GrayscaleMap } from './constant';
   import { encode } from '/@/utils/base64';
 

@@ -37,3 +37,11 @@ export function postStaffInfo(params) {
 export function putStaffInfo(params) {
   return request.put({ url: '/v1/staff', params }, { returnTransformResponseDataKey: 'staff' });
 }
+
+export function postStaffRole(params) {
+  return request.post({ url: '/v1/staff_role', params });
+}
+
+export function postStaffEnable(params) {
+  return request.post({ url: '/v1/staff_enable', params });
+}

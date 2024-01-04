@@ -62,11 +62,11 @@
 
           <template v-if="column.key === 'operation'">
             <a-button @click="handleEdit(record)" type="link">编辑</a-button>
-            <a-button v-if="record.staff_enable" @click="handleView(record)" type="link"
+            <a-button v-if="!record.staff_enable" @click="handleEnable(record, 1)" type="link"
               >启用</a-button
             >
-            <a-button v-else @click="handleView(record)" type="link">停用</a-button>
-            <a-button @click="handleView(record)" type="link" danger>删除</a-button>
+            <a-button v-else @click="handleEnable(record, 0)" type="link">停用</a-button>
+            <a-button @click="handleDelete(record)" type="link" danger>删除</a-button>
           </template>
         </template>
       </a-table>
@@ -75,7 +75,7 @@
   </PageWrapper>
 </template>
 <script lang="ts">
-  import { defineComponent, ref, reactive } from 'vue';
+  import { defineComponent, ref, reactive, createVNode } from 'vue';
   import {
     Table,
     Form,
@@ -89,13 +89,22 @@
     RangePicker,
     Pagination,
     message,
+    Modal,
   } from 'ant-design-vue';
 
   import { openWindow } from '/@/utils';
   import { PageWrapper } from '/@/components/Page';
   import check from './check.vue';
   import dayjs from 'dayjs';
-  import { getStaffList, postStaffInfo, putStaffInfo } from '/@/api/staff/index';
+  import {
+    getStaffList,
+    postStaffInfo,
+    putStaffInfo,
+    postStaffRole,
+    postStaffEnable,
+  } from '/@/api/staff/index';
+  import { ExclamationCircleOutlined } from '@ant-design/icons-vue';
+
   import { useRouter } from 'vue-router';
 
   export default defineComponent({
@@ -114,6 +123,7 @@
       APagination: Pagination,
       check,
       message,
+      Modal,
     },
     setup() {
       const checkRef = ref();
@@ -205,11 +215,62 @@
             message.success('新建成功');
           });
         } else {
-          putStaffInfo(item).then(() => {
-            getList();
-            message.success('编辑成功');
-          });
+          putStaffInfo(item)
+            .then(() => {
+              message.success('编辑成功');
+              return postStaffRole({
+                'staff-role': item['staff-role'],
+                'staff-id': item['staff-id'],
+              });
+            })
+            .then(() => {
+              getList();
+              message.success('权限编辑成功');
+            });
         }
+      };
+      const handleEnable = (record, enable) => {
+        console.log('====record', record);
+        Modal.confirm({
+          title: enable ? '启用' : '停用',
+          icon: createVNode(ExclamationCircleOutlined),
+          content: enable
+            ? '恢复员工访问权限，教练角色被暂停的课程也将一同恢复。'
+            : '停用后，该员工无法访问管理后台，若是教练角色，其关联的课程数据也将被暂停。',
+          onOk() {
+            console.log('OK');
+            postStaffEnable({
+              'staff-id': record.staff_id,
+              'staff-enable': enable,
+            }).then(() => {
+              getList();
+            });
+          },
+          onCancel() {
+            console.log('Cancel');
+          },
+          class: 'test',
+        });
+      };
+      const handleDelete = () => {
+        Modal.confirm({
+          title: '删除',
+          icon: createVNode(ExclamationCircleOutlined, { style: 'color:red;' }),
+          okType: 'danger',
+          okText: '删除',
+          content: createVNode(
+            'div',
+            { style: 'color:red;' },
+            '删除后，该员工无法访问管理后台；尤其注意，教练角色关联的课程数据也将被完全删除。请谨慎操作。',
+          ),
+
+          onOk() {
+            console.log('OK');
+          },
+          onCancel() {
+            console.log('Cancel');
+          },
+        });
       };
 
       return {
@@ -217,6 +278,7 @@
         checkRef,
         checkData,
         checkSubmit,
+        handleEnable,
         checkType,
         orderData,
         formState,
@@ -226,6 +288,7 @@
         formRef,
         courseList,
         statusList,
+        handleDelete,
         filterOption,
         orderTypeList,
         subtypeEnum,
@@ -289,6 +352,7 @@
           checkData.value = record;
         },
         handleCreate() {
+          checkData.value = {};
           checkRef.value.controlModal(true);
           checkType.value = 'create';
         },
