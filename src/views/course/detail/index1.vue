@@ -6,7 +6,6 @@
     @visible-change="handleVisibleChange"
     width="600px"
     @ok="handlesubmit"
-    @cancel="handelCandel"
   >
     <div :class="`${prefixCls}-form course-from pt-3px pr-3px`">
       <BasicForm @register="registerForm">
@@ -90,9 +89,13 @@
         dataRef.value = data;
         setModalProps({
           cancelText: type === 'edit' ? '取消课程' : '取消',
+          autoClose: type === 'edit' ? false : true,
           cancelButtonProps: {
             type: type === 'edit' ? 'primary' : 'default',
             danger: type === 'edit' ? true : false,
+            onClick: () => {
+              handelCandel();
+            },
           },
         });
         setType(type);
@@ -121,13 +124,23 @@
       }
 
       function handelCandel() {
-        const data = dataRef.value;
-        if (data.type === 'edit') {
-          deleteCourse(data?.formData['course_id']).then(() => {
-            emit('submitSuccess');
+        if (dataRef.value.type === 'edit') {
+          const data = dataRef.value?.formData;
+          const { display_name, course_id } = data;
+          createConfirm({
+            iconType: 'error',
+            title: '取消课程',
+            content: `确认取消【${display_name}】?删除后将无法恢复`,
+            onOk: () => {
+              deleteCourse(course_id).then(() => {
+                closeModal();
+                emit('submitSuccess');
+              });
+            },
           });
         }
       }
+
       async function handlesubmit() {
         try {
           const values = await validate();
@@ -248,7 +261,6 @@
         registerForm,
         handleVisibleChange,
         handlesubmit,
-        handelCandel,
         setTitle,
         title: titleRef,
         prefixCls,

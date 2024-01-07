@@ -1,10 +1,10 @@
 <template>
-  <Modal v-bind="getBindValue" @cancel="handleCancel">
+  <Modal v-bind="getBindValue" @cancel="handleClose">
     <template #closeIcon v-if="!$slots.closeIcon">
       <ModalClose
         :canFullscreen="getProps.canFullscreen"
         :fullScreen="fullScreenRef"
-        @cancel="handleCancel"
+        @cancel="handleClose"
         @fullscreen="handleFullScreen"
       />
     </template>
@@ -176,7 +176,7 @@
       );
 
       // 取消事件
-      async function handleCancel(e: Event) {
+      async function handleClose(e: Event) {
         e?.stopPropagation();
         // 过滤自定义关闭按钮的空白区域
         if ((e.target as HTMLElement)?.classList?.contains(prefixCls + '-close--custom')) return;
@@ -185,8 +185,24 @@
           openRef.value = !isClose;
           return;
         }
-
         openRef.value = false;
+        emit('cancel', e);
+      }
+
+      // 取消事件
+      async function handleCancel(e: Event) {
+        // 过滤自定义关闭按钮的空白区域
+        if ((e.target as HTMLElement)?.classList?.contains(prefixCls + '-close--custom')) return;
+        if (props.closeFunc && isFunction(props.closeFunc)) {
+          const isClose: boolean = await props.closeFunc();
+          openRef.value = !isClose;
+          return;
+        }
+        if (propsRef.value?.autoClose) {
+          e?.stopPropagation();
+          openRef.value = false;
+        }
+
         emit('cancel', e);
       }
 
@@ -237,6 +253,7 @@
         handleHeightChange,
         handleTitleDbClick,
         getWrapperHeight,
+        handleClose,
       };
     },
   });

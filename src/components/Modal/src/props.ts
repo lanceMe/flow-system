@@ -80,4 +80,6 @@ export const basicProps = Object.assign({}, modalProps, {
   wrapClassName: { type: String },
 
   zIndex: { type: Number },
+
+  autoClose: { type: Boolean, default: true },
 });
