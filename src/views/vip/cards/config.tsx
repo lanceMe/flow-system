@@ -27,11 +27,27 @@ export function getFormSchema(data): FormSchema[] {
       dynamicDisabled,
       componentProps: {
         options: [
-          { label: '课程卡-中级私教', value: 'privatelv1', key: 'privatelv1' },
-          { label: '课程卡-高级私教', value: 'privatelv2', key: 'privatelv2' },
-          { label: '课程卡-团课', value: 'group', key: 'group' },
-          { label: 'Daypass-次数卡', value: 'daypass1', key: 'daypass1' },
-          { label: 'Daypass-时间卡', value: 'daypass2', key: 'daypass2' },
+          { label: '成人中级私教', value: 'privatelv1', key: 'privatelv1' },
+          { label: '成人高级私教', value: 'privatelv2', key: 'privatelv2' },
+          { label: '私教体验课', value: 'trialprivate', key: 'trialprivate' },
+          { label: '青少年中级私教', value: 'teenprivatelv1', key: 'teenprivatelv1' },
+          { label: '青少年高级私教', value: 'teenprivatelv2', key: 'teenprivatelv2' },
+          { label: '成人团课', value: 'group', key: 'group' },
+          { label: '青少年团课', value: 'teengroup', key: 'teengroup' },
+          { label: '体验团课', value: 'trialgroup', key: 'trialgroup' },
+          { label: 'Daypass', value: 'daypass', key: 'daypass' },
+        ],
+      },
+    },
+    {
+      field: `subType`,
+      component: 'Select',
+      colProps: { xl: 6, xxl: 6 },
+      componentProps: {
+        placeholder: '二级卡种',
+        options: [
+          { label: '时间卡', value: 'time', key: 'time' },
+          { label: '次数卡', value: 'bundle', key: 'bundle' },
         ],
       },
     },
