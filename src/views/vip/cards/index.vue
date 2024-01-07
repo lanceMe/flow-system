@@ -52,7 +52,7 @@
         },
       });
 
-      const searchParam = ref({ name: '', channel: '', type: '' });
+      const searchParam = ref({ subType: '', type: '' });
 
       const [registerModal, { openModal: openModal }] = useModal();
       const { prefixCls } = useDesign('vip-cards');
@@ -83,17 +83,10 @@
 
       //本地过滤筛选结果
       function afterFetch(data: []) {
-        const { name: n, type: t, channel: c } = searchParam.value;
+        const { subType: st, type: t } = searchParam.value;
         const filterData = data.filter((item) => {
-          const { name, type, class: cn, channel } = item;
-          return (
-            (!n || name === n) &&
-            (!c || channel === c) &&
-            (!t ||
-              type === t ||
-              (t === 'daypass1' && type === 'daypass' && cn === 'bundle') ||
-              (t === 'daypass2' && type === 'daypass' && cn === 'time'))
-          );
+          const { type, class: cn } = item;
+          return (!t || type === t) && (!st || cn === st);
         });
         return filterData;
       }
