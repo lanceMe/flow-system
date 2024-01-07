@@ -74,8 +74,7 @@
 
       function init() {
         getWxUser(id).then((resp) => {
-          console.log(resp, 8888);
-          profile.value = resp;
+          profile.value = { 'wxuser-token': id, ...resp };
           creatAt.value = resp?.created_at ? formatToDateTime(resp.created_at) : '--';
         });
       }
@@ -93,8 +92,9 @@
       }
 
       function reLoad() {
-        console.log(23424234);
-        init();
+        setTimeout(() => {
+          init();
+        }, 1);
       }
 
       return {

@@ -14,7 +14,7 @@
           <TableAction
             :actions="[
               { label: '查看', onClick: handleView.bind(null, record) },
-              // { label: '编辑', onClick: handleEdit.bind(null, record), disabled: true },
+              { label: '编辑', onClick: handleEdit.bind(null, record) },
             ]"
           />
         </template>
@@ -23,20 +23,20 @@
         <!-- <a-button type="primary" @click="createCourse" :disabled="true"> 创建会员卡 </a-button> -->
       </template>
     </BasicTable>
-    <Modal @register="registerModal" @submit-success="changeCourseList" />
+    <Modal @register="registerModal" @submit-success="changeVipList" />
   </div>
 </template>
 <script lang="ts">
   import { defineComponent, ref } from 'vue';
   import { BasicTable, useTable, TableAction } from '/@/components/Table';
   import { getTableColumns, getFormConfig } from './config';
-  import { getVipExpiring } from '/@/api/cards';
+  import { getVipExpiring, getWxUser } from '/@/api/cards';
   import { useModal } from '/@/components/Modal';
-  import Modal from '/@/views/course/detail/index.vue';
   import { useDesign } from '/@/hooks/web/useDesign';
   import { Avatar } from 'ant-design-vue';
   import defaultAvatar from '/@/assets/images/header.jpg';
   import { useRouter } from 'vue-router';
+  import Modal from '/@/views/vip/member/detail/editUser.vue';
 
   export default defineComponent({
     components: { BasicTable, TableAction, Modal, Avatar },
@@ -66,8 +66,13 @@
       const [registerModal, { openModal: openModal }] = useModal();
       const { prefixCls } = useDesign('vip-cards');
       function handleEdit(event: any) {
-        console.log('handleEdit', event);
-        openModal(true, { type: 'edit', formData: event });
+        getWxUser(event['wxuser_token']).then((resp) => {
+          openModal(true, {
+            type: 'edit',
+            formData: event,
+            userData: { 'wxuser-token': event['wxuser_token'], ...resp },
+          });
+        });
       }
 
       function handleView(event: any) {
@@ -79,8 +84,10 @@
         openModal(true, { type: 'create' });
       }
 
-      function changeCourseList() {
-        reload();
+      function changeVipList() {
+        setTimeout(() => {
+          reload();
+        }, 1);
       }
 
       //本地存储筛选信息
@@ -121,7 +128,7 @@
         handleView,
         registerModal,
         openModal,
-        changeCourseList,
+        changeVipList,
         prefixCls,
         defaultAvatar,
         handleAvaterClick,
