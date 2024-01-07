@@ -30,6 +30,7 @@
   import { FormSchema } from '/@/components/Form';
   import { useMessage } from '/@/hooks/web/useMessage';
   import { useRouter } from 'vue-router';
+  import { encode } from '/@/utils/base64';
 
   export default defineComponent({
     components: { BasicModal, BasicForm },
@@ -90,14 +91,17 @@
           case 'deduct':
             params = {
               'cardins-id': formData['cardins_id'],
-              attr: expire_date ? 'expire_date' : 'max_consume_times',
-              value: expire_date || max_consume_times,
+              attr: expire_date ? 'expire_date' : 'expire_date',
+              value: expire_date || expire_date,
             };
             break;
           case 'bind':
             params = {
               'wxuser-token': id,
               'cardcat-id': values['cardcat-id'],
+              'cardins-count': values['cardins-count'],
+              'seller-staff-id': values['seller-staff-id'],
+              'checkin-remarks': encode(values['checkin-remarks']),
             };
             break;
           case 'stop':
