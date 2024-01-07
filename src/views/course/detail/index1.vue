@@ -6,6 +6,7 @@
     @visible-change="handleVisibleChange"
     width="600px"
     @ok="handlesubmit"
+    @cancel="handelCandel"
   >
     <div :class="`${prefixCls}-form course-from pt-3px pr-3px`">
       <BasicForm @register="registerForm">
@@ -45,9 +46,10 @@
   import { ApiSelect, BasicForm, useForm } from '/@/components/Form/index';
   import { getFormSchema1 } from '/@/views/course/config';
   import { useDesign } from '/@/hooks/web/useDesign';
-  import { createCourse, editCourse, getTempleteList } from '/@/api/course';
+  import { createCourse, editCourse, getTempleteList, deleteCourse } from '/@/api/course';
   import { encode } from '/@/utils/base64';
   import dayjs from 'dayjs';
+  import { useMessage } from '/@/hooks/web/useMessage';
 
   export default defineComponent({
     components: { BasicModal, BasicForm, ApiSelect },
@@ -56,13 +58,16 @@
     },
     emits: ['register', 'submitSuccess'],
     setup(props, { emit }) {
-      const dataRef = ref({});
+      const dataRef = ref<any>({});
       const titleRef = ref('');
       const { prefixCls } = useDesign('course');
       const schemas = getFormSchema1(dataRef.value);
       const couseTemplete = ref<any>({});
       const options = ref([]);
+      const cancelText = ref('取消');
 
+      const { createConfirm } = useMessage();
+      // const cancelButtonProps = ref(null);
       const [registerForm, { updateSchema, validate, resetFields, getFieldsValue }] = useForm({
         // labelWidth: 120,
         schemas,
@@ -75,7 +80,7 @@
         },
       });
 
-      const [registerModal, { closeModal }] = useModalInner((data) => {
+      const [registerModal, { closeModal, setModalProps }] = useModalInner((data) => {
         data && onDataReceive(data);
       });
 
@@ -83,6 +88,13 @@
         console.log('Data Received', data);
         const { type } = data;
         dataRef.value = data;
+        setModalProps({
+          cancelText: type === 'edit' ? '取消课程' : '取消',
+          cancelButtonProps: {
+            type: type === 'edit' ? 'primary' : 'default',
+            danger: type === 'edit' ? true : false,
+          },
+        });
         setType(type);
         setFormData(data);
       }
@@ -108,6 +120,14 @@
         v && props.userData && nextTick(() => onDataReceive(props.userData));
       }
 
+      function handelCandel() {
+        const data = dataRef.value;
+        if (data.type === 'edit') {
+          deleteCourse(data?.formData['course_id']).then(() => {
+            emit('submitSuccess');
+          });
+        }
+      }
       async function handlesubmit() {
         try {
           const values = await validate();
@@ -228,6 +248,7 @@
         registerForm,
         handleVisibleChange,
         handlesubmit,
+        handelCandel,
         setTitle,
         title: titleRef,
         prefixCls,
@@ -235,6 +256,7 @@
         handleCouseChange,
         getTempleteList,
         afterFetchFn,
+        cancelText,
       };
     },
   });

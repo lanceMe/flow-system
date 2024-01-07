@@ -23,7 +23,7 @@
           <ADatePicker
             :allowClear="false"
             v-model:value="curDate"
-            format="第ww周"
+            format="第w周"
             picker="week"
             @change="onDatePickerChange"
           />
