@@ -19,8 +19,12 @@ export function getFormConfig(): Partial<FormProps> {
         componentProps: {
           placeholder: '卡别',
           options: [
-            { label: '团课', value: 'group', key: 'group' },
-            { label: '私教课', value: 'privatelv1,privatelv2', key: 'privatelv1,privatelv2' },
+            { label: '团课', value: 'group,teengroup', key: 'group,teengroup' },
+            {
+              label: '私教课',
+              value: 'privatelv1,privatelv2,teenprivatelv1,teenprivatelv2',
+              key: 'privatelv1,privatelv2,teenprivatelv1,teenprivatelv2',
+            },
           ],
         },
       },

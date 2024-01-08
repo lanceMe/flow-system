@@ -44,7 +44,9 @@
       const [registerTable, { reload }] = useTable({
         api: getVipExpiring,
         columns: getTableColumns(),
-        searchInfo: { 'cardcat-type': 'group,privatelv1,privatelv2' },
+        searchInfo: {
+          'cardcat-type': 'group,privatelv1,privatelv2,teengroup,teenprivatelv1,teenprivatelv2',
+        },
         canResize: false,
         bordered: true,
         useSearchForm: true,
@@ -52,7 +54,7 @@
         showTableSetting: true,
         tableSetting: { fullScreen: true },
         handleSearchInfoFn,
-        afterFetch,
+        // afterFetch,
         // showIndexColumn: false,
         actionColumn: {
           width: 200,
@@ -94,23 +96,6 @@
       function handleSearchInfoFn(params) {
         searchParam.value = params;
         return params;
-      }
-
-      //本地过滤筛选结果
-      function afterFetch(data: []) {
-        const { name: n, type: t, channel: c } = searchParam.value;
-        const filterData = data.filter((item) => {
-          const { name, type, class: cn, channel } = item;
-          return (
-            (!n || name === n) &&
-            (!c || channel === c) &&
-            (!t ||
-              type === t ||
-              (t === 'daypass1' && type === 'daypass' && cn === 'bundle') ||
-              (t === 'daypass2' && type === 'daypass' && cn === 'time'))
-          );
-        });
-        return filterData;
       }
 
       function handleAvaterClick(record) {

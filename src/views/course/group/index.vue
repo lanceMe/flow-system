@@ -82,16 +82,26 @@
   const Color = {
     normal: {
       group: '#75855D',
+      teengroup: '#75855D',
+      trialgroup: '#75855D',
       open: '#C8D67A',
       privatelv1: '#EED5D2',
       privatelv2: '#f3d1cd',
+      trialprivate: '#EED5D2',
+      teenprivatelv1: '#EED5D2',
+      teenprivatelv2: '#EED5D2',
       special: '#cde6c7',
     },
     expired: {
       group: 'rgba(117, 133, 93, 0.8)',
+      teengroup: 'rgba(117, 133, 93, 0.8)',
+      trialgroup: 'rgba(117, 133, 93, 0.8)',
       open: 'rgba(200, 214, 122, 0.8)',
       privatelv1: 'rgba(238, 213, 210, 0.8)',
       privatelv2: 'rgb(243, 209, 205,0.8)',
+      trialprivate: 'rgba(238, 213, 210, 0.8)',
+      teenprivatelv1: 'rgb(243, 209, 205,0.8)',
+      teenprivatelv2: 'rgba(238, 213, 210, 0.8)',
       special: 'rgb(205, 230, 199,0.8)',
     },
   };
@@ -178,14 +188,13 @@
               }
               if (isInCoachs) {
                 //通过课程类型筛选
-                if (
-                  props.type === 'private' &&
-                  (course.type === 'privatelv1' || course.type === 'privatelv2')
-                ) {
+                if (props.type === 'private' && course?.type?.includes('private')) {
                   isAvable = true;
                 } else if (
                   props.type === 'groupopen' &&
-                  (course.type === 'open' || course.type === 'group' || course.type === 'special')
+                  (course.type === 'open' ||
+                    course?.type?.includes('group') ||
+                    course.type === 'special')
                 ) {
                   isAvable = true;
                 }

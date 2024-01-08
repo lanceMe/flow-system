@@ -238,15 +238,12 @@
         const { courseType: type } = dataRef.value as any;
         const list = [];
         for (const course of res) {
-          if (
-            type === 'private' &&
-            (course['ctpl_type'] === 'privatelv1' || course['ctpl_type'] === 'privatelv2')
-          ) {
+          if (type === 'private' && course?.['ctpl_type']?.includes('private')) {
             list.push(course);
           } else if (
             type === 'groupopen' &&
             (course['ctpl_type'] === 'open' ||
-              course['ctpl_type'] === 'group' ||
+              course?.['ctpl_type']?.includes('group') ||
               course['ctpl_type'] === 'special')
           ) {
             list.push(course);
