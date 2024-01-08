@@ -102,6 +102,7 @@
     putStaffInfo,
     postStaffRole,
     postStaffEnable,
+    deleteStaffEnable,
   } from '/@/api/staff/index';
   import { ExclamationCircleOutlined } from '@ant-design/icons-vue';
 
@@ -252,7 +253,7 @@
           class: 'test',
         });
       };
-      const handleDelete = () => {
+      const handleDelete = (record) => {
         Modal.confirm({
           title: '删除',
           icon: createVNode(ExclamationCircleOutlined, { style: 'color:red;' }),
@@ -266,6 +267,11 @@
 
           onOk() {
             console.log('OK');
+            deleteStaffEnable({
+              'staff-id': record.staff_id,
+            }).then(() => {
+              getList();
+            });
           },
           onCancel() {
             console.log('Cancel');

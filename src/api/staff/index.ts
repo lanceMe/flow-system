@@ -45,3 +45,7 @@ export function postStaffRole(params) {
 export function postStaffEnable(params) {
   return request.post({ url: '/v1/staff_enable', params });
 }
+
+export function deleteStaffEnable(params) {
+  return request.delete({ url: '/v1/staff', params });
+}
