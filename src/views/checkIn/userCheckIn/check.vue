@@ -186,9 +186,9 @@
         if (item?.cardcat_class === 'bundle') {
           leftTimes = (item?.cardins_max_consume_times || 0) - (item?.cardins_consume_times || 0);
         }
-        const leftTimesStr = leftTimes !== undefined && leftTimes > 0 ? `剩余${leftTimes}次,` : '';
-        const expireDateStr = `${item?.cardins_expire_date || '--'}过期`;
-        item.showTitle = `${item.cardcat_name}(${status},${leftTimesStr}${expireDateStr})`;
+        const leftTimesStr = leftTimes !== undefined && leftTimes > 0 ? `,剩余${leftTimes}次` : '';
+        const expireDateStr = item?.cardins_expire_date ? `,${item?.cardins_expire_date}过期` : '';
+        item.showTitle = `${item.cardcat_name}(${status}${leftTimesStr}${expireDateStr})`;
 
         return item.cardcat_type === 'daypass';
       });
