@@ -42,7 +42,7 @@
       const dataRef = ref({});
       const { prefixCls } = useDesign('user');
       const { id } = useRouter()?.currentRoute?.value?.query || {};
-      const [registerForm, { validate, updateSchema }] = useForm({
+      const [registerForm, { validate, updateSchema, resetFields }] = useForm({
         schemas: getUserSchema(dataRef.value),
         showActionButtonGroup: false,
         baseColProps: {
@@ -122,7 +122,7 @@
       }
 
       async function setFormData(schemas) {
-        // resetSchema(schemas);
+        await resetFields();
         await updateSchema(schemas);
       }
 
