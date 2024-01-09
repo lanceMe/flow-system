@@ -150,7 +150,7 @@
     }
   }
 
-  .ant-btn-dangerous {
-    background-color: #ed6f6f !important;
-  }
+  // .ant-btn-dangerous {
+  //   background-color: #ed6f6f !important;
+  // }
 </style>

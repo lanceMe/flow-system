@@ -198,7 +198,8 @@
           openRef.value = !isClose;
           return;
         }
-        if (propsRef.value?.autoClose) {
+
+        if (propsRef.value?.autoClose === undefined || propsRef.value?.autoClose) {
           e?.stopPropagation();
           openRef.value = false;
         }

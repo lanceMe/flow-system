@@ -19,3 +19,17 @@ rm -rf dist
 #解压
 unzip dist.zip
 rm -rf dist.zip
+
+
+#进入websiteDev目录
+scp -r dist.zip root@110.42.244.233:/etc/nginx/websiteDev/
+#登录到远程
+ssh root@110.42.244.233
+cd /etc/nginx/websiteDev
+#删除dist文件夹
+rm -rf dist
+
+#解压
+unzip dist.zip
+rm -rf dist.zip
+
