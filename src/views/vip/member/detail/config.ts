@@ -48,6 +48,7 @@ export function getUserSchema(data): FormSchema[] {
       component: 'ImageUpload',
       label: '头像',
       defaultValue: d?.['avatar_fileid'] || '',
+      required: true,
       componentProps: {
         apiRespKey: 'data.url',
         api: (option) => {
