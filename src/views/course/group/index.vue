@@ -171,7 +171,7 @@
         slotMinTime: '08:00:00',
         slotMaxTime: '24:00:00',
         slotDuration: '01:00:00',
-        contentHeight: 520,
+        contentHeight: 580,
         // scrollTime: '08:00:00',
         scrollTime: dayjs().subtract(1, 'h').format('HH:mm:00'),
         nowIndicator: true,
