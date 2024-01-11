@@ -326,8 +326,8 @@ export function getFormSchema1(
       ? dayjs(c.endStr)
       : undefined;
 
-  const start = startDate?.format('YYYY-MM-DD HH:mm:sss') || '';
-  const end = endDate?.format('YYYY-MM-DD HH:mm:sss') || '';
+  const start = startDate?.format('YYYY-MM-DD HH:mm') || '';
+  const end = endDate?.format('YYYY-MM-DD HH:mm') || '';
   const ret: FormSchema[] = [
     {
       field: 'course_templete_id',

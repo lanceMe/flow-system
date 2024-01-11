@@ -24,24 +24,24 @@ const course: AppRouteModule = {
       },
       component: () => import('/@/views/course/group/index.vue'),
       meta: {
-        title: '团课管理',
+        title: '排课管理',
         roles: [RoleEnum.ADMIN, RoleEnum.MANAGER, RoleEnum.RECEPTION, RoleEnum.COACH],
         // hideMenu: true,
       },
     },
-    {
-      path: 'private',
-      name: 'private',
-      component: () => import('/@/views/course/group/index.vue'),
-      props: {
-        type: 'private',
-      },
-      meta: {
-        title: '私教课管理',
-        roles: [RoleEnum.ADMIN, RoleEnum.MANAGER, RoleEnum.RECEPTION, RoleEnum.COACH],
-        // hideMenu: true,
-      },
-    },
+    // {
+    //   path: 'private',
+    //   name: 'private',
+    //   component: () => import('/@/views/course/group/index.vue'),
+    //   props: {
+    //     type: 'private',
+    //   },
+    //   meta: {
+    //     title: '私教课管理',
+    //     roles: [RoleEnum.ADMIN, RoleEnum.MANAGER, RoleEnum.RECEPTION, RoleEnum.COACH],
+    //     // hideMenu: true,
+    //   },
+    // },
     {
       path: 'index',
       name: 'CourseList',

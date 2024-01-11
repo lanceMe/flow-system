@@ -234,22 +234,23 @@
       }
 
       function afterFetchFn(res: []) {
-        if (!res || res.length < 1) return res;
-        const { courseType: type } = dataRef.value as any;
-        const list = [];
-        for (const course of res) {
-          if (type === 'private' && course?.['ctpl_type']?.includes('private')) {
-            list.push(course);
-          } else if (
-            type === 'groupopen' &&
-            (course['ctpl_type'] === 'open' ||
-              course?.['ctpl_type']?.includes('group') ||
-              course['ctpl_type'] === 'special')
-          ) {
-            list.push(course);
-          }
-        }
-        return list;
+        return res;
+        // if (!res || res.length < 1) return res;
+        // const { courseType: type } = dataRef.value as any;
+        // const list = [];
+        // for (const course of res) {
+        //   if (type === 'private' && course?.['ctpl_type']?.includes('private')) {
+        //     list.push(course);
+        //   } else if (
+        //     type === 'groupopen' &&
+        //     (course['ctpl_type'] === 'open' ||
+        //       course?.['ctpl_type']?.includes('group') ||
+        //       course['ctpl_type'] === 'special')
+        //   ) {
+        //     list.push(course);
+        //   }
+        // }
+        // return list;
       }
 
       return {

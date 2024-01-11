@@ -9,6 +9,15 @@
     <div :class="`${prefixCls}-calendar__toolbar`">
       <div class="date-title">{{ curDate.format('YYYY年M月') }}</div>
       <div class="toolbar">
+        <ASelect
+          placeholder="全部课程"
+          style="width: 200px"
+          allowClear
+          @change="onCourseTypeChange"
+        >
+          <a-select-option value="groupopen">团课</a-select-option>
+          <a-select-option value="private">私教课</a-select-option>
+        </ASelect>
         <ApiSelect
           :api="getCoachList"
           labelField="nickname"
@@ -69,7 +78,7 @@
     getTempleteList,
   } from '/@/api/course';
   import { ApiSelect } from '/@/components/Form';
-  import { DatePicker as ADatePicker } from 'ant-design-vue';
+  import { DatePicker as ADatePicker, Select, SelectOption } from 'ant-design-vue';
   import FullCalendar from '@fullcalendar/vue3';
   // import dayGridPlugin from '@fullcalendar/daygrid';
   import { CalendarOptions } from '@fullcalendar/core';
@@ -107,7 +116,15 @@
   };
 
   export default defineComponent({
-    components: { PageWrapper, Modal, ApiSelect, ADatePicker, FullCalendar },
+    components: {
+      PageWrapper,
+      Modal,
+      ApiSelect,
+      ADatePicker,
+      FullCalendar,
+      ASelect: Select,
+      ASelectOption: SelectOption,
+    },
     props: {
       loading: Boolean,
       width: {
@@ -131,6 +148,7 @@
       const curDate = ref(dayjs());
       const fulcalendarRef = ref<any>(null);
       const coachIds = ref([]);
+      const courseType = ref<string | undefined>(undefined);
       let counter = 0;
       let timer: any = -1;
       const router = useRouter();
@@ -187,11 +205,14 @@
                 isInCoachs = coachs.indexOf(course['coach_id']) !== -1;
               }
               if (isInCoachs) {
+                if (courseType.value === undefined) {
+                  isAvable = true;
+                }
                 //通过课程类型筛选
-                if (props.type === 'private' && course?.type?.includes('private')) {
+                else if (courseType.value === 'private' && course?.type?.includes('private')) {
                   isAvable = true;
                 } else if (
-                  props.type === 'groupopen' &&
+                  courseType.value === 'groupopen' &&
                   (course.type === 'open' ||
                     course?.type?.includes('group') ||
                     course.type === 'special')
@@ -340,6 +361,12 @@
         // opts.initialDate = date.format('YYYY-MM-DD');
       }
 
+      function onCourseTypeChange(event) {
+        courseType.value = event;
+        const calendarApi = fulcalendarRef.value?.getApi();
+        calendarApi?.refetchEvents();
+      }
+
       function importCourse(event: any) {
         console.log('importCourse', event);
       }
@@ -367,6 +394,7 @@
         handleCoachChange,
         onDatePickerChange,
         handleBbClick,
+        onCourseTypeChange,
       };
     },
   });
