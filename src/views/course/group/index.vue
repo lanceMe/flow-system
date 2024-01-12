@@ -11,12 +11,21 @@
       <div class="toolbar">
         <ASelect
           placeholder="全部课程"
-          style="width: 200px"
+          style="width: 300px"
           allowClear
+          mode="multiple"
           @change="onCourseTypeChange"
         >
-          <a-select-option value="groupopen">团课</a-select-option>
-          <a-select-option value="private">私教课</a-select-option>
+          <a-select-option value="group">成人团课</a-select-option>
+          <a-select-option value="teengroup">青少年团课</a-select-option>
+          <a-select-option value="trialgroup">体验团课</a-select-option>
+          <a-select-option value="open">公开课</a-select-option>
+          <a-select-option value="privatelv1">成人中级私教</a-select-option>
+          <a-select-option value="privatelv2">成人高级私教</a-select-option>
+          <a-select-option value="trialprivate">私教体验课</a-select-option>
+          <a-select-option value="teenprivatelv1">青少年中级私教</a-select-option>
+          <a-select-option value="teenprivatelv2">青少年高级私教</a-select-option>
+          <a-select-option value="special">特殊课程</a-select-option>
         </ASelect>
         <ApiSelect
           :api="getCoachList"
@@ -148,7 +157,7 @@
       const curDate = ref(dayjs());
       const fulcalendarRef = ref<any>(null);
       const coachIds = ref([]);
-      const courseType = ref<string | undefined>(undefined);
+      const courseType = ref([]);
       let counter = 0;
       let timer: any = -1;
       const router = useRouter();
@@ -205,18 +214,11 @@
                 isInCoachs = coachs.indexOf(course['coach_id']) !== -1;
               }
               if (isInCoachs) {
-                if (courseType.value === undefined) {
+                if (courseType.value?.length === 0) {
                   isAvable = true;
                 }
                 //通过课程类型筛选
-                else if (courseType.value === 'private' && course?.type?.includes('private')) {
-                  isAvable = true;
-                } else if (
-                  courseType.value === 'groupopen' &&
-                  (course.type === 'open' ||
-                    course?.type?.includes('group') ||
-                    course.type === 'special')
-                ) {
+                else if (courseType?.value?.indexOf(course?.type) !== -1) {
                   isAvable = true;
                 }
               }
