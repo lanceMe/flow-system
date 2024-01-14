@@ -48,7 +48,7 @@
 
       <h5 style="font-size: 16px">{{ getWeek() }} | {{ getDate() }}</h5>
       <div class="reserve-item" v-for="item in courseList" :key="item.course_id">
-        <div style="display: flex; flex-direction: row" size="middle">
+        <div style=" display: flex; flex-direction: row;padding: 10px" size="middle">
           <div class="course-name margin-right-10">{{ item.course_display_name }}</div>
           <div class="margin-right-10">{{ item.course_start_time }}</div>
           <div class="margin-right-10">{{ item.coach_nickname }}</div>
@@ -389,7 +389,8 @@
 <style lang="less">
   .reserve-item {
     padding-bottom: 15px;
-    border-bottom: 1px solid #000;
+    background-color: #fff;
+    box-shadow: 2px 2px 5px #bbb;
 
     .course-name {
       font-weight: 500;
