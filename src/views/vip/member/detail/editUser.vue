@@ -42,7 +42,7 @@
       const dataRef = ref({});
       const { prefixCls } = useDesign('user');
       const { id } = useRouter()?.currentRoute?.value?.query || {};
-      const [registerForm, { validate, updateSchema }] = useForm({
+      const [registerForm, { validate, updateSchema, resetFields }] = useForm({
         schemas: getUserSchema(dataRef.value),
         showActionButtonGroup: false,
         baseColProps: {
@@ -82,18 +82,26 @@
         const reqParamlist: any[] = [];
         console.log(d.nickname, values.nickname, d.nickname === values.nickname);
         if (d.nickname !== values.nickname)
-          reqParamlist.push({ 'wxuser-token': id, attr: 'nickname', value: values.nickname });
+          reqParamlist.push({
+            'wxuser-token': d['wxuser-token'],
+            attr: 'nickname',
+            value: values.nickname,
+          });
         if (d.phone_number !== values.phone)
-          reqParamlist.push({ 'wxuser-token': id, attr: 'phone', value: values.phone });
+          reqParamlist.push({
+            'wxuser-token': d['wxuser-token'],
+            attr: 'phone',
+            value: values.phone,
+          });
         if (d.avatar_fileid !== values.avatar_fileid)
           reqParamlist.push({
-            'wxuser-token': id,
+            'wxuser-token': d['wxuser-token'],
             attr: 'avatar_fileid',
             value: values.avatar_fileid,
           });
         if (d.remarks != values.remarks)
           reqParamlist.push({
-            'wxuser-token': id,
+            'wxuser-token': d['wxuser-token'],
             attr: 'remarks',
             value: values.remarks,
           });
@@ -114,7 +122,7 @@
       }
 
       async function setFormData(schemas) {
-        // resetSchema(schemas);
+        await resetFields();
         await updateSchema(schemas);
       }
 

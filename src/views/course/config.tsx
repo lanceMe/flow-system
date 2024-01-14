@@ -30,10 +30,15 @@ export function getFormSchema(
       dynamicDisabled,
       componentProps: {
         options: [
-          { label: '团课', value: 'group', key: 'group' },
+          { label: '成人团课', value: 'group', key: 'group' },
+          { label: '青少年团课', value: 'teengroup', key: 'teengroup' },
+          { label: '体验团课', value: 'trialgroup', key: 'trialgroup' },
           { label: '公开课', value: 'open', key: 'open' },
-          { label: '中级私教课', value: 'privatelv1', key: 'privatelv1' },
-          { label: '高级私教课', value: 'privatelv2', key: 'privatelv2' },
+          { label: '成人中级私教', value: 'privatelv1', key: 'privatelv1' },
+          { label: '成人高级私教', value: 'privatelv2', key: 'privatelv2' },
+          { label: '私教体验课', value: 'trialprivate', key: 'trialprivate' },
+          { label: '青少年中级私教', value: 'teenprivatelv1', key: 'teenprivatelv1' },
+          { label: '青少年高级私教', value: 'teenprivatelv2', key: 'teenprivatelv2' },
           { label: '特殊课程', value: 'special', key: 'special' },
         ],
       },
@@ -238,16 +243,31 @@ export function getTableColumns(): BasicColumn[] {
         let formatText = type;
         switch (type) {
           case 'group':
-            formatText = '团课';
+            formatText = '成人团课';
+            break;
+          case 'teengroup':
+            formatText = '青少年团课';
+            break;
+          case 'trialgroup':
+            formatText = '体验团课';
             break;
           case 'open':
             formatText = '公开课';
             break;
           case 'privatelv1':
-            formatText = '中级私教课';
+            formatText = '成人中级私教';
             break;
           case 'privatelv2':
-            formatText = '高级私教课';
+            formatText = '成人高级私教';
+            break;
+          case 'trialprivate':
+            formatText = '私教体验课';
+            break;
+          case 'teenprivatelv1':
+            formatText = '青少年中级私教';
+            break;
+          case 'teenprivatelv2':
+            formatText = '青少年高级私教';
             break;
           case 'special':
             formatText = '特殊课程';
@@ -306,8 +326,8 @@ export function getFormSchema1(
       ? dayjs(c.endStr)
       : undefined;
 
-  const start = startDate?.format('YYYY-MM-DD HH:mm:sss') || '';
-  const end = endDate?.format('YYYY-MM-DD HH:mm:sss') || '';
+  const start = startDate?.format('YYYY-MM-DD HH:mm') || '';
+  const end = endDate?.format('YYYY-MM-DD HH:mm') || '';
   const ret: FormSchema[] = [
     {
       field: 'course_templete_id',

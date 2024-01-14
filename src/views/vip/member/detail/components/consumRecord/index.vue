@@ -12,20 +12,28 @@
             :actions="[
               {
                 label: '续卡',
-                disabled: true,
                 onClick: handleOperation.bind(null, 'renew', record),
               },
               {
                 label: '扣费',
-                disabled: true,
+                disabled:
+                  record.cardins_status !== 'inactive' && record.cardins_status !== 'active',
                 onClick: handleOperation.bind(null, 'deduct', record),
               },
               {
                 label: '停卡',
                 disabled: true,
+                // disabled:
+                //   record.cardins_status !== 'inactive' && record.cardins_status !== 'active',
                 onClick: handleOperation.bind(null, 'stop', record),
               },
-              { label: '作废', disabled: true, onClick: handleBan.bind(null, record) },
+              {
+                label: '作废',
+                disabled: true,
+                // disabled:
+                //   record.cardins_status !== 'inactive' && record.cardins_status !== 'active',
+                onClick: handleBan.bind(null, record),
+              },
             ]"
           />
         </template>
@@ -38,7 +46,7 @@
   </div>
 </template>
 <script lang="ts">
-  import { defineComponent } from 'vue';
+  import { defineComponent, nextTick } from 'vue';
   import { BasicTable, useTable, TableAction } from '/@/components/Table';
   import { getTableColumns, getTableColumns1 } from './config';
   import { getUserCardList, getcardRecordList } from '/@/api/cards';
@@ -48,7 +56,6 @@
   import { useModal } from '/@/components/Modal';
   import Modal from '/@/views/vip/member/detail/operation/index.vue';
   import { useMessage } from '/@/hooks/web/useMessage';
-
   import { Tag } from 'ant-design-vue';
 
   const props = {
@@ -100,11 +107,13 @@
       }
 
       function handleBan(event: any) {
-        console.log('handleBan', event);
         createConfirm({
-          iconType: 'info',
+          iconType: 'error',
           title: '作废',
+          type: 'error',
           content: '作废后，用户当前会员卡不可使用，确认操作请点击确定',
+          okButtonProps: { danger: true },
+          // okType: 'primary',
           onOk: () => {
             // postApi(values);
           },
@@ -140,4 +149,8 @@
       }
     }
   }
+
+  // .ant-btn-dangerous {
+  //   background-color: #ed6f6f !important;
+  // }
 </style>

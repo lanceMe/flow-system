@@ -194,6 +194,8 @@ export interface ModalProps {
    * @type number
    */
   zIndex?: number;
+
+  autoClose: Boolean;
 }
 
 export interface ModalWrapperProps {

@@ -45,9 +45,10 @@
   import { ApiSelect, BasicForm, useForm } from '/@/components/Form/index';
   import { getFormSchema1 } from '/@/views/course/config';
   import { useDesign } from '/@/hooks/web/useDesign';
-  import { createCourse, editCourse, getTempleteList } from '/@/api/course';
+  import { createCourse, editCourse, getTempleteList, deleteCourse } from '/@/api/course';
   import { encode } from '/@/utils/base64';
   import dayjs from 'dayjs';
+  import { useMessage } from '/@/hooks/web/useMessage';
 
   export default defineComponent({
     components: { BasicModal, BasicForm, ApiSelect },
@@ -56,13 +57,16 @@
     },
     emits: ['register', 'submitSuccess'],
     setup(props, { emit }) {
-      const dataRef = ref({});
+      const dataRef = ref<any>({});
       const titleRef = ref('');
       const { prefixCls } = useDesign('course');
       const schemas = getFormSchema1(dataRef.value);
       const couseTemplete = ref<any>({});
       const options = ref([]);
+      const cancelText = ref('取消');
 
+      const { createConfirm } = useMessage();
+      // const cancelButtonProps = ref(null);
       const [registerForm, { updateSchema, validate, resetFields, getFieldsValue }] = useForm({
         // labelWidth: 120,
         schemas,
@@ -75,7 +79,7 @@
         },
       });
 
-      const [registerModal, { closeModal }] = useModalInner((data) => {
+      const [registerModal, { closeModal, setModalProps }] = useModalInner((data) => {
         data && onDataReceive(data);
       });
 
@@ -83,6 +87,17 @@
         console.log('Data Received', data);
         const { type } = data;
         dataRef.value = data;
+        setModalProps({
+          cancelText: type === 'edit' ? '取消课程' : '取消',
+          autoClose: type === 'edit' ? false : true,
+          cancelButtonProps: {
+            type: type === 'edit' ? 'primary' : 'default',
+            danger: type === 'edit' ? true : false,
+            onClick: () => {
+              handelCandel();
+            },
+          },
+        });
         setType(type);
         setFormData(data);
       }
@@ -106,6 +121,24 @@
 
       function handleVisibleChange(v) {
         v && props.userData && nextTick(() => onDataReceive(props.userData));
+      }
+
+      function handelCandel() {
+        if (dataRef.value.type === 'edit') {
+          const data = dataRef.value?.formData;
+          const { display_name, course_id } = data;
+          createConfirm({
+            iconType: 'error',
+            title: '取消课程',
+            content: `确认取消【${display_name}】?删除后将无法恢复`,
+            onOk: () => {
+              deleteCourse(course_id).then(() => {
+                closeModal();
+                emit('submitSuccess');
+              });
+            },
+          });
+        }
       }
 
       async function handlesubmit() {
@@ -201,25 +234,23 @@
       }
 
       function afterFetchFn(res: []) {
-        if (!res || res.length < 1) return res;
-        const { courseType: type } = dataRef.value as any;
-        const list = [];
-        for (const course of res) {
-          if (
-            type === 'private' &&
-            (course['ctpl_type'] === 'privatelv1' || course['ctpl_type'] === 'privatelv2')
-          ) {
-            list.push(course);
-          } else if (
-            type === 'groupopen' &&
-            (course['ctpl_type'] === 'open' ||
-              course['ctpl_type'] === 'group' ||
-              course['ctpl_type'] === 'special')
-          ) {
-            list.push(course);
-          }
-        }
-        return list;
+        return res;
+        // if (!res || res.length < 1) return res;
+        // const { courseType: type } = dataRef.value as any;
+        // const list = [];
+        // for (const course of res) {
+        //   if (type === 'private' && course?.['ctpl_type']?.includes('private')) {
+        //     list.push(course);
+        //   } else if (
+        //     type === 'groupopen' &&
+        //     (course['ctpl_type'] === 'open' ||
+        //       course?.['ctpl_type']?.includes('group') ||
+        //       course['ctpl_type'] === 'special')
+        //   ) {
+        //     list.push(course);
+        //   }
+        // }
+        // return list;
       }
 
       return {
@@ -235,6 +266,7 @@
         handleCouseChange,
         getTempleteList,
         afterFetchFn,
+        cancelText,
       };
     },
   });

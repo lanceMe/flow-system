@@ -19,13 +19,28 @@ export function getTableColumns(): BasicColumn[] {
         let formatText = type;
         switch (type) {
           case 'privatelv1':
-            formatText = '课程卡-中级私教';
+            formatText = '成人中级私教';
             break;
           case 'privatelv2':
-            formatText = '课程卡-高级私教';
+            formatText = '成人高级私教';
+            break;
+          case 'trialprivate':
+            formatText = '私教体验课';
+            break;
+          case 'teenprivatelv1':
+            formatText = '青少年中级私教';
+            break;
+          case 'teenprivatelv2':
+            formatText = '青少年高级私教';
             break;
           case 'group':
-            formatText = '课程卡-团课';
+            formatText = '成人团课';
+            break;
+          case 'teengroup':
+            formatText = '青少年团课';
+            break;
+          case 'trialgroup':
+            formatText = '体验团课';
             break;
           case 'daypass':
             if (type1 === 'bundle') formatText = 'Daypass-次数卡';
@@ -135,11 +150,15 @@ export function getTableColumns1(): BasicColumn[] {
           case 'manual_new':
             formatText = '后台绑卡';
             break;
-          case 'manual_modify':
-            formatText = '后台划卡/延卡';
+
+          case 'manual_modify_max_times':
+            formatText = '后台划卡/延卡次数';
+            break;
+          case 'manual_modify_expire_date':
+            formatText = '后台划卡/延卡过期时间';
             break;
           case 'checkin_daypass':
-            formatText = '签到';
+            formatText = '签到（daypass扫码签到+后台签到）';
             break;
           case 'cancel_checkin_daypass':
             formatText = '取消签到';
@@ -153,11 +172,12 @@ export function getTableColumns1(): BasicColumn[] {
           case 'suspend':
             formatText = '后台停卡';
             break;
+
           case 'resume':
             formatText = '后台停卡恢复';
             break;
           case 'disable':
-            formatText = '后台作废卡';
+            formatText = '后台作废卡(不可逆转)';
             break;
           default:
             break;

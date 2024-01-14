@@ -6,18 +6,35 @@
           <template v-if="column.key === 'action'">
             <TableAction
               :actions="[
-                { label: '查看', onClick: handleView.bind(null, record), disabled: true },
                 { label: '编辑', onClick: handleEdit.bind(null, record), disabled: true },
+                {
+                  label: '可售',
+                  disabled: true,
+                  ifShow: true,
+                  onClick: handleSale.bind(null, record),
+                },
+                {
+                  label: '停售',
+                  disabled: true,
+                  ifShow: true,
+                  onClick: handleNotSale.bind(null, record),
+                },
+                {
+                  label: '删除',
+                  disabled: true,
+                  color: 'error',
+                  onClick: handleDelete.bind(null, record),
+                },
               ]"
             />
           </template>
         </template>
         <template #toolbar>
-          <a-button type="primary" @click="createCourse" :disabled="true"> 创建会员卡 </a-button>
+          <a-button type="primary" @click="createCard" :disabled="true"> 创建会员卡 </a-button>
         </template>
       </BasicTable>
     </div>
-    <Modal @register="registerModal" @submit-success="changeCourseList" />
+    <Modal @register="registerModal" @submit-success="changeCardsList" />
   </PageWrapper>
 </template>
 <script lang="ts">
@@ -27,8 +44,9 @@
   import { PageWrapper } from '/@/components/Page';
   import { getCardList } from '/@/api/cards';
   import { useModal } from '/@/components/Modal';
-  import Modal from '/@/views/course/detail/index.vue';
+  import Modal from '/@/views/vip/cards/detail/index.vue';
   import { useDesign } from '/@/hooks/web/useDesign';
+  import { useMessage } from '/@/hooks/web/useMessage';
 
   export default defineComponent({
     components: { BasicTable, TableAction, PageWrapper, Modal },
@@ -52,26 +70,65 @@
         },
       });
 
-      const searchParam = ref({ name: '', channel: '', type: '' });
+      const searchParam = ref({ subType: '', type: '' });
 
       const [registerModal, { openModal: openModal }] = useModal();
       const { prefixCls } = useDesign('vip-cards');
+      const { createConfirm } = useMessage();
+
+      function createCard(event: any) {
+        console.log('createCourse', event);
+        openModal(true, { type: 'create' });
+      }
+
       function handleEdit(event: any) {
         console.log('handleEdit', event);
         openModal(true, { type: 'edit', formData: event });
       }
 
-      function handleView(event: any) {
-        console.log('handleView', event);
-        openModal(true, { type: 'view', formData: event });
+      function handleSale(event: any) {
+        console.log('handleSale', event);
+        const { name } = event;
+        createConfirm({
+          iconType: 'info',
+          title: '可售',
+          content: `确认发售【${name}】卡?`,
+          onOk: () => {
+            // postApi(values);
+          },
+        });
+      }
+      function handleNotSale(event: any) {
+        console.log('handleNotSale', event);
+        const { name } = event;
+        createConfirm({
+          iconType: 'info',
+          title: '停售',
+          content: `确认停售【${name}】卡?停售后的卡片支持恢复销量`,
+          onOk: () => {
+            // postApi(values);
+          },
+        });
       }
 
-      function createCourse(event: any) {
-        console.log('createCourse', event);
-        openModal(true, { type: 'create' });
+      function handleDelete(event: any) {
+        console.log('handleDelete', event);
+        const { name } = event;
+        createConfirm({
+          iconType: 'error',
+          title: '删除',
+          content: `确认删除【${name}】卡?删除后将无法恢复销量`,
+          okButtonProps: {
+            danger: true,
+            type: 'primary',
+          },
+          onOk: () => {
+            // postApi(values);
+          },
+        });
       }
 
-      function changeCourseList() {
+      function changeCardsList() {
         reload();
       }
 
@@ -83,29 +140,24 @@
 
       //本地过滤筛选结果
       function afterFetch(data: []) {
-        const { name: n, type: t, channel: c } = searchParam.value;
+        const { subType: st, type: t } = searchParam.value;
         const filterData = data.filter((item) => {
-          const { name, type, class: cn, channel } = item;
-          return (
-            (!n || name === n) &&
-            (!c || channel === c) &&
-            (!t ||
-              type === t ||
-              (t === 'daypass1' && type === 'daypass' && cn === 'bundle') ||
-              (t === 'daypass2' && type === 'daypass' && cn === 'time'))
-          );
+          const { type, class: cn } = item;
+          return (!t || type === t) && (!st || cn === st);
         });
         return filterData;
       }
 
       return {
         registerTable,
-        createCourse,
+        createCard,
         handleEdit,
-        handleView,
+        handleSale,
+        handleNotSale,
+        handleDelete,
         registerModal,
         openModal,
-        changeCourseList,
+        changeCardsList,
         prefixCls,
       };
     },
@@ -124,4 +176,8 @@
       }
     }
   }
+
+  // .ant-btn-dangerous {
+  //   background-color: #ed6f6f !important;
+  // }
 </style>

@@ -9,6 +9,24 @@
     <div :class="`${prefixCls}-calendar__toolbar`">
       <div class="date-title">{{ curDate.format('YYYY年M月') }}</div>
       <div class="toolbar">
+        <ASelect
+          placeholder="全部课程"
+          style="width: 300px"
+          allowClear
+          mode="multiple"
+          @change="onCourseTypeChange"
+        >
+          <a-select-option value="group">成人团课</a-select-option>
+          <a-select-option value="teengroup">青少年团课</a-select-option>
+          <a-select-option value="trialgroup">体验团课</a-select-option>
+          <a-select-option value="open">公开课</a-select-option>
+          <a-select-option value="privatelv1">成人中级私教</a-select-option>
+          <a-select-option value="privatelv2">成人高级私教</a-select-option>
+          <a-select-option value="trialprivate">私教体验课</a-select-option>
+          <a-select-option value="teenprivatelv1">青少年中级私教</a-select-option>
+          <a-select-option value="teenprivatelv2">青少年高级私教</a-select-option>
+          <a-select-option value="special">特殊课程</a-select-option>
+        </ASelect>
         <ApiSelect
           :api="getCoachList"
           labelField="nickname"
@@ -23,7 +41,7 @@
           <ADatePicker
             :allowClear="false"
             v-model:value="curDate"
-            format="第ww周"
+            format="第w周"
             picker="week"
             @change="onDatePickerChange"
           />
@@ -69,7 +87,7 @@
     getTempleteList,
   } from '/@/api/course';
   import { ApiSelect } from '/@/components/Form';
-  import { DatePicker as ADatePicker } from 'ant-design-vue';
+  import { DatePicker as ADatePicker, Select, SelectOption } from 'ant-design-vue';
   import FullCalendar from '@fullcalendar/vue3';
   // import dayGridPlugin from '@fullcalendar/daygrid';
   import { CalendarOptions } from '@fullcalendar/core';
@@ -82,22 +100,40 @@
   const Color = {
     normal: {
       group: '#75855D',
+      teengroup: '#75855D',
+      trialgroup: '#75855D',
       open: '#C8D67A',
       privatelv1: '#EED5D2',
       privatelv2: '#f3d1cd',
+      trialprivate: '#EED5D2',
+      teenprivatelv1: '#EED5D2',
+      teenprivatelv2: '#EED5D2',
       special: '#cde6c7',
     },
     expired: {
       group: 'rgba(117, 133, 93, 0.8)',
+      teengroup: 'rgba(117, 133, 93, 0.8)',
+      trialgroup: 'rgba(117, 133, 93, 0.8)',
       open: 'rgba(200, 214, 122, 0.8)',
       privatelv1: 'rgba(238, 213, 210, 0.8)',
       privatelv2: 'rgb(243, 209, 205,0.8)',
+      trialprivate: 'rgba(238, 213, 210, 0.8)',
+      teenprivatelv1: 'rgb(243, 209, 205,0.8)',
+      teenprivatelv2: 'rgba(238, 213, 210, 0.8)',
       special: 'rgb(205, 230, 199,0.8)',
     },
   };
 
   export default defineComponent({
-    components: { PageWrapper, Modal, ApiSelect, ADatePicker, FullCalendar },
+    components: {
+      PageWrapper,
+      Modal,
+      ApiSelect,
+      ADatePicker,
+      FullCalendar,
+      ASelect: Select,
+      ASelectOption: SelectOption,
+    },
     props: {
       loading: Boolean,
       width: {
@@ -121,6 +157,7 @@
       const curDate = ref(dayjs());
       const fulcalendarRef = ref<any>(null);
       const coachIds = ref([]);
+      const courseType = ref([]);
       let counter = 0;
       let timer: any = -1;
       const router = useRouter();
@@ -143,7 +180,7 @@
         slotMinTime: '08:00:00',
         slotMaxTime: '24:00:00',
         slotDuration: '01:00:00',
-        contentHeight: 520,
+        contentHeight: 580,
         // scrollTime: '08:00:00',
         scrollTime: dayjs().subtract(1, 'h').format('HH:mm:00'),
         nowIndicator: true,
@@ -177,16 +214,11 @@
                 isInCoachs = coachs.indexOf(course['coach_id']) !== -1;
               }
               if (isInCoachs) {
-                //通过课程类型筛选
-                if (
-                  props.type === 'private' &&
-                  (course.type === 'privatelv1' || course.type === 'privatelv2')
-                ) {
+                if (courseType.value?.length === 0) {
                   isAvable = true;
-                } else if (
-                  props.type === 'groupopen' &&
-                  (course.type === 'open' || course.type === 'group' || course.type === 'special')
-                ) {
+                }
+                //通过课程类型筛选
+                else if (courseType?.value?.indexOf(course?.type) !== -1) {
                   isAvable = true;
                 }
               }
@@ -331,6 +363,12 @@
         // opts.initialDate = date.format('YYYY-MM-DD');
       }
 
+      function onCourseTypeChange(event) {
+        courseType.value = event;
+        const calendarApi = fulcalendarRef.value?.getApi();
+        calendarApi?.refetchEvents();
+      }
+
       function importCourse(event: any) {
         console.log('importCourse', event);
       }
@@ -358,6 +396,7 @@
         handleCoachChange,
         onDatePickerChange,
         handleBbClick,
+        onCourseTypeChange,
       };
     },
   });

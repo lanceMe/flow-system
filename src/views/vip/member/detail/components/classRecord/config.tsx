@@ -84,13 +84,28 @@ export function getTableColumns(): BasicColumn[] {
         let formatText = type;
         switch (type) {
           case 'privatelv1':
-            formatText = '课程卡-中级私教';
+            formatText = '成人中级私教';
             break;
           case 'privatelv2':
-            formatText = '课程卡-高级私教';
+            formatText = '成人高级私教';
+            break;
+          case 'trialprivate':
+            formatText = '私教体验课';
+            break;
+          case 'teenprivatelv1':
+            formatText = '青少年中级私教';
+            break;
+          case 'teenprivatelv2':
+            formatText = '青少年高级私教';
             break;
           case 'group':
-            formatText = '课程卡-团课';
+            formatText = '成人团课';
+            break;
+          case 'teengroup':
+            formatText = '青少年团课';
+            break;
+          case 'trialgroup':
+            formatText = '体验团课';
             break;
           case 'daypass':
             if (type1 === 'bundle') formatText = 'Daypass-次数卡';
