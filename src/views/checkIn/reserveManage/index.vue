@@ -26,10 +26,16 @@
             style="width: 200px"
             mode="multiple"
           >
-            <a-select-option value="group">团课</a-select-option>
-            <a-select-option value="privatelv1">中级私教课</a-select-option>
-            <a-select-option value="privatelv2">高级私教课</a-select-option>
+            <a-select-option value="group">成人团课</a-select-option>
+            <a-select-option value="teengroup">青少年团课</a-select-option>
+            <a-select-option value="trialgroup">体验团课</a-select-option>
             <a-select-option value="open">公开课</a-select-option>
+            <a-select-option value="privatelv1">成人中级私教</a-select-option>
+            <a-select-option value="privatelv2">成人高级私教</a-select-option>
+            <a-select-option value="trialprivate">私教体验课</a-select-option>
+            <a-select-option value="teenprivatelv1">青少年中级私教</a-select-option>
+            <a-select-option value="teenprivatelv2">青少年高级私教</a-select-option>
+            <a-select-option value="special">特殊课程</a-select-option>
           </a-select>
         </a-form-item>
         <a-form-item name="date">
@@ -46,9 +52,9 @@
         </a-form-item>
       </a-form>
 
-      <h5 style="font-size: 16px">{{ getWeek() }} | {{ getDate() }}</h5>
+      <!-- <h5 style="font-size: 16px">{{ getWeek() }} | {{ getDate() }}</h5> -->
       <div class="reserve-item" v-for="item in courseList" :key="item.course_id">
-        <div style=" display: flex; flex-direction: row;padding: 10px" size="middle">
+        <div style="display: flex; flex-direction: row" size="middle">
           <div class="course-name margin-right-10">{{ item.course_display_name }}</div>
           <div class="margin-right-10">{{ item.course_start_time }}</div>
           <div class="margin-right-10">{{ item.coach_nickname }}</div>
@@ -67,7 +73,7 @@
                 type="link"
                 v-if="record.attend_status === 'checkedin'"
                 @click="onCancelCheckIn(record, item.course_id)"
-                >取消签到</a-button
+                >取消消课</a-button
               >
               <a-button
                 type="link"
@@ -91,7 +97,7 @@
                 type="link"
                 v-if="record.attend_status === 'reserved'"
                 @click="checkInCourse(record, item.course_id)"
-                >签到</a-button
+                >消课</a-button
               >
             </template>
           </template>
@@ -188,7 +194,7 @@
       const attendStatus = ref({
         reserved: '已预约',
         waiting: '候补中',
-        checkedin: '已签到',
+        checkedin: '已消课',
         noshow: '未到场',
         cancelled: '已取消',
       });
@@ -344,7 +350,7 @@
             'wxuser-token': item.wxuser_token,
             'course-id': id,
           }).then(() => {
-            message.success('取消签到成功');
+            message.success('取消消课成功');
             getList(currentPage.current);
           });
         },
@@ -364,7 +370,7 @@
             'wxuser-token': item.wxuser_token,
             'course-id': id,
           }).then(() => {
-            message.success('签到成功');
+            message.success('消课成功');
             getList(currentPage.current);
           });
         },
@@ -388,7 +394,8 @@
 </script>
 <style lang="less">
   .reserve-item {
-    padding-bottom: 15px;
+    margin-right: 5px;
+    padding: 15px;
     background-color: #fff;
     box-shadow: 2px 2px 5px #bbb;
 

@@ -51,7 +51,7 @@
   import { useRoute, useRouter } from 'vue-router';
   import type { Rule } from 'ant-design-vue/es/form';
   import { debounce } from 'lodash-es';
-  import { getUserInfoByPhone, getCardInfo } from '/@/api/booking';
+  import { getUserInfoByPhone, getCardInfo, getCourseCardInfo } from '/@/api/booking';
   import { postReserveCourse } from '/@/api/booking/course';
   import { encode } from '/@/utils/base64';
 
@@ -128,7 +128,7 @@
     getUserInfoByPhone(value).then((body) => {
       console.log('===body', body);
       const data = body.map((user) => ({
-        label: `${user.phone_number}:${user.nickname}`,
+        label: `${user.phone_number}:${user.nickname}:${user.remarks}`,
         value: user.wxuser_token,
       }));
       phoneState.data = data;
@@ -174,12 +174,10 @@
       });
   };
   const onWxChange = (wxToken) => {
-    console.log(wxToken);
-    getCardInfo(wxToken).then((res) => {
-      cardList.value = res.filter((item) => {
-        return item.cardcat_type === courseInfo.value.course_type;
-      });
-      console.log('===getCardInfo', cardList.value);
+    console.log('====course_id', courseInfo.value['course_id']);
+    getCourseCardInfo(wxToken, courseInfo.value['course_id']).then((res) => {
+      cardList.value = res;
+      console.log('===getCardInfo', res, cardList.value);
       cardListFilter.value = cardList.value;
     });
   };

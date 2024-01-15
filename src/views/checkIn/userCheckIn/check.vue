@@ -126,7 +126,7 @@
     getUserInfoByPhone(value).then((body) => {
       console.log('===body', body);
       const data = body.map((user) => ({
-        label: `${user.phone_number}:${user.nickname}`,
+        label: `${user.phone_number}:${user.nickname}:${user.remarks}`,
         value: user.wxuser_token,
       }));
       phoneState.data = data;

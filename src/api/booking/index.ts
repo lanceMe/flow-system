@@ -4,6 +4,7 @@ enum Api {
   checkinList = '/v1/checkin_daypass',
   getUserInfo = '/v1/wxuser_by_phone',
   getCardInfo = '/v1/cardins',
+  getCourseInfo = '/v1/course',
 }
 
 /**
@@ -44,6 +45,19 @@ export function getCardInfo(token: string) {
       url: Api.getCardInfo,
       params: {
         'wxuser-token': token,
+      },
+    },
+    { returnTransformResponseDataKey: 'cardins_list' },
+  );
+}
+
+export function getCourseCardInfo(token: string, id: string) {
+  return request.get(
+    {
+      url: Api.getCourseInfo,
+      params: {
+        'wxuser-token': token,
+        'course-id': id,
       },
     },
     { returnTransformResponseDataKey: 'cardins_list' },
