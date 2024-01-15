@@ -194,11 +194,14 @@ export function getFormSchema(
     },
     {
       field: 'ctpl-description',
-      component: 'Input',
+      component: 'InputTextArea',
       label: '课程介绍',
       defaultValue: showDef ? f?.['ctpl_description'] : undefined,
       // required: true,
       dynamicDisabled,
+      componentProps: {
+        rows: 4,
+      },
     },
     // {
     //   field: 'address',
@@ -478,11 +481,14 @@ export function getFormSchema1(
     },
     {
       field: 'course-description',
-      component: 'Input',
+      component: 'InputTextArea',
       label: '课程描述',
       defaultValue: showDef ? f?.['description'] : undefined,
       // required: true,
       dynamicDisabled,
+      componentProps: {
+        rows: 4,
+      },
     },
     // {
     //   field: 'address',
