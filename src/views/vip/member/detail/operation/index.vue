@@ -47,7 +47,7 @@
       const { prefixCls } = useDesign('member-operation');
       const { createConfirm } = useMessage();
       const { id } = useRouter()?.currentRoute?.value?.query || {};
-      const [registerForm, { validate, resetSchema }] = useForm({
+      const [registerForm, { validate, resetSchema, resetFields }] = useForm({
         schemas: [],
         showActionButtonGroup: false,
         baseColProps: {
@@ -83,7 +83,7 @@
       function postApi(values) {
         const { formData, userData, type } = dataRef.value as any;
         const requestFunc = requestRef.value;
-        const { expire_date, max_consume_times } = values;
+        const { expire_date, max_consume_times, resume_date } = values;
 
         let params = {};
         switch (type) {
@@ -105,6 +105,10 @@
             };
             break;
           case 'stop':
+            params = {
+              'cardins-id': formData['cardins_id'],
+              'resume-date': resume_date,
+            };
             break;
           default:
         }
@@ -145,7 +149,7 @@
             requestRef.value = stopCard;
             schemas = getStopSchema(data);
             contentRef.value =
-              '停卡后，用户当前的会员卡有效期和次数将会暂停扣除，直到下次消费，确认炒作请点击确认';
+              '停卡后，用户当前的会员卡有效期和次数将会暂停扣除，直到下次消费，确认操作请点击确认';
             break;
 
           default:
@@ -157,6 +161,7 @@
       }
 
       async function setFormData(schemas) {
+        await resetFields();
         resetSchema(schemas);
         // await updateSchema(schemas);
       }

@@ -11,6 +11,7 @@ enum Api {
   getWxUser = '/v1/wxuser',
   getcardRecordList = '/v1/cardins_record',
   bindCard = '/v1/manual_cardins',
+  stopCard = '/v1/cardins_suspend',
 }
 /**
  * @description: 获取会员卡列表
@@ -126,5 +127,12 @@ export function bindCard(params) {
  * @description: 停卡
  */
 export function stopCard(params) {
-  return request.post({ url: Api.bindCard, params }, { successMessageMode: 'message' });
+  return request.post({ url: Api.stopCard, params }, { successMessageMode: 'message' });
+}
+
+/**
+ * @description: 恢复停卡
+ */
+export function resumeCard(params) {
+  return request.delete({ url: Api.stopCard, params }, { successMessageMode: 'message' });
 }
