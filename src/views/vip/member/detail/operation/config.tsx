@@ -163,7 +163,7 @@ export function getDeductSchema(data): FormSchema[] {
       label: '扣费时长',
       required: true,
       componentProps: {
-        format: 'YYYY-MM-DD HH:mm',
+        format: 'YYYY-MM-DD',
       },
     },
     // {
@@ -206,20 +206,30 @@ export function getStopSchema(data): FormSchema[] {
       dynamicDisabled: true,
     },
     {
-      field: 'renewDuration',
-      component: 'InputNumber',
+      field: 'resume_date',
+      component: 'DatePicker',
       label: '停卡时长',
       required: true,
       componentProps: {
-        placeholder: '',
+        format: 'YYYY-MM-DD',
+        valueFormat: 'YYYY-MM-DD',
       },
-      rules: [
-        {
-          required: true,
-          pattern: /^[1-9]\d*$/,
-          message: '请输入大于0的整数',
-        },
-      ],
     },
+    // {
+    //   field: 'renewDuration',
+    //   component: 'InputNumber',
+    //   label: '停卡时长',
+    //   required: true,
+    //   componentProps: {
+    //     placeholder: '',
+    //   },
+    //   rules: [
+    //     {
+    //       required: true,
+    //       pattern: /^[1-9]\d*$/,
+    //       message: '请输入大于0的整数',
+    //     },
+    //   ],
+    // },
   ];
 }

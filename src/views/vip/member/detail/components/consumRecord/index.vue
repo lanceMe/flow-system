@@ -5,6 +5,10 @@
         <template v-if="column.key === 'cardins_status'">
           <Tag v-if="text === 'inactive'" color="blue">未开卡</Tag>
           <Tag v-else-if="text === 'active'" color="success">已开卡</Tag>
+          <Tag v-else-if="text === 'exhausted'" color="warning">已用完</Tag>
+          <Tag v-else-if="text === 'transferred'" color="warning">已转卡</Tag>
+          <Tag v-else-if="text === 'suspended'" color="warning">已暂停</Tag>
+          <Tag v-else-if="text === 'refunded'" color="warning">已退款</Tag>
           <Tag v-else color="error">已作废</Tag>
         </template>
         <template v-if="column.key === 'action'">
@@ -16,16 +20,18 @@
               },
               {
                 label: '扣费',
-                disabled:
-                  record.cardins_status !== 'inactive' && record.cardins_status !== 'active',
+                // disabled:
+                //   record.cardins_status !== 'inactive' && record.cardins_status !== 'active',
                 onClick: handleOperation.bind(null, 'deduct', record),
               },
               {
-                label: '停卡',
-                disabled: true,
+                label: record.cardins_status === 'suspended' ? '恢复' : '停卡',
                 // disabled:
                 //   record.cardins_status !== 'inactive' && record.cardins_status !== 'active',
-                onClick: handleOperation.bind(null, 'stop', record),
+                onClick:
+                  record.cardins_status === 'suspended'
+                    ? hanleResume.bind(null, record)
+                    : handleOperation.bind(null, 'stop', record),
               },
               {
                 label: '作废',
@@ -46,10 +52,10 @@
   </div>
 </template>
 <script lang="ts">
-  import { defineComponent, nextTick } from 'vue';
+  import { defineComponent } from 'vue';
   import { BasicTable, useTable, TableAction } from '/@/components/Table';
   import { getTableColumns, getTableColumns1 } from './config';
-  import { getUserCardList, getcardRecordList } from '/@/api/cards';
+  import { getUserCardList, getcardRecordList, resumeCard } from '/@/api/cards';
   import { useDesign } from '/@/hooks/web/useDesign';
   import { useRouter } from 'vue-router';
 
@@ -119,6 +125,24 @@
           },
         });
       }
+
+      function hanleResume(event: any) {
+        createConfirm({
+          iconType: 'info',
+          title: '恢复',
+          type: 'info',
+          content: '恢复后，取消当前会员卡暂停状态，确认操作请点击确定',
+          okButtonProps: { danger: true },
+          // okType: 'primary',
+          onOk: async () => {
+            await resumeCard({
+              'cardins-id': event['cardins_id'],
+            });
+            reLoad();
+            // postApi(values);
+          },
+        });
+      }
       function reLoad() {
         reloadTable();
       }
@@ -132,6 +156,7 @@
         registerModal,
         reLoad,
         handleBan,
+        hanleResume,
       };
     },
   });
