@@ -44,6 +44,21 @@
 
       <a-table :columns="columns" :data-source="data">
         <template #bodyCell="{ column, record }">
+          <template v-if="column.key === 'memo'">
+            <div class="editable-cell">
+              <div v-if="editableData[record.key]" class="editable-cell-input-wrapper">
+                <a-input
+                  v-model:value="editableData[record.key].memo"
+                  @pressEnter="saveMemo(record.key)"
+                />
+                <check-outlined class="editable-cell-icon-check" @click="saveMemo(record.key)" />
+              </div>
+              <div v-else class="editable-cell-text-wrapper">
+                {{ record.memo || ' ' }}
+                <edit-outlined class="editable-cell-icon" @click="editMemo(record.key)" />
+              </div>
+            </div>
+          </template>
           <template v-if="column.key === 'operation'">
             <a-button type="link" @click="onCancelCheckIn(record)">取消签到</a-button>
           </template>
@@ -55,6 +70,8 @@
 </template>
 <script lang="ts">
   import { defineComponent, ref, reactive, computed } from 'vue';
+  import type { UnwrapRef } from 'vue';
+  import { cloneDeep } from 'lodash-es';
   import {
     Table,
     Form,
@@ -65,15 +82,16 @@
     SelectOption,
     DatePicker,
     Space,
-    RangePicker,
     message,
   } from 'ant-design-vue';
+  import { CheckOutlined, EditOutlined } from '@ant-design/icons-vue';
 
   import { openWindow } from '/@/utils';
   import { PageWrapper } from '/@/components/Page';
-  import { getCheckinList, deleteCheckin } from '/@/api/booking';
+  import { getCheckinList, deleteCheckin, postEditMom } from '/@/api/booking';
   import check from './check.vue';
   import dayjs from 'dayjs';
+  import { encode } from '/@/utils/base64';
 
   const cardType = {
     bundle: '次数卡',
@@ -91,7 +109,8 @@
       ASelect: Select,
       ASelectOption: SelectOption,
       ADatePicker: DatePicker,
-      ARangePicker: RangePicker,
+      CheckOutlined,
+      EditOutlined,
       ASpace: Space,
       check,
     },
@@ -112,6 +131,7 @@
       });
 
       const data = ref([]);
+      const editableData: UnwrapRef<Record<string, any>> = reactive({});
       const calendarPriceRangeChange = (date) => {
         selectPriceDate.value = date;
       };
@@ -153,6 +173,7 @@
         disabledDate,
         calendarPriceRangeChange,
         today,
+        editableData,
         formRef,
         toIconify: () => {
           openWindow('https://iconify.design/');
@@ -254,6 +275,23 @@
           getList();
         },
 
+        saveMemo(key: string) {
+          const current = editableData[key];
+          console.log('===editableData[key]', current);
+          postEditMom({
+            'cardins-id': current.cardinsId,
+            'checkin-time': current.checkInTime,
+            'checkin-remarks': encode(current.memo),
+          }).then(() => {
+            Object.assign(data.value.filter((item) => key === item.key)[0], editableData[key]);
+            delete editableData[key];
+            message.success('备注修改成功');
+          });
+        },
+        editMemo(key: string) {
+          editableData[key] = cloneDeep(data.value.filter((item) => key === item.key)[0]);
+        },
+
         getWeek() {
           const datas = dayjs().day();
           const week = ['日', '一', '二', '三', '四', '五', '六'];
@@ -266,3 +304,50 @@
     },
   });
 </script>
+<style lang="less" scoped>
+  .editable-cell {
+    position: relative;
+    min-height: 20px;
+
+    .editable-cell-input-wrapper,
+    .editable-cell-text-wrapper {
+      padding-right: 24px;
+    }
+
+    .editable-cell-text-wrapper {
+      padding: 5px 24px 5px 5px;
+    }
+
+    .editable-cell-icon {
+      display: none;
+      position: absolute;
+      right: 0;
+      width: 20px;
+      margin-top: 4px;
+      // top: 10px;
+      cursor: pointer;
+    }
+
+    .editable-cell-icon-check {
+      position: absolute;
+      top: 8px;
+      right: 0;
+      width: 20px;
+      line-height: 28px;
+      cursor: pointer;
+    }
+
+    .editable-cell-icon:hover,
+    .editable-cell-icon-check:hover {
+      color: #108ee9;
+    }
+
+    .editable-add-btn {
+      margin-bottom: 8px;
+    }
+  }
+
+  .editable-cell:hover .editable-cell-icon {
+    display: inline-block;
+  }
+</style>

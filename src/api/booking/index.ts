@@ -5,6 +5,7 @@ enum Api {
   getUserInfo = '/v1/wxuser_by_phone',
   getCardInfo = '/v1/cardins',
   getCourseInfo = '/v1/course',
+  postCheckInInfo = '/v1/checkin_daypass_remarks',
 }
 
 /**
@@ -72,4 +73,11 @@ export function deleteCheckin(params) {
     },
     { returnTransformResponseDataKey: 'cardins_list' },
   );
+}
+
+export function postEditMom(data) {
+  return request.post({
+    url: Api.postCheckInInfo,
+    data,
+  });
 }

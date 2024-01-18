@@ -68,6 +68,7 @@
             <template v-if="column.key === 'status'">
               {{ attendStatus[record.attend_status] }}
             </template>
+
             <template v-if="column.key === 'operation'">
               <a-button
                 type="link"
