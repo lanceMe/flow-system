@@ -365,8 +365,7 @@
         createConfirm({
           iconType: 'info',
           title: '发布课程',
-          content:
-            '发布课程后，14天内的小程序将会更新到小程序，已预约的课程不支持删除或修改人数上限',
+          content: '发布课程后，14天内的课程将会更新到小程序，已预约的课程不支持删除或修改人数上限',
           onOk: () => {
             publishCourse(saturday, props.type);
           },
