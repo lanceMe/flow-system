@@ -115,6 +115,7 @@
           description: info['ctpl_description'],
           address: info['ctpl_address'],
           duration_minutes: info['ctpl_duration_minutes'],
+          start_time: data?.formData?.['start_time'],
         };
         setFormData({ ...data, templeteData });
       }
