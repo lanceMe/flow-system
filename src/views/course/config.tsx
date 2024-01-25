@@ -314,7 +314,6 @@ export function getFormSchema1(
   const isNeedFillTemplete = td !== undefined;
   const showDef = type === 'edit' || type === 'view' || isNeedFillTemplete;
   const f = isNeedFillTemplete ? td : fd;
-
   // const address = !f?.['address'] || f?.['address'] === 'Mellow Climbing Gym' ? 1 : 2;
 
   const startDate = f?.['start_time']
@@ -329,8 +328,9 @@ export function getFormSchema1(
       ? dayjs(c.endStr)
       : undefined;
 
-  const start = startDate?.format('YYYY-MM-DD HH:mm') || '';
+  const start = startDate?.format('YYYY-MM-DD HH:mm') || undefined;
   const end = endDate?.format('YYYY-MM-DD HH:mm') || '';
+  const duration_minutes = f?.['duration_minutes'];
   const ret: FormSchema[] = [
     {
       field: 'course_templete_id',
@@ -367,24 +367,68 @@ export function getFormSchema1(
       },
     },
     {
-      field: '[course-start-time, endDateTime]',
-      label: '日期时间范围',
-
-      component: 'RangePicker',
+      field: 'course-start-time',
+      component: 'DatePicker',
       required: true,
       dynamicDisabled,
-      // defaultValue: ['2023-12-10 13:00', '2023-12-10 14:00'],
-      // defaultValue: showDef ? [start, end] : ['', ''],
-
+      label: '开始时间',
+      defaultValue: start,
+      // colProps: {
+      //   span: 26,
+      // },
       componentProps: {
-        format: 'YYYY-MM-DD HH:mm',
-        placeholder: ['开始时间', '结束时间'],
+        placeholder: '开始时间',
         showTime: { format: 'HH:mm' },
+        format: 'YYYY-MM-DD HH:mm',
+        // valueFormat: 'YYYY-MM-DD',
       },
-      colProps: {
-        span: 26,
-      },
+      // rules: [
+      //   {
+      //     required: true,
+      //     trigger: 'change',
+      //   },
+      // ],
     },
+    {
+      field: 'course-duration-minutes',
+      component: 'InputNumber',
+      label: '持续时长（分钟）',
+      defaultValue: duration_minutes,
+      required: true,
+      dynamicDisabled,
+      componentProps: {
+        placeholder: '请输入课程持续多少分钟',
+      },
+      rules: [
+        {
+          required: true,
+          type: 'integer',
+        },
+        {
+          pattern: /^[1-9]\d*$/,
+          message: '请输入大于0的整数',
+        },
+      ],
+    },
+    // {
+    //   field: '[course-start-time, endDateTime]',
+    //   label: '日期时间范围',
+
+    //   component: 'RangePicker',
+    //   required: true,
+    //   dynamicDisabled,
+    //   // defaultValue: ['2023-12-10 13:00', '2023-12-10 14:00'],
+    //   // defaultValue: showDef ? [start, end] : ['', ''],
+
+    //   componentProps: {
+    //     format: 'YYYY-MM-DD HH:mm',
+    //     placeholder: ['开始时间', '结束时间'],
+    //     showTime: { format: 'HH:mm' },
+    //   },
+    //   colProps: {
+    //     span: 26,
+    //   },
+    // },
 
     {
       field: 'course-min-attenders',
