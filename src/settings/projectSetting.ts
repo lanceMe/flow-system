@@ -126,15 +126,15 @@ const setting: ProjectConfig = {
   multiTabsSetting: {
     cache: false,
     // Turn on
-    show: false,
+    show: true,
     // Is it possible to drag and drop sorting tabs
     canDrag: true,
     // Turn on quick actions
-    showQuick: false,
+    showQuick: true,
     // Whether to show the refresh button
-    showRedo: false,
+    showRedo: true,
     // Whether to show the collapse button
-    showFold: false,
+    showFold: true,
   },
 
   // Transition Setting
