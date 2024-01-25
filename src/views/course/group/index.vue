@@ -53,18 +53,35 @@
       <div :class="`${prefixCls}-container`">
         <FullCalendar :options="opts" ref="fulcalendarRef">
           <template #eventContent="{ event }">
-            <div
-              :class="`cell-content ${event.extendedProps.isExpired ? 'expired' : ''}`"
-              @dblclick="handleBbClick"
-            >
-              <div class="title">{{ event.extendedProps['display_name'] }}</div>
-              <div class="event-time">{{ event.extendedProps.timeStr }}</div>
-              <div class="coach">{{ event.extendedProps['coach_nickname'] }}</div>
-              <div class="reverse"
-                >{{ event.extendedProps.reverseStr
-                }}<span>{{ event.extendedProps.asignStr }}</span></div
+            <a-popover :title="event.extendedProps['display_name']">
+              <template #content>
+                <div :class="`cell-content ${event.extendedProps.isExpired ? 'expired' : ''}`">
+                  <div class="event-time">{{ event.extendedProps.timeStr }}</div>
+                  <div class="coach no-warp">{{ event.extendedProps['coach_nickname'] }}</div>
+                  <div class="reverse no-warp">
+                    {{ event.extendedProps.reverseStr }}
+                    <span>
+                      {{ event.extendedProps.asignStr }}
+                    </span>
+                  </div>
+                </div>
+              </template>
+
+              <div
+                :class="`cell-content ${event.extendedProps.isExpired ? 'expired' : ''}`"
+                @dblclick="handleBbClick"
               >
-            </div>
+                <div class="title no-warp">{{ event.extendedProps['display_name'] }}</div>
+                <!-- <div class="event-time">{{ event.extendedProps.timeStr }}</div> -->
+                <div class="coach no-warp">{{ event.extendedProps['coach_nickname'] }}</div>
+                <div class="reverse no-warp">
+                  {{ event.extendedProps.reverseStr }}
+                </div>
+                <div class="reverse no-warp">
+                  {{ event.extendedProps.asignStr }}
+                </div>
+              </div>
+            </a-popover>
           </template>
         </FullCalendar>
       </div>
@@ -87,7 +104,7 @@
     getTempleteList,
   } from '/@/api/course';
   import { ApiSelect } from '/@/components/Form';
-  import { DatePicker as ADatePicker, Select, SelectOption } from 'ant-design-vue';
+  import { DatePicker as ADatePicker, Select, SelectOption, Popover } from 'ant-design-vue';
   import FullCalendar from '@fullcalendar/vue3';
   // import dayGridPlugin from '@fullcalendar/daygrid';
   import { CalendarOptions } from '@fullcalendar/core';
@@ -133,6 +150,7 @@
       FullCalendar,
       ASelect: Select,
       ASelectOption: SelectOption,
+      APopover: Popover,
     },
     props: {
       loading: Boolean,
@@ -513,21 +531,22 @@
       }
 
       .fc-event-main {
-        padding: 8px;
+        padding: 2%;
 
         .cell-content {
           display: flex;
           flex-direction: column;
           justify-content: space-between;
           height: 100%;
+          overflow: hidden;
           color: #2e2e2a;
 
           .reverse > span {
             display: inline-block;
-            padding-left: 10px;
+            padding-left: 0;
           }
 
-          .title {
+          .no-warp {
             overflow: hidden;
             text-overflow: ellipsis;
             white-space: nowrap;
