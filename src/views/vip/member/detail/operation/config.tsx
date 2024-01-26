@@ -233,3 +233,36 @@ export function getStopSchema(data): FormSchema[] {
     // },
   ];
 }
+
+export function getOverSchema(data): FormSchema[] {
+  const { formData: f, userData: d } = data || {};
+  const { phone_number, nickname, remarks } = d;
+  const name = `${phone_number}${nickname ? `:${nickname}` : ''}${remarks ? `:${remarks}` : ''}`;
+  return [
+    {
+      field: 'nickname',
+      component: 'Input',
+      label: '转出用户',
+      required: true,
+      defaultValue: name,
+      dynamicDisabled: true,
+    },
+    {
+      field: 'cardcat_name',
+      component: 'Input',
+      label: '会员卡',
+      required: true,
+      // defaultValue: `${f?.['cardcat_name']} | ${f?.['cardcat_name']}`,
+      defaultValue: `${f?.['cardcat_name']}`,
+      dynamicDisabled: true,
+    },
+    {
+      field: 'nickname1',
+      component: 'AutoComplete',
+      label: '接收用户',
+      required: true,
+      defaultValue: d?.['nickname1'],
+      componentProps: {},
+    },
+  ];
+}

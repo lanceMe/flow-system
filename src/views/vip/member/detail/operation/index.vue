@@ -24,9 +24,15 @@
   import { defineComponent, ref, nextTick } from 'vue';
   import { BasicModal, useModalInner } from '/@/components/Modal';
   import { BasicForm, useForm } from '/@/components/Form/index';
-  import { getRenewSchema, getBindSchema, getDeductSchema, getStopSchema } from './config';
+  import {
+    getRenewSchema,
+    getBindSchema,
+    getDeductSchema,
+    getStopSchema,
+    getOverSchema,
+  } from './config';
   import { useDesign } from '/@/hooks/web/useDesign';
-  import { changeCardins, bindCard, stopCard } from '/@/api/cards';
+  import { changeCardins, bindCard, stopCard, overCard } from '/@/api/cards';
   import { FormSchema } from '/@/components/Form';
   import { useMessage } from '/@/hooks/web/useMessage';
   import { useRouter } from 'vue-router';
@@ -110,6 +116,12 @@
               'resume-date': resume_date,
             };
             break;
+          case 'over':
+            params = {
+              'cardins-id': formData['cardins_id'],
+              'resume-date': resume_date,
+            };
+            break;
           default:
         }
 
@@ -150,6 +162,12 @@
             schemas = getStopSchema(data);
             contentRef.value =
               '停卡后，用户当前的会员卡有效期和次数将会暂停扣除，直到下次消费，确认操作请点击确认';
+            break;
+          case 'over':
+            titleRef.value = '转卡';
+            requestRef.value = overCard;
+            schemas = getOverSchema(data);
+            contentRef.value = '转卡后，用户当前的会员卡有效期和次数将转到接受用户名下，请确认操作';
             break;
 
           default:

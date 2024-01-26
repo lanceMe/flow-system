@@ -1,10 +1,7 @@
-import { getTagList } from '/@/api/course';
 import { FormProps, FormSchema } from '/@/components/Form';
 import { BasicColumn } from '/@/components/Table/src/types/table';
 import { formatToDate } from '/@/utils/dateUtil';
-// import { getTagList, getCoachList } from '/@/api/course';
 import dayjs from 'dayjs';
-// import { getCardList } from '/@/api/cards';
 
 export function getFormSchema(data): FormSchema[] {
   const { type, formData: f } = data || {};
@@ -12,7 +9,7 @@ export function getFormSchema(data): FormSchema[] {
   const showDef = type !== 'create';
   return [
     {
-      field: 'cardins-name',
+      field: 'cardcat-name',
       component: 'Input',
       label: '卡名',
       required: true,
@@ -20,11 +17,11 @@ export function getFormSchema(data): FormSchema[] {
       dynamicDisabled,
     },
     {
-      field: `channel`,
+      field: `cardcat-channel `,
       component: 'Select',
       label: '售卖渠道',
       required: true,
-      defaultValue: showDef ? f?.['ctpl_price'] : undefined,
+      defaultValue: showDef ? f?.['channel'] : undefined,
       componentProps: {
         // placeholder: '售卖渠道',
         options: [
@@ -35,7 +32,7 @@ export function getFormSchema(data): FormSchema[] {
       // colProps: { xl: 6, xxl: 6 },
     },
     {
-      field: 'cardins-type',
+      field: 'cardcat-type',
       component: 'Select',
       label: '卡种',
       defaultValue: showDef ? f?.['type'] : undefined,
@@ -56,11 +53,11 @@ export function getFormSchema(data): FormSchema[] {
       },
     },
     {
-      field: `subType`,
+      field: `cardcat-class`,
       component: 'Select',
       label: '二级卡种',
       required: true,
-      defaultValue: showDef ? f?.['ctpl_price'] : undefined,
+      defaultValue: showDef ? f?.['class'] : undefined,
       componentProps: {
         // placeholder: '二级卡种',
         options: [
@@ -69,18 +66,20 @@ export function getFormSchema(data): FormSchema[] {
         ],
       },
     },
+
     {
-      field: 'checkin-remarks',
+      field: 'cardcat-description',
       component: 'InputTextArea',
+      defaultValue: showDef ? f?.['description'] : undefined,
       required: true,
       label: '使用规则',
       colProps: { span: 24 },
     },
     {
-      field: 'ctpl-min-attenders',
+      field: 'cardcat-max-consume-times',
       component: 'InputNumber',
       label: '最大可使用次数',
-      defaultValue: showDef ? f?.['ctpl_min_attenders'] : undefined,
+      defaultValue: showDef ? f?.['max_consume_times'] : undefined,
       dynamicDisabled,
       rules: [
         {
@@ -90,63 +89,64 @@ export function getFormSchema(data): FormSchema[] {
         },
       ],
     },
-
     {
-      field: 'ctpl-min-attenders1',
+      field: 'cardcat-max-expire-days',
       component: 'InputNumber',
       label: '最大可使用天数',
-      defaultValue: showDef ? f?.['ctpl_min_attenders'] : undefined,
+      defaultValue: showDef ? f?.['max_expire_days'] : undefined,
       dynamicDisabled,
       rules: [
         {
-          required: false,
+          required: true,
           pattern: /^[1-9]\d*$/,
           message: '请输入大于0的整数',
         },
       ],
     },
     {
-      field: `subType1`,
+      field: `cardcat-for-sale-enabled`,
       component: 'Select',
       label: '是否可售总开关',
-      defaultValue: showDef ? f?.['ctpl_price'] : undefined,
+      defaultValue: showDef ? f?.['for_sale_enabled'] : undefined,
       colProps: { span: 24 },
       required: true,
       componentProps: {
         placeholder: '',
         options: [
-          { label: '是', value: true, key: 'yes' },
-          { label: '否', value: false, key: 'no' },
+          { label: '是', value: 1, key: 1 },
+          { label: '否', value: 0, key: 0 },
         ],
       },
     },
     {
-      field: 'expire_date1',
+      field: 'cardcat-for-sale-since',
       component: 'DatePicker',
       label: '预约上架时间',
+      defaultValue: showDef ? f?.['for_sale_since'] : undefined,
       componentProps: {
         // placeholder: '扣费天数',
-        showTime: true,
-        // format: 'YYYY-MM-DD ',
+        showTime: ['HH:mm'],
+        format: 'YYYY-MM-DD HH:mm',
         // valueFormat: 'YYYY-MM-DD',
       },
     },
     {
-      field: 'expire_date',
+      field: 'cardcat-for-sale-until',
       component: 'DatePicker',
       label: '预约下架时间',
+      defaultValue: showDef ? f?.['for_sale_until'] : undefined,
       componentProps: {
         // placeholder: '扣费天数',
-        showTime: true,
-        // format: 'YYYY-MM-DD',
+        showTime: ['HH:mm'],
+        format: 'YYYY-MM-DD HH:mm',
         // valueFormat: 'YYYY-MM-DD',
       },
     },
     {
-      field: 'ctpl-price',
+      field: 'cardcat-price',
       component: 'InputNumber',
       label: '购买价',
-      defaultValue: showDef ? f?.['ctpl_price'] : undefined,
+      defaultValue: showDef ? f?.['price'] : undefined,
       required: true,
       dynamicDisabled,
       rules: [
@@ -162,10 +162,10 @@ export function getFormSchema(data): FormSchema[] {
     },
 
     {
-      field: 'ctpl-price1',
+      field: 'cardcat-display-list-price',
       component: 'InputNumber',
       label: '划线价',
-      defaultValue: showDef ? f?.['ctpl_price'] : undefined,
+      defaultValue: showDef ? f?.['display_list_price'] : undefined,
       required: false,
       dynamicDisabled,
       rules: [
@@ -181,10 +181,10 @@ export function getFormSchema(data): FormSchema[] {
     },
 
     {
-      field: 'ctpl-price3',
+      field: 'cardcat-rebuy-price',
       component: 'InputNumber',
       label: '续卡价',
-      defaultValue: showDef ? f?.['ctpl_price'] : undefined,
+      defaultValue: showDef ? f?.['rebuy_price'] : undefined,
       required: false,
       dynamicDisabled,
       rules: [
@@ -199,10 +199,10 @@ export function getFormSchema(data): FormSchema[] {
       ],
     },
     {
-      field: 'ctpl-min-attenders3',
+      field: 'cardcat-max-wxuser-buy-cardins',
       component: 'InputNumber',
       label: '最大可购买次数',
-      defaultValue: showDef ? f?.['ctpl_min_attenders'] : undefined,
+      defaultValue: showDef ? f?.['max_wxuser_buy_cardins'] : undefined,
       dynamicDisabled,
       rules: [
         {
@@ -213,90 +213,70 @@ export function getFormSchema(data): FormSchema[] {
       ],
     },
     {
-      field: `subType2`,
+      field: `cardcat-display-ontop`,
       component: 'Select',
       label: '小程序：是否置顶',
       required: true,
-      defaultValue: showDef ? f?.['ctpl_price'] : undefined,
+      defaultValue: showDef ? f?.['display_ontop'] : undefined,
       componentProps: {
         placeholder: '',
         options: [
-          { label: '是', value: true, key: 'yes' },
-          { label: '否', value: false, key: 'no' },
+          { label: '是', value: 1, key: 1 },
+          { label: '否', value: 0, key: 0 },
         ],
       },
     },
 
     {
-      field: `display_bgstyle`,
+      field: `cardcat-display-bgstyle`,
       component: 'Select',
       label: '小程序：卡面背景图',
       required: true,
-      defaultValue: showDef ? f?.['ctpl_price'] : undefined,
+      defaultValue: showDef ? f?.['display_bgstyle'] : undefined,
       componentProps: {
-        placeholder: '',
+        // placeholder: '',
         options: [
-          { label: '粉色', value: true, key: 'pink' },
-          { label: '棕色', value: false, key: 'brown' },
-          { label: '浅色', value: true, key: 'lightgreen' },
-          { label: '深绿', value: false, key: 'deepgreen' },
+          { label: '粉色', value: 'pink', key: 'pink' },
+          { label: '棕色', value: 'brown', key: 'brown' },
+          { label: '浅色', value: 'lightgreen', key: 'lightgreen' },
+          { label: '深绿', value: 'deepgreen', key: 'deepgreen' },
         ],
       },
     },
-
     {
-      field: 'ctpl-tag',
-      component: 'ApiSelect',
+      field: 'cardcat-display-title',
+      component: 'Input',
       label: '小程序：顶部主标题',
       required: true,
+      defaultValue: showDef ? f?.['display_title'] : undefined,
       dynamicDisabled,
-      defaultValue: showDef ? f?.['ctpl_tag'] : undefined,
-      componentProps: {
-        api: getTagList,
-        immediate: true,
-        // mode: 'multiple',
-        onChange: (e, v) => {
-          console.log('ApiSelect====>:', e, v);
-        },
-      },
     },
-
     {
-      field: 'ctpl-tag1',
-      component: 'ApiSelect',
+      field: 'cardcat-display-subtitle',
+      component: 'Input',
       label: '小程序：顶部副标题',
       required: true,
+      defaultValue: showDef ? f?.['display_subtitle'] : undefined,
       dynamicDisabled,
-      defaultValue: showDef ? f?.['ctpl_tag'] : undefined,
-      componentProps: {
-        api: getTagList,
-        immediate: true,
-        // mode: 'multiple',
-        onChange: (e, v) => {
-          console.log('ApiSelect====>:', e, v);
-        },
-      },
     },
     {
-      field: 'ctpl-tag2',
+      field: 'cardcat-display-badge',
       component: 'ApiSelect',
       label: '小程序：卡面徽章',
       dynamicDisabled,
-      defaultValue: showDef ? f?.['ctpl_tag'] : undefined,
+      defaultValue: showDef ? f?.['display_badge'] : undefined,
       componentProps: {
-        api: getTagList,
-        immediate: true,
-        // mode: 'multiple',
-        onChange: (e, v) => {
-          console.log('ApiSelect====>:', e, v);
-        },
+        options: [
+          { label: '试营业9折', value: 'trial', key: 'trial' },
+          { label: '优惠续卡', value: 'discount_rebuy', key: 'discount_rebuy' },
+        ],
       },
     },
     {
-      field: 'ctpl-description',
+      field: 'cardcat-display-footnote',
       component: 'Input',
       label: '小程序：底部文案',
-      defaultValue: showDef ? f?.['ctpl_description'] : undefined,
+      defaultValue: showDef ? f?.['display_footnote'] : undefined,
       // required: true,
       dynamicDisabled,
     },

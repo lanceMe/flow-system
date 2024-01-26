@@ -40,27 +40,37 @@
                 //   record.cardins_status !== 'inactive' && record.cardins_status !== 'active',
                 onClick: handleBan.bind(null, record),
               },
+              {
+                label: '转卡',
+                disabled: true,
+                // disabled:
+                //   record.cardins_status !== 'inactive' && record.cardins_status !== 'active',
+                onClick: handleOperation.bind(null, 'over', record),
+              },
+              {
+                label: '消费明细',
+                onClick: handleDetail.bind(null, record),
+              },
             ]"
           />
         </template>
       </template>
     </BasicTable>
-    <br />
-    <br />
-    <BasicTable @register="registerTable1" />
     <Modal @register="registerModal" @submit-success="reLoad" />
+    <ModalDetail @register="registerModal1" @submit-success="reLoad" />
   </div>
 </template>
 <script lang="ts">
   import { defineComponent } from 'vue';
   import { BasicTable, useTable, TableAction } from '/@/components/Table';
-  import { getTableColumns, getTableColumns1 } from './config';
-  import { getUserCardList, getcardRecordList, resumeCard } from '/@/api/cards';
+  import { getTableColumns } from './config';
+  import { getUserCardList, resumeCard } from '/@/api/cards';
   import { useDesign } from '/@/hooks/web/useDesign';
   import { useRouter } from 'vue-router';
 
   import { useModal } from '/@/components/Modal';
   import Modal from '/@/views/vip/member/detail/operation/index.vue';
+  import ModalDetail from '/@/views/vip/member/detail/components/consumRecord/detail.vue';
   import { useMessage } from '/@/hooks/web/useMessage';
   import { Tag } from 'ant-design-vue';
 
@@ -69,7 +79,7 @@
   };
 
   export default defineComponent({
-    components: { BasicTable, Tag, TableAction, Modal },
+    components: { BasicTable, Tag, TableAction, Modal, ModalDetail },
     props,
     setup(props) {
       const { id } = useRouter()?.currentRoute?.value?.query || {};
@@ -82,28 +92,18 @@
         canResize: false,
         bordered: true,
         showTableSetting: true,
+        showIndexColumn: false,
         tableSetting: { fullScreen: true },
         // showIndexColumn: false,
         actionColumn: {
-          width: 200,
+          width: 260,
           title: '操作',
           dataIndex: 'action',
         },
       });
 
-      const [registerTable1] = useTable({
-        title: '会员卡消费明细',
-        api: getcardRecordList,
-        searchInfo: { 'wxuser-token': id },
-        columns: getTableColumns1(),
-        canResize: false,
-        bordered: true,
-        showTableSetting: true,
-        tableSetting: { fullScreen: true },
-        // showIndexColumn: false,
-      });
-
       const [registerModal, { openModal: openModal }] = useModal();
+      const [registerModal1, { openModal: openModal1 }] = useModal();
 
       const { prefixCls } = useDesign('vip-cards');
 
@@ -124,6 +124,10 @@
             // postApi(values);
           },
         });
+      }
+      function handleDetail(event: any) {
+        console.log('handleDetail', event);
+        openModal1(true, event);
       }
 
       function hanleResume(event: any) {
@@ -149,14 +153,15 @@
 
       return {
         registerTable,
-        registerTable1,
         handleOperation,
         prefixCls,
         TableAction,
         registerModal,
+        registerModal1,
         reLoad,
         handleBan,
         hanleResume,
+        handleDetail,
       };
     },
   });
