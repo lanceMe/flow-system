@@ -5,6 +5,6 @@ import 'dayjs/locale/zh-cn';
 export function setupDayjsLocale() {
   dayjs.extend(updateLocale);
   dayjs.updateLocale('zh-cn', {
-    weekStart: 0,
+    weekStart: 1,
   });
 }

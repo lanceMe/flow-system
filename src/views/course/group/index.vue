@@ -199,6 +199,7 @@
         slotMaxTime: '24:00:00',
         slotDuration: '01:00:00',
         contentHeight: 580,
+        firstDay: 1,
         // scrollTime: '08:00:00',
         scrollTime: dayjs().subtract(1, 'h').format('HH:mm:00'),
         nowIndicator: true,
@@ -367,7 +368,7 @@
           title: '发布课程',
           content: '发布课程后，14天内的课程将会更新到小程序，已预约的课程不支持删除或修改人数上限',
           onOk: () => {
-            publishCourse(saturday, props.type);
+            publishCourse(saturday);
           },
         });
       }

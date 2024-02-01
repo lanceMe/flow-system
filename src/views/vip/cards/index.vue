@@ -28,7 +28,7 @@
                 },
                 {
                   label: '删除',
-                  disabled: true,
+                  // disabled: true,
                   color: 'error',
                   type: 'primary',
                   onClick: handleDelete.bind(null, record),

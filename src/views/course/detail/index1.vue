@@ -163,16 +163,16 @@
         const temp = couseTemplete.value;
         const params = {
           ...values,
-          'course-display-name': encode(data?.['display_name'] || temp?.['label']),
+          'course-display-name': encode(temp?.['label'] || data?.['display_name']),
           'course-description': encode(values['course-description']),
           'course-address': encode(address as string),
           'course-address-lat': lat,
           'course-address-long': long,
           'course-duration-minutes': courseDur,
-          'course-tag': encode(values['course-tag'] || temp?.['ctpl_tag'] || 'test'),
+          'course-tag': encode(temp?.['ctpl_tag'] || values['course-tag'] || 'test'),
           'course-id': courseId,
-          'course-type': data?.['type'] || temp?.['ctpl_type'] || 'group',
-          'course-price': data?.['course_price'] || temp?.['ctpl_price'] || '20',
+          'course-type': temp?.['ctpl_type'] || data?.['type'] || 'group',
+          'course-price': temp?.['ctpl_price'] || data?.['course_price'] || '20',
           course_templete_id: undefined,
         };
         console.log('postApi', params, address, lat, long);
