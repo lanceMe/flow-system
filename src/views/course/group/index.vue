@@ -213,9 +213,9 @@
 
       function getWeekdDay(date?: string | dayjs.Dayjs) {
         const day = dayjs(date);
-        const saturday = day.endOf('week').format('YYYY-MM-DD');
-        const sunDay = day.startOf('week').format('YYYY-MM-DD');
-        return [saturday, sunDay];
+        const sunday = day.endOf('week').format('YYYY-MM-DD');
+        const monday = day.startOf('week').format('YYYY-MM-DD');
+        return [monday, sunday];
       }
 
       function requestData(info, successCallback, failureCallback) {
