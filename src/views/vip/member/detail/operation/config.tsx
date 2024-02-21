@@ -1,6 +1,7 @@
 import { FormSchema } from '/@/components/Form';
 import { getCardList } from '/@/api/cards';
 import { getStaffList } from '/@/api/staff';
+import { joinNonEmptyStrings } from '/@/utils';
 
 const CardType = {
   privatelv1: '私教课',
@@ -12,12 +13,17 @@ const CardType = {
 
 export function getBindSchema(data): FormSchema[] {
   const { formData: f, userData: d } = data || {};
+  const { phone_number, nickname, remarks } = d;
+  const name = joinNonEmptyStrings([phone_number, nickname, remarks], ':');
   return [
     {
       field: 'nickname',
       component: 'Input',
       label: '昵称',
-      defaultValue: d?.['nickname'],
+      defaultValue: name,
+      defaultValueObj: {
+        nickname: name,
+      },
       dynamicDisabled: true,
     },
 
@@ -90,12 +96,16 @@ export function getBindSchema(data): FormSchema[] {
 export function getRenewSchema(data): FormSchema[] {
   const { type, formData: f, userData: d } = data || {};
   const showTimes = f?.['cardcat_class'] !== 'time';
+  const { phone_number, nickname, remarks } = d;
+  const name = joinNonEmptyStrings([phone_number, nickname, remarks], ':');
   return [
     {
       field: 'nickname',
       component: 'Input',
       label: '昵称',
-      defaultValue: d?.['nickname'],
+      defaultValueObj: {
+        nickname: name,
+      },
       dynamicDisabled: true,
     },
     {
@@ -104,6 +114,9 @@ export function getRenewSchema(data): FormSchema[] {
       label: '会员卡',
       // defaultValue: `${f?.['cardcat_name']} | ${f?.['cardcat_name']}`,
       defaultValue: `${f?.['cardcat_name']}`,
+      defaultValueObj: {
+        cardcat_name: `${f?.['cardcat_name']}`,
+      },
       dynamicDisabled: true,
     },
     {
@@ -139,13 +152,18 @@ export function getRenewSchema(data): FormSchema[] {
 export function getDeductSchema(data): FormSchema[] {
   const { type, formData: f, userData: d } = data || {};
   const showTimes = f?.['cardcat_class'] !== 'time';
+  const { phone_number, nickname, remarks } = d;
+  const name = joinNonEmptyStrings([phone_number, nickname, remarks], ':');
   return [
     {
       field: 'nickname',
       component: 'Input',
       label: '昵称',
       required: true,
-      defaultValue: d?.['nickname'],
+      defaultValue: name,
+      defaultValueObj: {
+        nickname: name,
+      },
       dynamicDisabled: true,
     },
     {
@@ -155,6 +173,9 @@ export function getDeductSchema(data): FormSchema[] {
       required: true,
       // defaultValue: `${f?.['cardcat_name']} | ${f?.['cardcat_name']}`,
       defaultValue: `${f?.['cardcat_name']}`,
+      defaultValueObj: {
+        cardcat_name: `${f?.['cardcat_name']}`,
+      },
       dynamicDisabled: true,
     },
     {
@@ -187,13 +208,18 @@ export function getDeductSchema(data): FormSchema[] {
 }
 export function getStopSchema(data): FormSchema[] {
   const { type, formData: f, userData: d } = data || {};
+  const { phone_number, nickname, remarks } = d;
+  const name = joinNonEmptyStrings([phone_number, nickname, remarks], ':');
   return [
     {
       field: 'nickname',
       component: 'Input',
       label: '昵称',
       required: true,
-      defaultValue: d?.['nickname'],
+      defaultValue: name,
+      defaultValueObj: {
+        nickname: name,
+      },
       dynamicDisabled: true,
     },
     {
@@ -203,12 +229,15 @@ export function getStopSchema(data): FormSchema[] {
       required: true,
       // defaultValue: `${f?.['cardcat_name']} | ${f?.['cardcat_name']}`,
       defaultValue: `${f?.['cardcat_name']}`,
+      defaultValueObj: {
+        cardcat_name: `${f?.['cardcat_name']}`,
+      },
       dynamicDisabled: true,
     },
     {
       field: 'resume_date',
       component: 'DatePicker',
-      label: '停卡时长',
+      label: '停卡结束日',
       required: true,
       componentProps: {
         format: 'YYYY-MM-DD',
@@ -237,14 +266,17 @@ export function getStopSchema(data): FormSchema[] {
 export function getOverSchema(data): FormSchema[] {
   const { formData: f, userData: d } = data || {};
   const { phone_number, nickname, remarks } = d;
-  const name = `${phone_number}${nickname ? `:${nickname}` : ''}${remarks ? `:${remarks}` : ''}`;
+  const name = joinNonEmptyStrings([phone_number, nickname, remarks], ':');
+  // const name = `${phone_number}${nickname ? `:${nickname}` : ''}${remarks ? `:${remarks}` : ''}`;
   return [
     {
       field: 'nickname',
       component: 'Input',
       label: '转出用户',
       required: true,
-      defaultValue: name,
+      defaultValueObj: {
+        nickname: name,
+      },
       dynamicDisabled: true,
     },
     {
@@ -252,17 +284,25 @@ export function getOverSchema(data): FormSchema[] {
       component: 'Input',
       label: '会员卡',
       required: true,
-      // defaultValue: `${f?.['cardcat_name']} | ${f?.['cardcat_name']}`,
-      defaultValue: `${f?.['cardcat_name']}`,
+      defaultValueObj: {
+        cardcat_name: `${f?.['cardcat_name']}`,
+      },
       dynamicDisabled: true,
     },
     {
-      field: 'nickname1',
+      field: 'to_wxuser_token',
       component: 'AutoComplete',
       label: '接收用户',
-      required: true,
-      defaultValue: d?.['nickname1'],
-      componentProps: {},
+      slot: 'to_wxuser',
+      defaultValueObj: {
+        to_wxuser_token: '',
+      },
+      rules: [
+        {
+          required: true,
+          trigger: 'blur',
+        },
+      ],
     },
   ];
 }

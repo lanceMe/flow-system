@@ -127,13 +127,12 @@
         console.log('handleDelete', event);
         const { name } = event;
         createConfirm({
+          class: 'delete-cards-modal',
           iconType: 'error',
           title: '删除',
+          type: 'error',
           content: `确认删除【${name}】卡?删除后将无法恢复销量`,
-          // okButtonProps: {
-          //   danger: true,
-          //   type: 'primary',
-          // },
+          okButtonProps: { danger: true },
           onOk: () => {
             deleteCard({ 'cardcat-id': event.id }).then(() => {
               changeCardsList();
@@ -191,7 +190,7 @@
     }
   }
 
-  // .ant-btn-dangerous {
-  //   background-color: #ed6f6f !important;
-  // }
+  .delete-cards-modal .ant-btn-dangerous {
+    background-color: #ed6f6f !important;
+  }
 </style>

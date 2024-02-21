@@ -13,6 +13,8 @@ enum Api {
   bindCard = '/v1/manual_cardins',
   stopCard = '/v1/cardins_suspend',
   saleCard = '/v1/cardcat_enable',
+  banCard = '/v1/cardins_disable',
+  overCard = '/v1/cardins_transfer',
 }
 /**
  * @description: 获取会员卡列表
@@ -139,10 +141,17 @@ export function resumeCard(params) {
 }
 
 /**
+ * @description: 作废
+ */
+export function banCard(params) {
+  return request.post({ url: Api.banCard, params }, { successMessageMode: 'message' });
+}
+
+/**
  * @description: 转卡
  */
 export function overCard(params) {
-  return request.post({ url: Api.stopCard, params }, { successMessageMode: 'message' });
+  return request.post({ url: Api.overCard, params }, { successMessageMode: 'message' });
 }
 
 /**

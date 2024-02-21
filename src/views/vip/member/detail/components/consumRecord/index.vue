@@ -35,14 +35,14 @@
               },
               {
                 label: '作废',
-                disabled: true,
+                // disabled: true,
                 // disabled:
                 //   record.cardins_status !== 'inactive' && record.cardins_status !== 'active',
                 onClick: handleBan.bind(null, record),
               },
               {
                 label: '转卡',
-                disabled: true,
+                // disabled: true,
                 // disabled:
                 //   record.cardins_status !== 'inactive' && record.cardins_status !== 'active',
                 onClick: handleOperation.bind(null, 'over', record),
@@ -114,13 +114,18 @@
 
       function handleBan(event: any) {
         createConfirm({
+          class: 'ban-modal',
           iconType: 'error',
           title: '作废',
           type: 'error',
           content: '作废后，用户当前会员卡不可使用，确认操作请点击确定',
           okButtonProps: { danger: true },
           // okType: 'primary',
-          onOk: () => {
+          onOk: async () => {
+            await resumeCard({
+              'cardins-id': event['cardins_id'],
+            });
+            reLoad();
             // postApi(values);
           },
         });
@@ -180,7 +185,7 @@
     }
   }
 
-  // .ant-btn-dangerous {
-  //   background-color: #ed6f6f !important;
-  // }
+  .ban-modal .ant-btn-dangerous {
+    background-color: #ed6f6f !important;
+  }
 </style>

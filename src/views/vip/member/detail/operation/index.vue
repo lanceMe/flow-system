@@ -9,13 +9,15 @@
   >
     <div :class="`${prefixCls}-form pt-3px pr-3px`">
       <BasicForm @register="registerForm" :model="model">
-        <!-- <template #attenders="{ model, field, disabled }">
-          <div :class="`${prefixCls}-form__attenders`">
-            <a-input v-model:value="model[field]" :disabled="disabled" />
-            <div> ~ </div>
-            <a-input v-model:value="model['ctpl-max-attenders']" :disabled="disabled" />
-          </div>
-        </template> -->
+        <template #to_wxuser="{ model, field }">
+          <AutoComplete
+            placeholder="请输入接收用户"
+            :options="wxUserData"
+            @search="onUserSearch"
+            v-model:value="selectedData"
+            @select="(_, { wxuser_token }) => onUserSelect(wxuser_token, model, field)"
+          />
+        </template>
       </BasicForm>
     </div>
   </BasicModal>
@@ -33,13 +35,17 @@
   } from './config';
   import { useDesign } from '/@/hooks/web/useDesign';
   import { changeCardins, bindCard, stopCard, overCard } from '/@/api/cards';
+
   import { FormSchema } from '/@/components/Form';
   import { useMessage } from '/@/hooks/web/useMessage';
   import { useRouter } from 'vue-router';
   import { encode } from '/@/utils/base64';
+  import { AutoComplete } from 'ant-design-vue';
+  import { getUserInfoByPhone } from '/@/api/booking';
+  import { joinNonEmptyStrings } from '/@/utils';
 
   export default defineComponent({
-    components: { BasicModal, BasicForm },
+    components: { BasicModal, BasicForm, AutoComplete },
     props: {
       userData: { type: Object },
     },
@@ -53,6 +59,7 @@
       const { prefixCls } = useDesign('member-operation');
       const { createConfirm } = useMessage();
       const { id } = useRouter()?.currentRoute?.value?.query || {};
+      const selectedData = ref('');
       const [registerForm, { validate, resetSchema, resetFields }] = useForm({
         schemas: [],
         showActionButtonGroup: false,
@@ -66,7 +73,31 @@
 
       const [register, { closeModal }] = useModalInner((data) => {
         data && onDataReceive(data);
+        selectedData.value = '';
       });
+
+      const wxUserData = ref([]);
+
+      async function onUserSearch(value: string) {
+        const isNumber = /^\d+$/.test(value);
+        if (!isNumber) {
+          wxUserData.value = [];
+        } else {
+          const userOrigins = (await getUserInfoByPhone(value)) || [];
+          const sliced = userOrigins.slice(0, 100);
+          wxUserData.value =
+            sliced.map((user) => {
+              const { wxuser_token, phone_number, nickname, remarks } = user;
+              const label = joinNonEmptyStrings([phone_number, nickname, remarks], ':');
+              const value = label;
+              return { value, label, wxuser_token };
+            }) || [];
+        }
+      }
+
+      function onUserSelect(token, model, field) {
+        model[field] = token;
+      }
 
       function onDataReceive(data) {
         console.log('Data Received', data);
@@ -87,9 +118,9 @@
       }
 
       function postApi(values) {
-        const { formData, userData, type } = dataRef.value as any;
+        const { formData, type } = dataRef.value as any;
         const requestFunc = requestRef.value;
-        const { expire_date, max_consume_times, resume_date } = values;
+        const { expire_date, resume_date, to_wxuser_token } = values;
 
         let params = {};
         switch (type) {
@@ -119,7 +150,7 @@
           case 'over':
             params = {
               'cardins-id': formData['cardins_id'],
-              'resume-date': resume_date,
+              'to-wxuser-token': to_wxuser_token,
             };
             break;
           default:
@@ -179,9 +210,12 @@
       }
 
       async function setFormData(schemas) {
-        await resetFields();
-        resetSchema(schemas);
-        // await updateSchema(schemas);
+        // await resetFields();
+        await resetSchema(schemas);
+        nextTick(() => {
+          resetFields();
+          // updateSchema(schemas, true);
+        });
       }
 
       function confirmMsg(values) {
@@ -203,6 +237,10 @@
         handlesubmit,
         title: titleRef,
         prefixCls,
+        wxUserData,
+        onUserSearch,
+        onUserSelect,
+        selectedData,
       };
     },
   });
