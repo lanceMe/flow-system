@@ -44,6 +44,11 @@
 
       <a-table :columns="columns" :data-source="data">
         <template #bodyCell="{ column, record }">
+          <template v-if="column.key === 'Nickname'">
+            <a-button type="link" @click="handleAvaterClick(record)">{{
+              record.Nickname
+            }}</a-button>
+          </template>
           <template v-if="column.key === 'memo'">
             <div class="editable-cell">
               <div v-if="editableData[record.key]" class="editable-cell-input-wrapper">
@@ -70,6 +75,7 @@
 </template>
 <script lang="ts">
   import { defineComponent, ref, reactive, computed } from 'vue';
+  import { useRouter } from 'vue-router';
   import type { UnwrapRef } from 'vue';
   import { cloneDeep } from 'lodash-es';
   import {
@@ -91,6 +97,7 @@
   import { getCheckinList, deleteCheckin, postEditMom } from '/@/api/booking';
   import check from './check.vue';
   import dayjs from 'dayjs';
+
   import { encode } from '/@/utils/base64';
 
   const cardType = {
@@ -165,6 +172,7 @@
       const disabledDate = (current: any) => {
         return current && current > dayjs().endOf('day');
       };
+      const router = useRouter();
 
       return {
         dayjs,
@@ -245,6 +253,14 @@
         resetForm() {
           console.log(formRef.value.resetFields);
           formRef.value.resetFields();
+        },
+        handleAvaterClick(record) {
+          console.log(record);
+          router.push({
+            path: '/vip/memberDetail',
+            // name: 'home',
+            query: { id: record?.wxToken },
+          });
         },
         onSearch() {
           const from = formState.date;
