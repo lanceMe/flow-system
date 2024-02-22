@@ -18,8 +18,8 @@
   import { BasicForm, useForm } from '/@/components/Form/index';
   import { getFormSchema } from '/@/views/vip/cards/config';
   import { useDesign } from '/@/hooks/web/useDesign';
-  import { editTemplete, createTemplete } from '/@/api/course';
   import { encode } from '/@/utils/base64';
+  import { editCard, createCard } from '/@/api/cards';
 
   export default defineComponent({
     components: { BasicModal, BasicForm },
@@ -34,7 +34,7 @@
       const { prefixCls } = useDesign('course');
       const schemas = getFormSchema(dataRef.value);
 
-      const [registerForm, { updateSchema, validate, resetFields, getFieldsValue }] = useForm({
+      const [registerForm, { updateSchema, validate, resetFields }] = useForm({
         // labelWidth: 120,
         schemas,
         showActionButtonGroup: false,
@@ -74,37 +74,23 @@
 
       function postApi(values) {
         const { formData: data, type } = dataRef.value as any;
-        const requestFunc = type === 'create' ? createTemplete : editTemplete;
-        const [address, lat, long] = calAddress(values?.address, values?.['ctpl-address']);
+        const requestFunc = type === 'create' ? createCard : editCard;
         const params = {
           ...values,
           // 'ctpl-no-cancel-reserve-hours': data?.['ctpl_no_cancel_reserve_hours'] || 60,
-          'ctpl-id': data?.['ctpl_id'],
-          'ctpl-display-name': encode(values['ctpl-display-name']),
-          'ctpl-description': encode(values['ctpl-description']),
-          'ctpl-address': encode(address as string),
-          'ctpl-tag': encode(values['ctpl-tag']),
-          'ctpl-address-lat': lat,
-          'ctpl-address-long': long,
+          'cardcat-id': data?.['id'],
+          'cardcat-name': encode(values['cardcat-name']),
+          'cardcat-description': encode(values['cardcat-description']),
+          'cardcat-display-title': encode(values['cardcat-display-title']),
+          'cardcat-display-subtitle': encode(values['cardcat-display-subtitle']),
+          'cardcat-display-footnote': encode(values['cardcat-display-footnote']),
         };
-        console.log('postApi', address, lat, long, values, data);
+        console.log('postApi', values, data);
         requestFunc(params).then((resp) => {
           console.log(resp, params);
           closeModal();
           emit('submitSuccess');
         });
-      }
-
-      function calAddress(addressType: number, addressInput: string) {
-        let lat = '39.97337859782243';
-        let long = '116.49615152848547';
-        let text = 'Mellow Climbing Gym';
-        if (addressType === 2) {
-          lat = '0';
-          long = '0';
-          text = addressInput;
-        }
-        return [text, lat, long];
       }
 
       function setType(type: string) {
@@ -126,25 +112,12 @@
       }
 
       async function setFormData(data) {
-        const dataJoin = initAddress(data);
-        dataRef.value = dataJoin;
-
-        const schemas = getFormSchema(dataJoin, getFieldsValue);
-
+        dataRef.value = data;
+        const schemas = getFormSchema(data);
         await resetFields();
         nextTick(() => {
           updateSchema(schemas, true);
         });
-      }
-
-      function initAddress(data) {
-        const f = data?.formData || {};
-        const addr = f['ctpl_address'];
-        let address = 1;
-        if (addr && addr !== 'Mellow Climbing Gym') address = 2;
-        f.address = address;
-        data.formData = f;
-        return data;
       }
 
       return {

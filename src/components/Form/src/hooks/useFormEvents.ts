@@ -25,6 +25,7 @@ interface UseFormActionContext {
   defaultValueRef: Ref<Recordable>;
   formElRef: Ref<FormActionType>;
   schemaRef: Ref<FormSchema[]>;
+  initDefault?: () => void;
   handleFormValues: Fn;
 }
 
@@ -76,6 +77,7 @@ export function useFormEvents({
   defaultValueRef,
   formElRef,
   schemaRef,
+  initDefault,
   handleFormValues,
 }: UseFormActionContext) {
   async function resetFields(): Promise<void> {
@@ -84,17 +86,18 @@ export function useFormEvents({
 
     const formEl = unref(formElRef);
     if (!formEl) return;
-
+    // initDefault && initDefault();
     Object.keys(formModel).forEach((key) => {
       const schema = unref(getSchema).find((item) => item.field === key);
       const defaultValueObj = schema?.defaultValueObj;
+
       const fieldKeys = Object.keys(defaultValueObj || {});
+      formModel[key] = getDefaultValue(schema, defaultValueRef, key);
       if (fieldKeys.length) {
         fieldKeys.map((field) => {
           formModel[field] = defaultValueObj![field];
         });
       }
-      formModel[key] = getDefaultValue(schema, defaultValueRef, key);
     });
     nextTick(() => clearValidate());
 

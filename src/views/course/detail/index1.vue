@@ -105,7 +105,6 @@
       function handleCouseChange(_, info) {
         const data = dataRef.value;
         couseTemplete.value = info;
-
         const templeteData = {
           course_templete_id: info['value'],
           display_name: info['label'],
@@ -115,6 +114,8 @@
           no_cancel_reserve_hours: info['ctpl_no_cancel_reserve_hours'],
           description: info['ctpl_description'],
           address: info['ctpl_address'],
+          duration_minutes: info['ctpl_duration_minutes'],
+          start_time: data?.formData?.['start_time'],
         };
         setFormData({ ...data, templeteData });
       }
@@ -155,23 +156,23 @@
         const requestFunc = type === 'create' ? createCourse : editCourse;
         const courseId = type === 'create' ? undefined : data?.['course_id'];
         const s = values?.['course-start-time'];
-        const e = values?.endDateTime;
-        const courseDur = dayjs(e).diff(s, 'm');
+        // const e = values?.endDateTime;
+        const courseDur = values['course-duration-minutes'];
 
         const [address, lat, long] = calAddress(values?.address, values?.['course-address']);
         const temp = couseTemplete.value;
         const params = {
           ...values,
-          'course-display-name': encode(data?.['display_name'] || temp?.['label']),
+          'course-display-name': encode(temp?.['label'] || data?.['display_name']),
           'course-description': encode(values['course-description']),
           'course-address': encode(address as string),
           'course-address-lat': lat,
           'course-address-long': long,
           'course-duration-minutes': courseDur,
-          'course-tag': encode(values['course-tag'] || temp?.['ctpl_tag'] || 'test'),
+          'course-tag': encode(temp?.['ctpl_tag'] || values['course-tag'] || 'test'),
           'course-id': courseId,
-          'course-type': data?.['type'] || temp?.['ctpl_type'] || 'group',
-          'course-price': data?.['course_price'] || temp?.['ctpl_price'] || '20',
+          'course-type': temp?.['ctpl_type'] || data?.['type'] || 'group',
+          'course-price': temp?.['ctpl_price'] || data?.['course_price'] || '20',
           course_templete_id: undefined,
         };
         console.log('postApi', params, address, lat, long);
@@ -273,7 +274,7 @@
 </script>
 
 <style lang="less">
-  @prefix-cls: ~'@{namespace}-course';
+  @prefix-cls: ~'@{namespace}-course-form';
   .@{prefix-cls} {
     &__attenders {
       display: flex;
@@ -282,6 +283,10 @@
       > div {
         margin: 0 8px;
       }
+    }
+
+    .ant-picker {
+      width: 100%;
     }
   }
 

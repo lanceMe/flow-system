@@ -88,6 +88,17 @@ export function getTableColumns(): BasicColumn[] {
         return text || '--';
       },
     },
+    {
+      title: '用户备注',
+      width: 150,
+      align: 'left',
+      // sorter: true,
+      dataIndex: 'wxuser_remarks',
+      format(text) {
+        // if (text) return formatToDateTime(text);
+        return text || '--';
+      },
+    },
     // {
     //   title: '创建人',
     //   width: 150,

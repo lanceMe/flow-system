@@ -145,3 +145,8 @@ export const withInstall = <T extends CustomComponent>(component: T, alias?: str
   };
   return component as WithInstall<T>;
 };
+
+export const joinNonEmptyStrings = (strings, separator) => {
+  // 过滤掉空字符串或者null/undefined的值，然后使用指定的分隔符拼接
+  return strings.filter((str) => str).join(separator);
+};

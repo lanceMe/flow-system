@@ -98,7 +98,7 @@ export function deleteCourse(id: string | number) {
 /**
  * @description: 发布课程
  */
-export function publishCourse(endTime: string, type = 'groupopen') {
+export function publishCourse(endTime: string, type?: string) {
   const params = { 'publish-date': endTime, 'publish-type': type };
   return request.post({ url: Api.publishCourse, params }, { successMessageMode: 'message' });
 }

@@ -53,18 +53,35 @@
       <div :class="`${prefixCls}-container`">
         <FullCalendar :options="opts" ref="fulcalendarRef">
           <template #eventContent="{ event }">
-            <div
-              :class="`cell-content ${event.extendedProps.isExpired ? 'expired' : ''}`"
-              @dblclick="handleBbClick"
-            >
-              <div class="title">{{ event.extendedProps['display_name'] }}</div>
-              <div class="event-time">{{ event.extendedProps.timeStr }}</div>
-              <div class="coach">{{ event.extendedProps['coach_nickname'] }}</div>
-              <div class="reverse"
-                >{{ event.extendedProps.reverseStr
-                }}<span>{{ event.extendedProps.asignStr }}</span></div
+            <a-popover :title="event.extendedProps['display_name']">
+              <template #content>
+                <div :class="`cell-content ${event.extendedProps.isExpired ? 'expired' : ''}`">
+                  <div class="event-time">{{ event.extendedProps.timeStr }}</div>
+                  <div class="coach no-warp">{{ event.extendedProps['coach_nickname'] }}</div>
+                  <div class="reverse no-warp">
+                    {{ event.extendedProps.reverseStr }}
+                    <span>
+                      {{ event.extendedProps.asignStr }}
+                    </span>
+                  </div>
+                </div>
+              </template>
+
+              <div
+                :class="`cell-content ${event.extendedProps.isExpired ? 'expired' : ''}`"
+                @dblclick="handleBbClick"
               >
-            </div>
+                <div class="title no-warp">{{ event.extendedProps['display_name'] }}</div>
+                <!-- <div class="event-time">{{ event.extendedProps.timeStr }}</div> -->
+                <div class="coach no-warp">{{ event.extendedProps['coach_nickname'] }}</div>
+                <div class="reverse no-warp">
+                  {{ event.extendedProps.reverseStr }}
+                </div>
+                <div class="reverse no-warp">
+                  {{ event.extendedProps.asignStr }}
+                </div>
+              </div>
+            </a-popover>
           </template>
         </FullCalendar>
       </div>
@@ -87,7 +104,7 @@
     getTempleteList,
   } from '/@/api/course';
   import { ApiSelect } from '/@/components/Form';
-  import { DatePicker as ADatePicker, Select, SelectOption } from 'ant-design-vue';
+  import { DatePicker as ADatePicker, Select, SelectOption, Popover } from 'ant-design-vue';
   import FullCalendar from '@fullcalendar/vue3';
   // import dayGridPlugin from '@fullcalendar/daygrid';
   import { CalendarOptions } from '@fullcalendar/core';
@@ -111,15 +128,15 @@
       special: '#cde6c7',
     },
     expired: {
-      group: 'rgba(117, 133, 93, 0.8)',
-      teengroup: 'rgba(117, 133, 93, 0.8)',
-      trialgroup: 'rgba(117, 133, 93, 0.8)',
-      open: 'rgba(200, 214, 122, 0.8)',
-      privatelv1: 'rgba(238, 213, 210, 0.8)',
-      privatelv2: 'rgb(243, 209, 205,0.8)',
-      trialprivate: 'rgba(238, 213, 210, 0.8)',
-      teenprivatelv1: 'rgb(243, 209, 205,0.8)',
-      teenprivatelv2: 'rgba(238, 213, 210, 0.8)',
+      group: 'rgba(117, 133, 93, 1)',
+      teengroup: 'rgba(117, 133, 93, 1)',
+      trialgroup: 'rgba(117, 133, 93, 1)',
+      open: 'rgba(200, 214, 122, 1)',
+      privatelv1: 'rgba(238, 213, 210, 1)',
+      privatelv2: 'rgb(243, 209, 205,1)',
+      trialprivate: 'rgba(238, 213, 210, 1)',
+      teenprivatelv1: 'rgb(243, 209, 205,1)',
+      teenprivatelv2: 'rgba(238, 213, 210, 1)',
       special: 'rgb(205, 230, 199,0.8)',
     },
   };
@@ -133,6 +150,7 @@
       FullCalendar,
       ASelect: Select,
       ASelectOption: SelectOption,
+      APopover: Popover,
     },
     props: {
       loading: Boolean,
@@ -181,6 +199,7 @@
         slotMaxTime: '24:00:00',
         slotDuration: '01:00:00',
         contentHeight: 580,
+        firstDay: 1,
         // scrollTime: '08:00:00',
         scrollTime: dayjs().subtract(1, 'h').format('HH:mm:00'),
         nowIndicator: true,
@@ -194,9 +213,9 @@
 
       function getWeekdDay(date?: string | dayjs.Dayjs) {
         const day = dayjs(date);
-        const saturday = day.endOf('week').format('YYYY-MM-DD');
-        const sunDay = day.startOf('week').format('YYYY-MM-DD');
-        return [saturday, sunDay];
+        const sunday = day.endOf('week').format('YYYY-MM-DD');
+        const monday = day.startOf('week').format('YYYY-MM-DD');
+        return [monday, sunday];
       }
 
       function requestData(info, successCallback, failureCallback) {
@@ -347,10 +366,9 @@
         createConfirm({
           iconType: 'info',
           title: '发布课程',
-          content:
-            '发布课程后，14天内的小程序将会更新到小程序，已预约的课程不支持删除或修改人数上限',
+          content: '发布课程后，14天内的课程将会更新到小程序，已预约的课程不支持删除或修改人数上限',
           onOk: () => {
-            publishCourse(saturday, props.type);
+            publishCourse(saturday);
           },
         });
       }
@@ -513,21 +531,22 @@
       }
 
       .fc-event-main {
-        padding: 8px;
+        padding: 2%;
 
         .cell-content {
           display: flex;
           flex-direction: column;
           justify-content: space-between;
           height: 100%;
+          overflow: hidden;
           color: #2e2e2a;
 
           .reverse > span {
             display: inline-block;
-            padding-left: 10px;
+            padding-left: 0;
           }
 
-          .title {
+          .no-warp {
             overflow: hidden;
             text-overflow: ellipsis;
             white-space: nowrap;

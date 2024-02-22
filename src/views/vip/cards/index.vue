@@ -6,23 +6,31 @@
           <template v-if="column.key === 'action'">
             <TableAction
               :actions="[
-                { label: '编辑', onClick: handleEdit.bind(null, record), disabled: true },
+                {
+                  label: '编辑',
+                  type: 'primary',
+                  onClick: handleEdit.bind(null, record),
+                  // disabled: true,
+                },
                 {
                   label: '可售',
-                  disabled: true,
-                  ifShow: true,
+                  // disabled: true,
+                  ifShow: record['for_sale_enabled'] === 0,
+                  type: 'primary',
                   onClick: handleSale.bind(null, record),
                 },
                 {
                   label: '停售',
-                  disabled: true,
-                  ifShow: true,
+                  // disabled: true,
+                  ifShow: record['for_sale_enabled'] === 1,
+                  type: 'primary',
                   onClick: handleNotSale.bind(null, record),
                 },
                 {
                   label: '删除',
-                  disabled: true,
+                  // disabled: true,
                   color: 'error',
+                  type: 'primary',
                   onClick: handleDelete.bind(null, record),
                 },
               ]"
@@ -30,7 +38,7 @@
           </template>
         </template>
         <template #toolbar>
-          <a-button type="primary" @click="createCard" :disabled="true"> 创建会员卡 </a-button>
+          <a-button type="primary" @click="createCard" :disabled="false"> 创建会员卡 </a-button>
         </template>
       </BasicTable>
     </div>
@@ -42,7 +50,7 @@
   import { BasicTable, useTable, TableAction } from '/@/components/Table';
   import { getTableColumns, getFormConfig } from '/@/views/vip/cards/config';
   import { PageWrapper } from '/@/components/Page';
-  import { getCardList } from '/@/api/cards';
+  import { getCardList, deleteCard, saleCard, stopCardsType } from '/@/api/cards';
   import { useModal } from '/@/components/Modal';
   import Modal from '/@/views/vip/cards/detail/index.vue';
   import { useDesign } from '/@/hooks/web/useDesign';
@@ -94,7 +102,9 @@
           title: '可售',
           content: `确认发售【${name}】卡?`,
           onOk: () => {
-            // postApi(values);
+            saleCard({ 'cardcat-id': event.id, 'cardcat-enable': 1 }).then(() => {
+              changeCardsList();
+            });
           },
         });
       }
@@ -106,7 +116,9 @@
           title: '停售',
           content: `确认停售【${name}】卡?停售后的卡片支持恢复销量`,
           onOk: () => {
-            // postApi(values);
+            stopCardsType({ 'cardcat-id': event.id, 'cardcat-enable': 0 }).then(() => {
+              changeCardsList();
+            });
           },
         });
       }
@@ -115,15 +127,16 @@
         console.log('handleDelete', event);
         const { name } = event;
         createConfirm({
+          class: 'delete-cards-modal',
           iconType: 'error',
           title: '删除',
+          type: 'error',
           content: `确认删除【${name}】卡?删除后将无法恢复销量`,
-          okButtonProps: {
-            danger: true,
-            type: 'primary',
-          },
+          okButtonProps: { danger: true },
           onOk: () => {
-            // postApi(values);
+            deleteCard({ 'cardcat-id': event.id }).then(() => {
+              changeCardsList();
+            });
           },
         });
       }
@@ -177,7 +190,7 @@
     }
   }
 
-  // .ant-btn-dangerous {
-  //   background-color: #ed6f6f !important;
-  // }
+  .delete-cards-modal .ant-btn-dangerous {
+    background-color: #ed6f6f !important;
+  }
 </style>

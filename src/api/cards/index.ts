@@ -12,6 +12,9 @@ enum Api {
   getcardRecordList = '/v1/cardins_record',
   bindCard = '/v1/manual_cardins',
   stopCard = '/v1/cardins_suspend',
+  saleCard = '/v1/cardcat_enable',
+  banCard = '/v1/cardins_disable',
+  overCard = '/v1/cardins_transfer',
 }
 /**
  * @description: 获取会员卡列表
@@ -92,7 +95,7 @@ export function getUserCardList(data) {
 }
 export function getcardRecordList(data) {
   const params = {
-    'wxuser-token': data['wxuser-token'],
+    ...data,
   };
 
   return request.get(
@@ -135,4 +138,53 @@ export function stopCard(params) {
  */
 export function resumeCard(params) {
   return request.delete({ url: Api.stopCard, params }, { successMessageMode: 'message' });
+}
+
+/**
+ * @description: 作废
+ */
+export function banCard(params) {
+  return request.post({ url: Api.banCard, params }, { successMessageMode: 'message' });
+}
+
+/**
+ * @description: 转卡
+ */
+export function overCard(params) {
+  return request.post({ url: Api.overCard, params }, { successMessageMode: 'message' });
+}
+
+/**
+ * @description: 编辑卡种
+ */
+export function editCard(params) {
+  return request.put({ url: Api.getCardList, params }, { successMessageMode: 'message' });
+}
+
+/**
+ * @description: 新建卡种
+ */
+export function createCard(params) {
+  return request.post({ url: Api.getCardList, params }, { successMessageMode: 'message' });
+}
+
+/**
+ * @description: 删除卡种
+ */
+export function deleteCard(params) {
+  return request.delete({ url: Api.getCardList, params }, { successMessageMode: 'message' });
+}
+
+/**
+ * @description: 可售卡种
+ */
+export function saleCard(params) {
+  return request.post({ url: Api.saleCard, params }, { successMessageMode: 'message' });
+}
+
+/**
+ * @description: 停售卡种
+ */
+export function stopCardsType(params) {
+  return request.post({ url: Api.saleCard, params }, { successMessageMode: 'message' });
 }
